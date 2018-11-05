@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/dp_10"
+    android:paddingBottom="@dimen/dp_10">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/img_glide_circle_load_default" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:gravity="center"
+            android:text="济南" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="20dp"
+        android:src="@drawable/img_select_icon"
+        android:padding="1dp"
+        android:background="@drawable/shape_iv_bg_1" />
+
+</FrameLayout>

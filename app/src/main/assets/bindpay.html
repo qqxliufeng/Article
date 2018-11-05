@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>绑定支付宝</title>
+		<!--mui样式-->
+		<link rel="stylesheet" href="css/mui.min.css" />
+		<!--公用样式样式-->
+		<link rel="stylesheet" href="css/comment.css" />
+		<!--页面样式-->
+		<link rel="stylesheet" href="css/style.css" />
+		<!--js-->
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
+		<!--rem js-->
+		<script type="text/javascript" src="js/rem.js" ></script>
+		
+	</head>
+	<body>
+		 <div class="bindpay whitebg">
+		 	<form method="post" action="">
+		 		<div class="clearfix">
+		 			<label class="fl">真实姓名</label>
+		 			<span class="fr right" id="username">姓名</span>
+		 		</div>
+		 		<div class="clearfix">
+		 			<label class="fl">支付宝</label>
+		 			<span class="fr right" id="user">账号</span>
+		 		</div>
+		 	</form>
+		 </div>
+		 <!--编辑-->
+		 <div class="edit-o windows hide">
+		 	<div class="edit whitebg">
+		 		<form method="post" action="">
+		 			<div class="clearfix">
+		 				<img src="images/write_03.png" class="fl"/>
+		 				<input placeholder="请输入内容" class="fr"id="chabge-o"/>
+		 			</div>
+		 			<nav class="clearfix">
+		 				<button type="button" class="fl close">取消</button>
+		 				<button type="button" class="red fr sure">保存</button>
+		 			</nav>
+		 		</form>
+		 	</div>
+		 </div>
+		 <div class="edit-t windows hide">
+		 	<div class="edit whitebg">
+		 		<form method="post" action="">
+		 			<div class="clearfix">
+		 				<img src="images/write_03.png" class="fl"/>
+		 				<input placeholder="请输入内容" class="fr" id="chabge-t"/>
+		 			</div>
+		 			<nav class="clearfix">
+		 				<button type="button" class="fl close">取消</button>
+		 				<button type="button" class="red fr sure">保存</button>
+		 			</nav>
+		 		</form>
+		 	</div>
+	     <script>
+	     	$("#username").click(function(){
+	     		$(".edit-o").show();
+				$(".sure").click(function(){
+					var val = $("#chabge-o").val();
+					$("#username").html(val);
+		     		$(".edit-o").hide();
+		       });
+	     	});
+	     	$("#user").click(function(){
+	     		$(".edit-t").show();
+				$(".sure").click(function(){
+					var val = $("#chabge-t").val();
+					$("#user").html(val);
+		     		$(".edit-t").hide();
+		       });
+	     	});
+	     	$(".close").click(function(){
+	     		$(".windows").hide();
+	     	});
+	     	
+	     </script>
+	</body>
+</html>
+    

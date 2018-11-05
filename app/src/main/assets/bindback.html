@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>绑定银行卡</title>
+		<!--mui样式-->
+		<link rel="stylesheet" href="css/mui.min.css" />
+		<!--公用样式样式-->
+		<link rel="stylesheet" href="css/comment.css" />
+		<!--选择地址样式-->
+		<link rel="stylesheet" href="css/ydui.css" />
+		<!--页面样式-->
+		<link rel="stylesheet" href="css/style.css" />
+		<!--js-->
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
+		<!--rem js-->
+		<script type="text/javascript" src="js/rem.js" ></script>
+	</head>
+	<body>
+		 <div class="bindpay whitebg">
+		 	<form method="post" action="">
+		 		<div class="clearfix">
+		 			<label class="fl">真实姓名</label>
+		 			<input type="text" placeholder="请输入银行" class="fr right">
+		 		</div>
+		 		<div class="clearfix">
+		 			<label class="fl">开户行所在地</label>
+		 			<input type="text" placeholder="开户行所在地" readonly id="J_Address" class="fr right">
+		 		</div>
+		 		<div class="clearfix">
+		 			<label class="fl">储蓄卡号</label>
+		 			<input type="text" placeholder="储蓄卡号" class="fr right">
+		 		</div>
+		 		<div class="clearfix">
+		 			<label class="fl">开户人姓名</label>
+		 			<input type="text" placeholder="开户人姓名" class="fr right">
+		 		</div>
+		 		<a href="backcard.html"><button type="button" class="redbg white">提交认证</button></a>
+		 	</form>
+		 </div>
+		 <script type="text/javascript" src="js/ydui.js" ></script>
+		 <script type="text/javascript" src="js/ydui.citys.js" ></script>
+		 <script type="text/javascript" src="js/ydui.flexible.js" ></script>
+	     <script>
+	     	/*背景色*/
+	      	$("html").addClass("whitebg");
+	      	$("body").addClass("whitebg");
+	     	/*选择地址*/
+	     	!function () {
+		        var $target = $('#J_Address');
+		
+		        $target.citySelect();
+		
+		        $target.on('click', function (event) {
+		            event.stopPropagation();
+		            $target.citySelect('open');
+		        });
+		
+		        $target.on('done.ydui.cityselect', function (ret) {
+		            $(this).val(ret.provance + ' ' + ret.city + ' ' + ret.area);
+		        });
+		    }();
+	     </script>
+	</body>
+</html>
+    

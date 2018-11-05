@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>搜索</title>
+		<!--mui样式-->
+		<link rel="stylesheet" href="css/mui.min.css" />
+		<!--公用样式样式-->
+		<link rel="stylesheet" href="css/comment.css" />
+		<!--页面样式-->
+		<link rel="stylesheet" href="css/style.css" />
+		<!--js-->
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
+		<!--rem js-->
+		<script type="text/javascript" src="js/rem.js" ></script>
+	</head>
+	<body>
+		 <!--搜索-->
+		 <div class="search clearfix garybg">
+		 	<input type="text" placeholder="搜索文章、用户" class="fl"/>
+		 	<button type="button" class="fr">
+		 		<img src="images/search.png" />
+		 	</button>
+		 </div>
+		 <!--搜索热门-->
+		 <div class="hot">
+		 	 <div class="hot-title ft75 bold clearfix">
+		 	 	 <img src="images/hot.png" class="fl">
+		 	 	 <span class="fl">热门推荐</span>
+		 	 </div>
+		 	 <ul>
+		 	 	<a href="">
+			 	 	<li class="clearfix">
+			 	 		<b class="red fl">1</b>
+			 	 		<div class="fl">你有多自律，就能走多远</div>
+			 	 		<span class="gary fl">阅读 5024</span>
+			 	 	</li>
+		 	 	</a>
+		 	 	<a href="">
+			 	 	<li class="clearfix">
+			 	 		<b class="red fl">2</b>
+			 	 		<div class="fl">有一种心态叫意境，有一种境界叫舍得</div>
+			 	 		<span class="gary fl">阅读 5024</span>
+			 	 	</li>
+		 	 	</a>
+		 	 	<a href="">
+			 	 	<li class="clearfix">
+			 	 		<b class="red fl">3</b>
+			 	 		<div class="fl">人着一辈子，清活好你自己</div>
+			 	 		<span class="gary fl">阅读 5024</span>
+			 	 	</li>
+		 	 	</a>
+		 	 </ul>
+		 </div>
+		 <!--搜索无结果-->
+		 <!--<div class="solution center">
+		 	<img src="images/searchimg.png">
+		 	<div class="gary">搜索不到您要的结果，换个内容试试~</div>
+		 </div>-->
+		 <!--搜索中-->
+		 <!--<div class="search-ing">
+		      <ul>
+		 	 	<a href="">
+		      	  <li  class="clearfix">
+		      	  	   <img src="images/headimg_03.png" class="fl" />
+		      	  	   <div class="fl">
+		      	  	   	    <div>自律</div>
+		      	  	   	    <p>粉丝 10</p>
+		      	  	   </div>
+		      	  	   <nav class="fr gary">作者</nav>
+		      	  </li>
+		 	 	</a>
+		 	 	<a href="">
+		      	   <li  class="clearfix">
+		      	  	   <img src="images/headimg_06.png" class="fl" />
+		      	  	   <div class="fl">
+		      	  	   	    <div>自律</div>
+		      	  	   	    <p>粉丝 10</p>
+		      	  	   </div>
+		      	  	   <nav class="fr gary">作者</nav>
+		      	  </li>
+		 	 	</a>
+		      </ul>
+		      <div class="hot">
+		      	    <ul>
+				 	 	<a href="">
+				      	 	<li class="clearfix">
+				      	 		 <div class="fl">你有多<span class="red">自律</span>，就能走多远</div>
+				 	 	         <span class="gary fl">阅读 5024</span>
+				      	 	</li>
+				 	 	</a>
+				 	 	<a href="">
+				      	 	<li class="clearfix">
+				      	 		 <div class="fl">你有多<span class="red">自律</span>，就能走多远</div>
+				 	 	         <span class="gary fl">阅读 5024</span>
+				      	 	</li>
+				 	 	</a>
+				 	 	<a href="">
+				      	 	<li class="clearfix">
+				      	 		 <div class="fl">你有多<span class="red">自律</span>，就能走多远</div>
+				 	 	         <span class="gary fl">阅读 5024</span>
+				      	 	</li>
+				 	 	</a>
+		      	    </ul>
+		      </div>
+		 </div>-->
+		 <!--搜索后-->
+		 <!--<div class="search-after">
+		 	 <a href="">
+			 	 <div class="search-title clearfix">
+			 	    <span class="gary fl">相关用户</span>
+			 	    <img src="images/gonext.png" class="gonext fr"/>
+			 	 </div>
+		 	 </a>
+		 	 <div class="search-uesr">
+		 	 	 <ul>
+		 	 	 	 <a href="">
+			 	 	 	 <li>
+			 	 	 	 	 <img src="images/headimg_03.png" />
+			 	 	 	 	 <p>自律</p>
+			 	 	 	 </li>
+		 	 	 	 </a>
+		 	 	 	  <a href="">
+			 	 	 	 <li>
+			 	 	 	 	 <img src="images/headimg_06.png" />
+			 	 	 	 	 <p>自律生活</p>
+			 	 	 	 </li>
+		 	 	 	 </a>
+		 	 	 	  <a href="">
+			 	 	 	 <li>
+			 	 	 	 	 <img src="images/headimg_03.png" />
+			 	 	 	 	 <p>自律的意义</p>
+			 	 	 	 </li>
+		 	 	 	 </a>
+		 	 	 	 <a href="">
+			 	 	 	 <li>
+			 	 	 	 	 <img src="images/headimg_06.png" />
+			 	 	 	 	 <p>自律</p>
+			 	 	 	 </li>
+		 	 	 	 </a>
+		 	 	 	  <a href="">
+			 	 	 	 <li>
+			 	 	 	 	 <img src="images/headimg_03.png" />
+			 	 	 	 	 <p>自律生活</p>
+			 	 	 	 </li>
+		 	 	 	 </a>
+		 	 	 	  <a href="">
+			 	 	 	 <li>
+			 	 	 	 	 <img src="images/headimg_06.png" />
+			 	 	 	 	 <p>自律的意义</p>
+			 	 	 	 </li>
+		 	 	 	 </a>
+		 	 	 </ul>
+		 	 </div>
+		 </div>
+		 <div class="hr"></div>
+		 <div class="search-after">
+		 	 <div class="search-title clearfix bor0">
+		 	    <span class="gary fl">相关文章</span>
+		 	 </div>
+		 	 <div class="search-list">
+		 	 	<ul>
+		 	 		<a href="">
+		 	 			<li>
+		 	 				<div>你有多<span class="red">自律</span>，就能走多远</div>
+		 	 				<nav class="gary clearfix">
+		 	 					<span class="uear-name fl">Silina</span>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_03.png" />
+		 	 						<span>35020</span>
+		 	 					</div>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_05.png" />
+		 	 						<span>20</span>
+		 	 					</div>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_07.png" />
+		 	 						<span>80</span>
+		 	 					</div>
+		 	 					<span class="time fr">2018.10.01 22:10</span>
+		 	 				</nav>
+		 	 			</li>
+		 	 		</a>
+		 	 		<a href="">
+		 	 			<li>
+		 	 				<div>你有多<span class="red">自律</span>，就能走多远</div>
+		 	 				<nav class="gary clearfix">
+		 	 					<span class="uear-name fl">Silina</span>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_03.png" />
+		 	 						<span>35020</span>
+		 	 					</div>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_05.png" />
+		 	 						<span>20</span>
+		 	 					</div>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_07.png" />
+		 	 						<span>80</span>
+		 	 					</div>
+		 	 					<span class="time fr">2018.10.01 22:10</span>
+		 	 				</nav>
+		 	 			</li>
+		 	 		</a>
+		 	 		<a href="">
+		 	 			<li>
+		 	 				<div>你有多<span class="red">自律</span>，就能走多远</div>
+		 	 				<nav class="gary clearfix">
+		 	 					<span class="uear-name fl">Silina</span>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_03.png" />
+		 	 						<span>35020</span>
+		 	 					</div>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_05.png" />
+		 	 						<span>20</span>
+		 	 					</div>
+		 	 					<div class="fl">
+		 	 						<img src="images/search-icon_07.png" />
+		 	 						<span>80</span>
+		 	 					</div>
+		 	 					<span class="time fr">2018.10.01 22:10</span>
+		 	 				</nav>
+		 	 			</li>
+		 	 		</a>
+		 	 	</ul>
+		 	 </div>
+		 </div>-->
+	     <script>
+	     	/*背景色*/
+	      	$("html").addClass("whitebg");
+	      	$("body").addClass("whitebg");
+	     </script>
+	</body>
+</html>
+    
