@@ -8,6 +8,9 @@
         <item name="actionMenuTextAppearance">@style/ActionMenuTextAppearance</item>
     </style>
 
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowFullscreen">true</item>
+    </style>
 
     <style name="ArticleEditMenuTextStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="actionMenuTextColor">@color/colorAccent</item>

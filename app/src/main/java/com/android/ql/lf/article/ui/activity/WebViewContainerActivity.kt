@@ -42,21 +42,6 @@ class WebViewContainerActivity : BaseActivity() {
         mIvArticleWebViewBack.setOnClickListener { onBack() }
         mIvArticleWebViewClose.setOnClickListener { finish() }
 
-        mMLlWebViewContainer.registFragmentSizeObserver { wdiff, hdiff ->
-            if (hdiff < -200) { // 处理输入法弹出事件
-                mWVArticleWebViewContainer.loadUrl("""
-                   javascript:(function(){
-                        $(".withdraw-main").css({'top':'1%'})
-                   }())
-                """)
-            } else if (hdiff == 0) {  // 处理输入法隐藏事件
-                mWVArticleWebViewContainer.loadUrl("""
-                   javascript:(function(){
-                        $(".withdraw-main").css({'top':'10%'})
-                   }())
-                """)
-            }
-        }
         mWVArticleWebViewContainer.setNormalSetting()
         mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), "article")
 
@@ -64,14 +49,35 @@ class WebViewContainerActivity : BaseActivity() {
         mWVArticleWebViewContainer.webChromeClient = MyChromeWebViewClient()
         val url = intent.getStringExtra("url") ?: ""
         mWVArticleWebViewContainer.loadLocalHtml(url)
-        if (url == "authent.html") {
-            mTvArticleWebViewAction.visibility = View.VISIBLE
-            mTvArticleWebViewAction.setOnClickListener {
-                toast("提交成功")
-                finish()
+        when (url) {
+            "authent.html" -> {
+                mTvArticleWebViewAction.visibility = View.VISIBLE
+                mTvArticleWebViewAction.setOnClickListener {
+                    toast("提交成功")
+                    finish()
+                }
             }
-        } else {
-            mTvArticleWebViewAction.visibility = View.GONE
+            "wallet.html" ->{
+                mTvArticleWebViewAction.visibility = View.GONE
+                mMLlWebViewContainer.registFragmentSizeObserver { wdiff, hdiff ->
+                    if (hdiff < -200) { // 处理输入法弹出事件
+                        mWVArticleWebViewContainer.loadUrl("""
+                   javascript:(function(){
+                        $(".withdraw-main").css({'top':'1%'})
+                   }())
+                """)
+                    } else if (hdiff == 0) {  // 处理输入法隐藏事件
+                        mWVArticleWebViewContainer.loadUrl("""
+                   javascript:(function(){
+                        $(".withdraw-main").css({'top':'10%'})
+                   }())
+                """)
+                    }
+                }
+            }
+            else -> {
+                mTvArticleWebViewAction.visibility = View.GONE
+            }
         }
     }
 
