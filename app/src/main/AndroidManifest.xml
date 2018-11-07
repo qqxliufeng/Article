@@ -49,6 +49,9 @@
                 android:name=".ui.activity.WebViewContainerActivity"
                 android:screenOrientation="portrait"
                 android:windowSoftInputMode="stateAlwaysHidden|adjustResize"/>
+        <activity android:name=".ui.activity.ChatActivity"
+                  android:screenOrientation="portrait"
+                  android:windowSoftInputMode="stateAlwaysHidden|adjustResize"/>
 
         <provider
                 android:name="android.support.v4.content.FileProvider"
