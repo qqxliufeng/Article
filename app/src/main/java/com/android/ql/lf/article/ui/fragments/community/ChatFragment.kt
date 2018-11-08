@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ChatMsgItem
-import com.android.ql.lf.article.utils.showSoftInput
+import com.android.ql.lf.baselibaray.utils.showSoftInput
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder

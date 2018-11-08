@@ -10,6 +10,7 @@ import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.ui.activity.ChatActivity
 import com.android.ql.lf.article.ui.fragments.community.ChatFragment
+import com.android.ql.lf.article.ui.fragments.community.LeaveMessageInfoFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -70,6 +71,8 @@ class MessageFragment : BaseRecyclerViewFragment<String>() {
 
     override fun onMyItemClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
         super.onMyItemClick(adapter, view, position)
-        startActivity(Intent(mContext,ChatActivity::class.java))
+//        startActivity(Intent(mContext,ChatActivity::class.java))
+//        ArticleWebViewFragment.startArticleWebViewFragment(mContext,"留言","message.html")
+        LeaveMessageInfoFragment.startLeaveMessageInfoFragment(mContext)
     }
 }

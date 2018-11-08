@@ -10,8 +10,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 
+import com.bumptech.glide.signature.StringSignature;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+
+import java.io.File;
+import java.util.UUID;
 
 /**
  * Created by lf on 2017/11/22 0022.
@@ -57,6 +61,15 @@ public class GlideManager {
                 .error(R.drawable.img_glide_circle_load_default)
                 .placeholder(R.drawable.img_glide_circle_load_default)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .bitmapTransform(new CropCircleTransformation(context), new CenterCrop(context))
+                .into(imageView);
+    }
+
+    public static void loadLocalFaceCircleImage(Context context, String path, ImageView imageView) {
+        Glide.with(context)
+                .load(path)
+                .error(R.drawable.img_glide_circle_load_default)
+                .placeholder(R.drawable.img_glide_circle_load_default)
                 .bitmapTransform(new CropCircleTransformation(context), new CenterCrop(context))
                 .into(imageView);
     }

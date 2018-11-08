@@ -14,8 +14,6 @@ import org.jetbrains.anko.toast
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.AppSettingsDialog
 
-
-
 class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,EasyPermissions.RationaleCallbacks {
 
     private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
@@ -27,7 +25,8 @@ class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,
         if (hasPermission()) {
             //延时三秒，进入主页
             mIvSplash.postDelayed({
-                FragmentContainerActivity.from(this).setClazz(StartCustomTypeFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
+//                FragmentContainerActivity.from(this).setClazz(StartCustomTypeFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
+                startActivity(Intent(this,MainActivity::class.java))
                 finish()
             },2500)
         } else {
@@ -51,7 +50,8 @@ class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
         //处理请求同意结果
         if (hasPermission()) {
-            toast("所有的权限都请求到了")
+            startActivity(Intent(this,MainActivity::class.java))
+            finish()
         }
     }
 
@@ -87,7 +87,8 @@ class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE) {
             if (hasPermission()) {
-                FragmentContainerActivity.from(this).setClazz(StartCustomTypeFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
+//                FragmentContainerActivity.from(this).setClazz(StartCustomTypeFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
+                startActivity(Intent(this,MainActivity::class.java))
                 finish()
             } else {
                 requestPermission()

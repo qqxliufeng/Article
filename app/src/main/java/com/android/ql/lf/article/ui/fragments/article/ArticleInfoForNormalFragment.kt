@@ -7,7 +7,9 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
+import android.widget.LinearLayout
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
 import com.android.ql.lf.article.ui.widgets.CommentLinearLayout
@@ -61,6 +63,9 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
         mHeaderWebView.setNormalSetting()
         mHeaderWebView.loadLocalHtml("article-info.html")
         mBaseAdapter.addHeaderView(mHeaderView)
+        mHeaderView.findViewById<LinearLayout>(R.id.mLlArticleInfoForAuthInfo).setOnClickListener {
+            PersonalIndexFragment.startPersonalIndexFragment(mContext)
+        }
         mTvArticleInfoForNormalBottomComment.setOnClickListener {
             val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
             val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)

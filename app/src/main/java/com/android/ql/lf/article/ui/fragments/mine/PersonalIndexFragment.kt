@@ -6,6 +6,8 @@ import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.ui.adapters.ArticleListAdapter
+import com.android.ql.lf.article.ui.fragments.article.ArticleAdmireDialogFragment
+import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -53,6 +55,15 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
             }
         }
         mIvBack.setOnClickListener { finish() }
+        mLlPersonalIndexLeaveMessage.setOnClickListener {
+            val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
+            val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
+        }
+        mTvPersonalIndexPraise.setOnClickListener {
+            val admireDialog = ArticleAdmireDialogFragment()
+            admireDialog.show(childFragmentManager,"admire_dialog")
+        }
+        mLlPersonalIndexFocus.setOnClickListener {  }
     }
 
     override fun onRefresh() {
