@@ -9,6 +9,7 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.LinearLayout
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
@@ -52,7 +53,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
         override fun convert(helper: BaseViewHolder?, item: String?) {
             val replyContainer = helper?.getView<CommentLinearLayout>(R.id.mCLLArticleCommentInfoItemReplyContainer)
             replyContainer?.setOnSeeMore {
-                ArticleWebViewFragment.startArticleWebViewFragment(mContext,"评论详情","comment-details.html")
+                ArticleWebViewFragment.startArticleWebViewFragment(mContext,"评论详情","comment-details.html",ArticleType.OTHER.type)
             }
             replyContainer?.setData(tempList)
         }

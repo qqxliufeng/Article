@@ -14,7 +14,7 @@ import org.jetbrains.anko.toast
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.AppSettingsDialog
 
-class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,EasyPermissions.RationaleCallbacks {
+class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
 
     private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
 
@@ -25,53 +25,63 @@ class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,
         if (hasPermission()) {
             //延时三秒，进入主页
             mIvSplash.postDelayed({
-//                FragmentContainerActivity.from(this).setClazz(StartCustomTypeFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
-                startActivity(Intent(this,MainActivity::class.java))
-                finish()
-            },2500)
+                startMain()
+            }, 2500)
         } else {
             //请求权限
             requestPermission()
         }
     }
 
-    private fun hasPermission() = EasyPermissions.hasPermissions(this,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA)
+    private fun startMain() {
+        StartCustomTypeFragment.startCustomInfoFragment(this)
+//        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
 
-    private fun requestPermission(){
-        EasyPermissions.requestPermissions(this,"应用程序需要以下权限才能运行，请先设置",0,Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+    private fun hasPermission() =
+        EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+
+    private fun requestPermission() {
+        EasyPermissions.requestPermissions(
+            this,
+            "应用程序需要以下权限才能运行，请先设置",
+            0,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        )
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode,permissions,grantResults,this)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
         //处理请求同意结果
         if (hasPermission()) {
-            startActivity(Intent(this,MainActivity::class.java))
-            finish()
+            startMain()
         }
     }
 
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         //处理请求失败结果
-        if (EasyPermissions.somePermissionPermanentlyDenied(this,permissions.toList())){
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, permissions.toList())) {
             val builder = AlertDialog.Builder(this)
-            builder.setPositiveButton("确定"){_,_->
+            builder.setPositiveButton("确定") { _, _ ->
                 val packageURI = Uri.parse("package:$packageName")
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageURI)
                 startActivityForResult(intent, AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE)
             }
-            builder.setNegativeButton("取消"){_,_->
+            builder.setNegativeButton("取消") { _, _ ->
                 finish()
             }
             builder.setTitle("程序需要以下权限")
-            builder.setItems(arrayOf("存储权限","相机权限"),null)
+            builder.setItems(arrayOf("存储权限", "相机权限"), null)
             builder.create().show()
-        }else{
+        } else {
             requestPermission()
         }
     }
@@ -87,9 +97,7 @@ class SplashActivity : BaseSplashActivity(),EasyPermissions.PermissionCallbacks,
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE) {
             if (hasPermission()) {
-//                FragmentContainerActivity.from(this).setClazz(StartCustomTypeFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
-                startActivity(Intent(this,MainActivity::class.java))
-                finish()
+                startMain()
             } else {
                 requestPermission()
             }

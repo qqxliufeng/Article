@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.view.View
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.ui.fragments.article.ArticleListFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.baselibaray.ui.fragment.BaseFragment
@@ -27,7 +28,7 @@ class IndexFragment : BaseFragment() {
         }
         mTlIndexBottom.setupWithViewPager(mVpIndexBottom)
         mIvBottomIndexSearch.setOnClickListener {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "搜索", "search.html")
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "搜索", "search.html", ArticleType.OTHER.type)
         }
     }
 }

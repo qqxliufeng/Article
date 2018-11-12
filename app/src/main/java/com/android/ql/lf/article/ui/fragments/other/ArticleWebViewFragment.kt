@@ -18,6 +18,8 @@ import android.webkit.WebViewClient
 import android.widget.TextView
 import android.widget.Toast
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleType
+import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForTrashFragment
 import com.android.ql.lf.article.utils.loadLocalHtml
@@ -32,14 +34,14 @@ import org.jetbrains.anko.support.v4.toast
 class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivity.OnBackPressListener {
 
     companion object {
-        fun startArticleWebViewFragment(context: Context, title: String, url: String) {
-            val articleWebViewFragment = ArticleWebViewFragment()
-            articleWebViewFragment.arguments = bundleOf(Pair("url", url), Pair("title", title))
+        fun startArticleWebViewFragment(context: Context, title: String, url: String, type: Int) {
             FragmentContainerActivity.from(context).setNeedNetWorking(false).setTitle(title)
                 .setClazz(ArticleWebViewFragment::class.java)
-                .setExtraBundle(bundleOf(Pair("url", url), Pair("title", title))).start()
+                .setExtraBundle(bundleOf(Pair("url", url), Pair("title", title),Pair("type", type))).start()
         }
     }
+
+    private val switch by lazy { SwitchCompat(mContext) }
 
     override fun getLayoutId() = R.layout.fragment_article_web_view_layout
 
@@ -48,9 +50,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         if (mContext is FragmentContainerActivity) {
             (mContext as FragmentContainerActivity).setOnBackPressListener(this)
         }
-
         mWVArticleWebViewContainer.setNormalSetting()
-
         mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), "article")
         mWVArticleWebViewContainer.settings.javaScriptCanOpenWindowsAutomatically = true
 
@@ -58,9 +58,8 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         mWVArticleWebViewContainer.webChromeClient = MyChromeWebViewClient()
         val url = arguments?.getString("url") ?: ""
         mWVArticleWebViewContainer.loadLocalHtml(url)
-        when (arguments?.getString("title")) {
-            "私密文章" -> {
-                val switch = SwitchCompat(mContext)
+        when (ArticleType.getTypeNameById(arguments?.getInt("type") ?: 0)) {
+            ArticleType.PRIVATE_ARTICLE -> {
                 switch.setOnCheckedChangeListener { compoundButton, b ->
                     if (b) {
                         toast("已经开启编辑模式\n点击文章进入编辑器")
@@ -73,20 +72,13 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 layoutParams.gravity = Gravity.RIGHT
                 (mContext as FragmentContainerActivity).toolbar.addView(switch, layoutParams)
             }
-            "公开文章" -> {
-                val textView = TextView(mContext)
-                textView.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent))
-                textView.text = "创作"
-                textView.textSize = 16.0f
-                textView.setOnClickListener {
-                    startActivity(Intent(mContext, ArticleEditActivity::class.java))
-                    finish()
-                }
-                val layoutParams =
-                    Toolbar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                layoutParams.gravity = Gravity.RIGHT
-                layoutParams.rightMargin = 15.0f.toDip(mContext).toInt()
-                (mContext as FragmentContainerActivity).toolbar.addView(textView, layoutParams)
+            ArticleType.PUBLIC_ARTICLE -> {
+            }
+            ArticleType.COLLECTION_ARTICLE -> {
+            }
+            ArticleType.POST_ARTICLE -> {
+            }
+            else -> {
             }
         }
     }
@@ -136,17 +128,30 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
 
         @JavascriptInterface
         fun getUserId(): String {
-            Toast.makeText(mContext, "test", Toast.LENGTH_LONG).show()
-            return "122w343w4"
+            return UserInfo.user_id.toString()
         }
 
         @JavascriptInterface
-        fun jump(type: Int) {
-            Log.e("TAG", "$type")
-            FragmentContainerActivity.from(mContext).setClazz(ArticleInfoForTrashFragment::class.java).setTitle("")
-                .setNeedNetWorking(true).start()
-        }
+        fun getArticleType() = arguments?.getInt("type") ?: 0
 
+        @JavascriptInterface
+        fun jump(type: Int) {
+            when (ArticleType.getTypeNameById(type)) {
+                ArticleType.PRIVATE_ARTICLE -> {
+                    ArticleEditActivity.startArticleEditActivity(mContext,"title","content",switch.isChecked)
+                }
+                ArticleType.PUBLIC_ARTICLE -> {
+                }
+                ArticleType.COLLECTION_ARTICLE -> {
+                }
+                ArticleType.POST_ARTICLE -> {
+                }
+                else -> {
+                }
+            }
+//            FragmentContainerActivity.from(mContext).setClazz(ArticleInfoForTrashFragment::class.java).setTitle("")
+//                .setNeedNetWorking(true).start()
+        }
     }
 
 }

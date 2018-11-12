@@ -12,6 +12,7 @@
         android:layout_height="50dp"
         android:background="@null"
         android:textColorHint="@color/normalTextColor"
+        android:textColor="@color/blackTextColor"
         android:hint="请输入标题"
         android:padding="@dimen/dp_10" />
 

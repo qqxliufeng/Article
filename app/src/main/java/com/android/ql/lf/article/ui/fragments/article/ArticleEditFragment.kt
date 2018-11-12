@@ -31,13 +31,27 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
     override fun getLayoutId() = R.layout.fragment_article_edit_layout
 
     override fun initView(view: View?) {
+        mEtArticleEditTitle.setText(arguments?.getString("title","")?:"")
         mReArticleEdit.setPlaceholder("请输入内容")
         mReArticleEdit.setPadding(0, 10, 0, 10)
         mReArticleEdit.setTextColor(ContextCompat.getColor(mContext, R.color.normalTextColor))
-        mReArticleEdit.focusEditor()
         mReArticleEdit.setOnInitialLoadListener {
-            val html = PreferenceUtils.getPrefString(mContext,EDITOR_HTML_FLAG,"")
-            if (html != ""){
+            if (arguments?.getBoolean("is_edit", true)!!){
+                mReArticleEdit.focusEditor()
+                mEtArticleEditTitle.isEnabled = true
+                mIBArticleEditActionImage.isEnabled = true
+                mIBArticleEditActionBold.isEnabled = true
+                mIBArticleEditActionLink.isEnabled = true
+                mReArticleEdit.setInputEnabled(true)
+            }else{
+                mEtArticleEditTitle.isEnabled = false
+                mIBArticleEditActionImage.isEnabled = false
+                mIBArticleEditActionBold.isEnabled = false
+                mIBArticleEditActionLink.isEnabled = false
+                mReArticleEdit.setInputEnabled(false)
+            }
+            val html = arguments?.getString("content", "") ?: ""
+            if (html != "") {
                 mReArticleEdit.html = html
             }
         }
@@ -66,7 +80,7 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
         mIBArticleEditActionImage.setOnClickListener {
             isBoldChecked = false
             setBoldImage()
-            openImageChoose(MimeType.ofImage(),1)
+            openImageChoose(MimeType.ofImage(), 1)
         }
 
         mIBArticleEditActionBold.setOnClickListener {
@@ -89,11 +103,11 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
         }
     }
 
-    private fun exec(js:String = ""){
+    private fun exec(js: String = "") {
         val clazz = RichEditor::class.java
         val method = clazz.getDeclaredMethod("exec", String::class.java)
         method.isAccessible = true
-        method.invoke(mReArticleEdit,js)
+        method.invoke(mReArticleEdit, js)
     }
 
     private fun setBoldImage() {
@@ -110,29 +124,29 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0x0 && resultCode == Activity.RESULT_OK && data != null){
+        if (requestCode == 0x0 && resultCode == Activity.RESULT_OK && data != null) {
             Matisse.obtainPathResult(data)[0].let {
                 Luban.with(mContext)
-                        .load(it)
-                        .setTargetDir(mContext.cacheDir.absolutePath)
-                        .setCompressListener(object : OnCompressListener {
-                            override fun onSuccess(file: File?) {
-                                val selectedImageBean = SelectedImageBean(file?.absolutePath,null)
-                                selectedImages.add(selectedImageBean)
-                                mReArticleEdit.insertImage(selectedImageBean.srcPath,"""img "style="width:100% """)
-                            }
+                    .load(it)
+                    .setTargetDir(mContext.cacheDir.absolutePath)
+                    .setCompressListener(object : OnCompressListener {
+                        override fun onSuccess(file: File?) {
+                            val selectedImageBean = SelectedImageBean(file?.absolutePath, null)
+                            selectedImages.add(selectedImageBean)
+                            mReArticleEdit.insertImage(selectedImageBean.srcPath, """img "style="width:100% """)
+                        }
 
-                            override fun onError(e: Throwable?) {
-                            }
+                        override fun onError(e: Throwable?) {
+                        }
 
-                            override fun onStart() {
-                            }
-                        }).launch()
+                        override fun onStart() {
+                        }
+                    }).launch()
             }
         }
     }
 
-    fun onBackPress(){
+    fun onBackPress() {
         if (mReArticleEdit.html != "") {
             PreferenceUtils.setPrefString(mContext, EDITOR_HTML_FLAG, mReArticleEdit.html)
         }
@@ -142,4 +156,4 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
 
 data class LinkBean(val name: String, val address: String)
 
-data class SelectedImageBean(val srcPath:String?,val httpPath:String?)
+data class SelectedImageBean(val srcPath: String?, val httpPath: String?)

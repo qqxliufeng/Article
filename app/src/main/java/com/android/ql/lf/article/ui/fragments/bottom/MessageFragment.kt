@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.ui.activity.ChatActivity
 import com.android.ql.lf.article.ui.fragments.community.ChatFragment
 import com.android.ql.lf.article.ui.fragments.community.LeaveMessageInfoFragment
@@ -47,13 +48,13 @@ class MessageFragment : BaseRecyclerViewFragment<String>() {
         super.initView(view)
         mBaseAdapter.addHeaderView(headerView)
         mFocus.setOnClickListener {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attention.html")
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attention.html", ArticleType.OTHER.type)
         }
         mCollection.setOnClickListener {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收藏", "collect.html")
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收藏", "collect.html",ArticleType.OTHER.type)
         }
         mComment.setOnClickListener {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "评论", "comment.html")
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "评论", "comment.html",ArticleType.OTHER.type)
         }
     }
 

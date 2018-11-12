@@ -48,7 +48,7 @@ class SelectTypeFragment : BaseRecyclerViewFragment<String>() {
         (mTvSelectTypeFirstStep.parent as ConstraintLayout).setPadding(0,statusBarHeight,0,0)
         mTvSelectTypeFirstStep.setOnClickListener { finish() }
         mTvSelectTypeNextStep.setOnClickListener {
-            startActivity(Intent(mContext, ArticleEditActivity::class.java))
+            ArticleEditActivity.startArticleEditActivity(mContext,"","",true)
         }
         mTvSelectTypeTitle.text = arguments?.getString("title", "") ?: ""
         setLoadEnable(false)
