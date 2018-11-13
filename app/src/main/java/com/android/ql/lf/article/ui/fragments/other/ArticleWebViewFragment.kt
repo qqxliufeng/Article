@@ -124,16 +124,28 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         }
     }
 
+    /**
+     * 用于Java/Kotlin和JavaScript相互调用的接口类
+     */
     inner class WebViewInterface {
 
+        /**
+         * 获取用户ID
+         */
         @JavascriptInterface
         fun getUserId(): String {
             return UserInfo.user_id.toString()
         }
 
+        /**
+         * 获取文章类型
+         */
         @JavascriptInterface
         fun getArticleType() = arguments?.getInt("type") ?: 0
 
+        /**
+         * 根据不同的类型，跳转到不同的页面
+         */
         @JavascriptInterface
         fun jump(type: Int) {
             when (ArticleType.getTypeNameById(type)) {
@@ -149,8 +161,13 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 else -> {
                 }
             }
-//            FragmentContainerActivity.from(mContext).setClazz(ArticleInfoForTrashFragment::class.java).setTitle("")
-//                .setNeedNetWorking(true).start()
+        }
+
+        /**
+         * 通过文章ID 获取文章内容
+         */
+        @JavascriptInterface
+        fun getContentById(id:Int){
         }
     }
 

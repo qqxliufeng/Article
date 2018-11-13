@@ -53,7 +53,7 @@ public class ImageContainerLinearLayout extends LinearLayout {
                         params.rightMargin = margin;
                         image.setLayoutParams(params);
                         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                        GlideManager.loadImage(getContext(), path, image);
+                        GlideManager.loadRoundImage(getContext(), path, image,15);
 //                        image.setOnClickListener(new OnClickListener() {
 //                            @Override
 //                            public void onClick(View v) {

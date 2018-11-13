@@ -3,6 +3,7 @@ package com.android.ql.lf.article.ui.adapters
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.ui.widgets.ImageContainerLinearLayout
+import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 
@@ -22,13 +23,37 @@ class ArticleListAdapter(list: ArrayList<ArticleItem>) : BaseMultiItemQuickAdapt
     override fun convert(helper: BaseViewHolder?, item: ArticleItem?) {
         when (item!!.mType) {
             MULTI_IMAGE_TYPE -> {
+                helper?.setText(R.id.mTvArticleItemTitle,item.articles_title)
+                helper?.setText(R.id.mTvArticleItemAuthName,item.articles_userData?.member_nickname)
+                helper?.setText(R.id.mTvArticleItemCommentCount,"${item.articles_comment}")
+                helper?.setText(R.id.mTvArticleItemLikeCount,"${item.articles_like}")
+                helper?.setText(R.id.mTvArticleItemPraiseCount,"${item.articles_privacy}")
+                helper?.setText(R.id.mTvArticleItemType,item.articles_tags)
                 val imageContainer = helper?.getView<ImageContainerLinearLayout>(R.id.mICllArticleListItemContainer)
-                imageContainer?.setImages(arrayListOf(
-                        "http://imgsrc.baidu.com/image/c0%3Dshijue1%2C0%2C0%2C294%2C40/sign=9b867a04b299a9012f38537575fc600e/4d086e061d950a7b86bee8d400d162d9f2d3c913.jpg",
-                        "http://imgsrc.baidu.com/image/c0%3Dshijue1%2C0%2C0%2C294%2C40/sign=9b867a04b299a9012f38537575fc600e/4d086e061d950a7b86bee8d400d162d9f2d3c913.jpg",
-                        "http://imgsrc.baidu.com/image/c0%3Dshijue1%2C0%2C0%2C294%2C40/sign=9b867a04b299a9012f38537575fc600e/4d086e061d950a7b86bee8d400d162d9f2d3c913.jpg"))
+                imageContainer?.setImages(item.articles_pic)
             }
             SINGLE_IMAGE_TYPE -> {
+                helper?.setText(R.id.mTvArticleItemContent,item.articles_content)
+                helper?.setText(R.id.mTvArticleItemTitle,item.articles_title)
+                helper?.setText(R.id.mTvArticleItemAuthName,item.articles_userData?.member_nickname)
+                helper?.setText(R.id.mTvArticleItemCommentCount,"${item.articles_comment}")
+                helper?.setText(R.id.mTvArticleItemLikeCount,"${item.articles_like}")
+                helper?.setText(R.id.mTvArticleItemPraiseCount,"${item.articles_privacy}")
+                helper?.setText(R.id.mTvArticleItemType,item.articles_tags)
+                if (item.articles_picCount == 0){
+                    helper?.setGone(R.id.mIvArticleItemImage,false)
+                }else {
+                    helper?.setGone(R.id.mIvArticleItemImage,true)
+                    if ( item.articles_pic!=null && !item.articles_pic!!.isEmpty()) {
+                        GlideManager.loadRoundImage(
+                            mContext,
+                            item.articles_pic!![0],
+                            helper?.getView(R.id.mIvArticleItemImage)
+                        ,15)
+                    }else{
+                        helper?.setGone(R.id.mIvArticleItemImage,false)
+                    }
+                }
             }
         }
     }

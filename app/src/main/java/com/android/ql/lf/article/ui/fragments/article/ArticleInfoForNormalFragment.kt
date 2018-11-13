@@ -7,31 +7,42 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
 import com.android.ql.lf.article.ui.widgets.CommentLinearLayout
-import com.android.ql.lf.article.utils.loadLocalHtml
-import com.android.ql.lf.article.utils.setNormalSetting
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
+import com.android.ql.lf.article.utils.*
+import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_article_info_for_normal_layout.*
-import org.jetbrains.anko.support.v4.toast
+import org.jetbrains.anko.bundleOf
+import org.json.JSONObject
 
 class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
 
     val tempList = arrayListOf("", "", "","","")
 
     companion object {
-        fun startArticleInfoForNormal(context: Context) {
-            FragmentContainerActivity.from(context).setTitle("详情").setNeedNetWorking(true).setClazz(ArticleInfoForNormalFragment::class.java).start()
+        fun startArticleInfoForNormal(context: Context,aid:Int) {
+            FragmentContainerActivity.from(context).setTitle("详情").setNeedNetWorking(true).setExtraBundle(bundleOf(Pair("aid",aid))).setClazz(ArticleInfoForNormalFragment::class.java).start()
         }
+    }
+
+    private var mCurrentArticle : ArticleItem? = null
+
+    private val aid by lazy {
+        arguments?.getInt("aid",0)
     }
 
     private val mHeaderView by lazy {
@@ -61,8 +72,8 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
 
     override fun initView(view: View?) {
         super.initView(view)
+        setRefreshEnable(false)
         mHeaderWebView.setNormalSetting()
-        mHeaderWebView.loadLocalHtml("article-info.html")
         mBaseAdapter.addHeaderView(mHeaderView)
         mHeaderView.findViewById<LinearLayout>(R.id.mLlArticleInfoForAuthInfo).setOnClickListener {
             PersonalIndexFragment.startPersonalIndexFragment(mContext)
@@ -82,6 +93,45 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
             val shareDialog = ArticleShareDialogFragment()
             shareDialog.show(childFragmentManager,"share_dialog")
         }
+        mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_DETAIL_ACT).addParam("aid",aid))
+    }
+
+    override fun onRequestStart(requestID: Int) {
+        if (requestID == 0x1){
+            getFastProgressDialog("正在加载……")
+        }
+    }
+
+    override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
+        if (requestID == 0x1){
+            val check = checkResultCode(result)
+            if (check!=null && check.code == SUCCESS_CODE){
+                mCurrentArticle = Gson().fromJson((check.obj as JSONObject).optJSONObject(RESULT_OBJECT).toString(),ArticleItem::class.java)
+                mHeaderWebView.post {
+                    mHeaderWebView.loadData(mCurrentArticle?.articles_content,"text/html;charset=UTF-8",null)
+                    mHeaderWebView.webViewClient = object : WebViewClient(){
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            super.onPageFinished(view, url)
+                            view?.resetImage()
+                        }
+                    }
+                    mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoTitle).text = mCurrentArticle?.articles_title ?: ""
+                    mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoForAuthInfoNickName).text = mCurrentArticle?.articles_userData?.member_nickname
+                    GlideManager.loadFaceCircleImage(mContext,mCurrentArticle?.articles_userData?.member_pic,mHeaderView.findViewById(R.id.mIvArticleInfoForAuthInfoFace))
+                    mTvArticleInfoForNormalBottomActionComment.text = "评论 ${mCurrentArticle?.articles_commentCount}"
+                    mTvArticleInfoForNormalBottomActionLove.text = "喜欢 ${mCurrentArticle?.articles_loveCount}"
+                    val focusTextView = mHeaderView.findViewById<TextView>(R.id.mCtvArticleInfoForAuthInfoFocus)
+                    if (mCurrentArticle?.articles_like == 1){
+                        focusTextView.text = "+ 关注"
+                    }else{
+                        focusTextView.text = "✓ 已关注"
+                    }
+                    focusTextView.doClickWithUserStatusStart("") {
+                        mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_LIKE_ACT).addParam("aid",aid))
+                    }
+                }
+            }
+        }
     }
 
     override fun onRefresh() {
@@ -93,6 +143,9 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater?.inflate(R.menu.article_normal_menu, menu)
         if (menu != null) {
+            (0 until menu.size()).forEach {
+                menu.getItem(it).isVisible = it == 0 || it == 1
+            }
             if (menu.javaClass == MenuBuilder::class.java) {
                 val method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
                 method.isAccessible = true

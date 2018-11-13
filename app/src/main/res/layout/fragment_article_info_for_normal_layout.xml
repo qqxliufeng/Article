@@ -82,10 +82,11 @@
                 android:textSize="@dimen/sp_12" />
 
             <TextView
+                android:id="@+id/mTvArticleInfoForNormalBottomActionLove"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:drawableTop="@drawable/img_like_icon"
+                android:drawableTop="@drawable/img_like_1_icon"
                 android:drawablePadding="5dp"
                 android:gravity="center"
                 android:paddingTop="5dp"

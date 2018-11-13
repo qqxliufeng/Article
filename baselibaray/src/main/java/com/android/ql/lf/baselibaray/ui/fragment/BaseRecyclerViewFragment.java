@@ -278,6 +278,7 @@ public abstract class BaseRecyclerViewFragment<T> extends BaseNetWorkingFragment
             if (json != null) {
                 ArrayList<T> tempList = new ListParseHelper<T>().fromJson(json.toString(), clazz);
                 if (tempList != null && !tempList.isEmpty()) {
+                    actionTempList(tempList);
                     mArrayList.addAll(tempList);
                     mBaseAdapter.loadMoreComplete();
                     mBaseAdapter.disableLoadMoreIfNotFullPage();
@@ -304,6 +305,8 @@ public abstract class BaseRecyclerViewFragment<T> extends BaseNetWorkingFragment
     }
 
     public void onEmptyClick() {
-
     }
+
+    public void actionTempList(ArrayList<T> tempList){}
+
 }

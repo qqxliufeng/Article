@@ -5,7 +5,7 @@ import android.os.Environment;
 
 public class BaseConfig {
 
-    public static final String BASE_IP = "http://yvideo.581vv.com";
+    public static final String BASE_IP = "http://article.581vv.com/";
 
     public static final String md5Token = "0e468854ec9859feb51f7a08d51db106";
     public static final String BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
