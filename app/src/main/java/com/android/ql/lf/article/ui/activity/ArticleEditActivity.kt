@@ -45,6 +45,9 @@ class ArticleEditActivity : BaseActivity() {
         setSupportActionBar(mTlArticleEdit)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mTlArticleEdit.setNavigationOnClickListener { finish() }
+        mTvArticleEditMenu.setOnClickListener {
+            articleEditFragment.publicArticle()
+        }
         supportFragmentManager.beginTransaction().replace(R.id.mFlArticleEditContainer, articleEditFragment).commit()
     }
 

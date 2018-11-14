@@ -15,6 +15,9 @@ fun getBaseParamsWithModAndAct(mod: String, act: String) : ApiParams = getBasePa
 
 fun getBaseParamsWithPage(mod: String, act: String, page: Int = 0, pageSize: Int = 10) : ApiParams = getBaseParamsWithModAndAct(mod, act).addParam("page", page).addParam("pagesize", pageSize)
 
+/**       公用模块                **/
+const val T_MODULE = "t"
+const val UPLOADING_PIC_ACT = "uploadingPic"
 
 /**       登录模块                **/
 const val LOGIN_MODULE = "login"

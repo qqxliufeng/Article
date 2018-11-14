@@ -5,10 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.support.v7.app.AlertDialog
+import android.text.TextUtils
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.ui.fragments.start.StartCustomTypeFragment
 import com.android.ql.lf.baselibaray.ui.activity.BaseSplashActivity
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
+import com.android.ql.lf.baselibaray.utils.PreferenceUtils
 import kotlinx.android.synthetic.main.activity_splash_layout.*
 import org.jetbrains.anko.toast
 import pub.devrel.easypermissions.EasyPermissions
@@ -34,8 +36,11 @@ class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks
     }
 
     private fun startMain() {
-        StartCustomTypeFragment.startCustomInfoFragment(this)
-//        startActivity(Intent(this, MainActivity::class.java))
+        if (TextUtils.isEmpty(PreferenceUtils.getPrefString(this, "sex", ""))) {
+            StartCustomTypeFragment.startCustomInfoFragment(this)
+        } else {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
         finish()
     }
 
