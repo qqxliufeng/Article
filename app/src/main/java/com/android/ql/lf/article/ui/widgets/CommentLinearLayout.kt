@@ -11,6 +11,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleCommentReply
 import com.android.ql.lf.article.utils.toDip
 
 class CommentLinearLayout : LinearLayoutCompat {
@@ -33,8 +34,7 @@ class CommentLinearLayout : LinearLayoutCompat {
     }
 
 
-
-    fun setData(list: ArrayList<String>?) {
+    fun setData(list: ArrayList<ArticleCommentReply>?) {
         if (list == null || list.isEmpty()) {
             visibility = View.GONE
             return
@@ -44,7 +44,8 @@ class CommentLinearLayout : LinearLayoutCompat {
             removeAllViews()
             if (list.size > 3) {
                 (0 until  3).forEach {
-                    addView(getTextView("创作是一种幸福：@娟娟新月 关于此的部分其实也好写关于此的部分其实也好写", 13))
+                    val nickName = "${list[it].comment_userData?.member_nickname ?: ""}：${list[it].comment_husername}"
+                    addView(getTextView("$nickName ${list[it].comment_content}", nickName.length + 1))
                 }
                 val reply = "共${list.size}条回复 > "
                 val textView = getTextView(reply, reply.length)
@@ -53,7 +54,8 @@ class CommentLinearLayout : LinearLayoutCompat {
                 addView(textView)
             } else {
                 list.forEach {
-                    addView(getTextView("创作是一种幸福：@娟娟新月 关于此的部分其实也好写关于此的部分其实也好写", 13))
+                    val nickName = "${it.comment_userData?.member_nickname ?: ""}：@${it.comment_husername}"
+                    addView(getTextView("$nickName ${it.comment_content}", nickName.length + 1))
                 }
             }
         }

@@ -36,3 +36,16 @@ const val ARTICLENAV_ACT = "articleNav"
 const val ARTICLE_LIST_ACT = "articleList"
 const val ARTICLE_DETAIL_ACT = "articleDetail"
 const val ARTICLE_LIKE_ACT = "articleLike"
+const val ARTICLE_ISSUE_ACT = "articleIssue"
+const val ARTICLE_COMMENT_ACT = "articleComment"
+const val ARTICLE_COMMENT_DO_ACT = "articleCommentDo" //发表评论
+const val ARTICLE_COMMENT_REPLY_ACT = "articleCommentReply" //评论回复
+const val ARTICLE_COMMENT_LIKE_ACT = "articleCommentLike" //评论喜欢
+const val ARTICLE_LOVE_ACT = "articleLove" //文章喜欢
+const val ARTICLE_COLLECT_ACT = "articleCollect" //文章收藏
+
+/**       用户模块                **/
+const val MEMBER_MODULE = "member"
+const val PERSONAL_ACT = "personal"
+const val EDIT_USER_PIC_ACT = "editUserPic"
+const val PERSONAL_EDIT_ACT = "personalEdit"

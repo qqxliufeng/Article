@@ -8,11 +8,11 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.android.ql.lf.article.R
-import com.android.ql.lf.article.data.ArticleItem
-import com.android.ql.lf.article.data.ArticleType
+import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
@@ -22,20 +22,27 @@ import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.utils.GlideManager
+import com.android.ql.lf.baselibaray.utils.hideSoftInput
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.adapter_article_comment_info_item_layout.*
 import kotlinx.android.synthetic.main.fragment_article_info_for_normal_layout.*
 import org.jetbrains.anko.bundleOf
+import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
 
-class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
-
-    val tempList = arrayListOf("", "", "","","")
+class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem>() {
 
     companion object {
-        fun startArticleInfoForNormal(context: Context,aid:Int) {
-            FragmentContainerActivity.from(context).setTitle("详情").setNeedNetWorking(true).setExtraBundle(bundleOf(Pair("aid",aid))).setClazz(ArticleInfoForNormalFragment::class.java).start()
+        fun startArticleInfoForNormal(context: Context,aid:Int,auid:Int = 0,like:Int = 0,love:Int = 0) {
+            FragmentContainerActivity.from(context).setTitle("详情").setNeedNetWorking(true)
+                .setExtraBundle(bundleOf(
+                    Pair("aid",aid),
+                    Pair("auid",auid),
+                    Pair("like",like),
+                    Pair("love",love))
+                ).setClazz(ArticleInfoForNormalFragment::class.java).start()
         }
     }
 
@@ -45,6 +52,12 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
         arguments?.getInt("aid",0)
     }
 
+    private val auid by lazy {
+        arguments?.getInt("auid",0)
+    }
+
+    private var mCurrentMenuItem : MenuItem? = null
+
     private val mHeaderView by lazy {
         View.inflate(mContext, R.layout.layout_article_info_header_view, null)
     }
@@ -53,6 +66,8 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
         mHeaderView.findViewById<WebView>(R.id.mWVArticleInfoForNormal)
     }
 
+    private var mCurrentArticleItem:ArticleCommentItem? = null
+
     override fun getLayoutId() = R.layout.fragment_article_info_for_normal_layout
 
     override fun onAttach(context: Context?) {
@@ -60,27 +75,38 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
         setHasOptionsMenu(true)
     }
 
-    override fun createAdapter() = object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.adapter_article_comment_info_item_layout, mArrayList) {
-        override fun convert(helper: BaseViewHolder?, item: String?) {
+    override fun createAdapter() = object : BaseQuickAdapter<ArticleCommentItem, BaseViewHolder>(R.layout.adapter_article_comment_info_item_layout, mArrayList) {
+        override fun convert(helper: BaseViewHolder?, item: ArticleCommentItem?) {
+            GlideManager.loadFaceCircleImage(mContext,item?.comment_userData?.member_pic,helper?.getView(R.id.mIvArticleCommentInfoItemUserFace))
+            helper?.setText(R.id.mTvArticleCommentInfoItemUserNickName,item?.comment_userData?.member_nickname)
+            helper?.setText(R.id.mTvArticleCommentInfoItemDes,"${item?.comment_f}楼 . ${item?.comment_times}")
+            helper?.setText(R.id.mTvArticleCommentInfoItemContent, item?.comment_content)
             val replyContainer = helper?.getView<CommentLinearLayout>(R.id.mCLLArticleCommentInfoItemReplyContainer)
             replyContainer?.setOnSeeMore {
                 ArticleWebViewFragment.startArticleWebViewFragment(mContext,"评论详情","comment-details.html",ArticleType.OTHER.type)
             }
-            replyContainer?.setData(tempList)
+            helper?.addOnClickListener(R.id.mIvArticleCommentInfoItemComment)
+            helper?.addOnClickListener(R.id.mIvArticleCommentInfoItemPraise)
+            replyContainer?.setData(item?.comment_reply)
+            if (item!!.isPriase) {
+                helper?.setImageResource(R.id.mIvArticleCommentInfoItemPraise,R.drawable.img_praise_icon_2)
+            }else {
+                helper?.setImageResource(R.id.mIvArticleCommentInfoItemPraise,R.drawable.img_praise_icon_1)
+            }
         }
     }
 
     override fun initView(view: View?) {
         super.initView(view)
         setRefreshEnable(false)
+        mBaseAdapter.setHeaderAndEmpty(true)
         mHeaderWebView.setNormalSetting()
         mBaseAdapter.addHeaderView(mHeaderView)
         mHeaderView.findViewById<LinearLayout>(R.id.mLlArticleInfoForAuthInfo).setOnClickListener {
             PersonalIndexFragment.startPersonalIndexFragment(mContext)
         }
         mTvArticleInfoForNormalBottomComment.setOnClickListener {
-            val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
-            val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
+            comment(0x2,-1,mCurrentArticle?.articles_userData?.member_nickname,ARTICLE_COMMENT_DO_ACT,1)
         }
         mTvArticleInfoForNormalBottomActionComment.setOnClickListener {
             mRecyclerView.smoothScrollToPosition(1)
@@ -93,21 +119,27 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
             val shareDialog = ArticleShareDialogFragment()
             shareDialog.show(childFragmentManager,"share_dialog")
         }
+        mTvArticleInfoForNormalBottomActionLove.setOnClickListener {
+            mPresent.getDataByPost(0x4, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_LOVE_ACT).addParam("aid",aid))
+        }
         mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_DETAIL_ACT).addParam("aid",aid))
     }
 
     override fun onRequestStart(requestID: Int) {
-        if (requestID == 0x1){
-            getFastProgressDialog("正在加载……")
+        when (requestID) {
+            0x1 -> getFastProgressDialog("正在加载……")
+            0x2 -> getFastProgressDialog("正在评论……")
+            0x4 -> getFastProgressDialog("操作中……")
+            0x5-> getFastProgressDialog("收藏中……")
         }
     }
 
     override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
-        if (requestID == 0x1){
-            val check = checkResultCode(result)
-            if (check!=null && check.code == SUCCESS_CODE){
-                mCurrentArticle = Gson().fromJson((check.obj as JSONObject).optJSONObject(RESULT_OBJECT).toString(),ArticleItem::class.java)
-                mHeaderWebView.post {
+        when (requestID) {
+            0x1 -> {
+                val check = checkResultCode(result)
+                if (check!=null && check.code == SUCCESS_CODE){
+                    mCurrentArticle = Gson().fromJson((check.obj as JSONObject).optJSONObject(RESULT_OBJECT).toString(),ArticleItem::class.java)
                     mHeaderWebView.loadData(mCurrentArticle?.articles_content,"text/html;charset=UTF-8",null)
                     mHeaderWebView.webViewClient = object : WebViewClient(){
                         override fun onPageFinished(view: WebView?, url: String?) {
@@ -117,9 +149,21 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
                     }
                     mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoTitle).text = mCurrentArticle?.articles_title ?: ""
                     mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoForAuthInfoNickName).text = mCurrentArticle?.articles_userData?.member_nickname
+                    mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoType).text = mCurrentArticle?.articles_tags ?: ""
+                    mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoDes).text = "${mCurrentArticle?.articles_times} . 字数${mCurrentArticle?.articles_numcount} . 阅读${mCurrentArticle?.articles_read}"
                     GlideManager.loadFaceCircleImage(mContext,mCurrentArticle?.articles_userData?.member_pic,mHeaderView.findViewById(R.id.mIvArticleInfoForAuthInfoFace))
                     mTvArticleInfoForNormalBottomActionComment.text = "评论 ${mCurrentArticle?.articles_commentCount}"
                     mTvArticleInfoForNormalBottomActionLove.text = "喜欢 ${mCurrentArticle?.articles_loveCount}"
+                    if (mCurrentArticle?.articles_love == 0) { // 不喜欢
+                        mTvArticleInfoForNormalBottomActionLove.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.img_like_1_icon,0,0)
+                    }else{
+                        mTvArticleInfoForNormalBottomActionLove.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.img_like_icon,0,0)
+                    }
+                    if (mCurrentArticle?.articles_like == 0){
+                        mCurrentMenuItem?.setIcon(R.drawable.img_collection_icon1)
+                    }else{
+                        mCurrentMenuItem?.setIcon(R.drawable.img_collection_icon2)
+                    }
                     val focusTextView = mHeaderView.findViewById<TextView>(R.id.mCtvArticleInfoForAuthInfoFocus)
                     if (mCurrentArticle?.articles_like == 1){
                         focusTextView.text = "+ 关注"
@@ -131,25 +175,105 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
                     }
                 }
             }
+            0x0 -> processList(result as String,ArticleCommentItem::class.java)
+            0x2 -> { //评论
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        val comment = Gson().fromJson((check.obj as JSONObject).optJSONObject("result").toString(),ArticleCommentItem::class.java)
+                        mBaseAdapter.addData(0,comment)
+                        mBaseAdapter.loadMoreComplete()
+                        mBaseAdapter.disableLoadMoreIfNotFullPage()
+                    }else{
+                        toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    }
+                }
+            }
+            0x3 -> { //添加评论
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        val comment = Gson().fromJson((check.obj as JSONObject).optJSONObject("result").toString(),ArticleCommentReply::class.java)
+                        mCurrentArticleItem?.comment_reply?.add(comment)
+                        mBaseAdapter.notifyItemChanged(mArrayList.indexOf(mCurrentArticleItem)+1)
+                    }else{
+                        toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    }
+                }
+            }
+            0x4 -> { //喜欢
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        if (mCurrentArticle?.articles_love == 0){
+                            mCurrentArticle?.articles_love = 1
+                            toast("喜欢成功")
+                            mTvArticleInfoForNormalBottomActionLove.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.img_like_icon,0,0)
+                        }else{
+                            mCurrentArticle?.articles_love = 0
+                            toast("取消喜欢成功")
+                            mTvArticleInfoForNormalBottomActionLove.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.img_like_1_icon,0,0)
+                        }
+                    }else{
+                        toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    }
+                }
+            }
+            0x5 -> {
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        if (mCurrentArticle?.articles_like == 0) {
+                            mCurrentArticle?.articles_like = 1
+                            toast("收藏成功")
+                            mCurrentMenuItem?.setIcon(R.drawable.img_collection_icon2)
+                        }else{
+                            mCurrentArticle?.articles_like = 0
+                            toast("取消收藏成功")
+                            mCurrentMenuItem?.setIcon(R.drawable.img_collection_icon1)
+                        }
+                    }else{
+                        toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    }
+                }
+            }
         }
+    }
+
+    override fun getEmptyMessage(): String {
+        return "暂无评论"
     }
 
     override fun onRefresh() {
         super.onRefresh()
-        testAdd("")
+        mPresent.getDataByPost(0x0, getBaseParamsWithPage(ARTICLE_MODULE,ARTICLE_COMMENT_ACT,currentPage)
+            .addParam("theme",aid))
+    }
+
+    override fun onLoadMore() {
+        super.onLoadMore()
+        mPresent.getDataByPost(0x0, getBaseParamsWithPage(ARTICLE_MODULE,ARTICLE_COMMENT_ACT,currentPage)
+            .addParam("theme",aid))
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater?.inflate(R.menu.article_normal_menu, menu)
         if (menu != null) {
-            (0 until menu.size()).forEach {
-                menu.getItem(it).isVisible = it == 0 || it == 1
-            }
             if (menu.javaClass == MenuBuilder::class.java) {
                 val method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
                 method.isAccessible = true
                 method.invoke(menu, true)
+            }
+            if (UserInfo.user_id != auid) {
+                (0 until menu.size()).forEach {
+                    menu.getItem(it).isVisible = it == 0 || it == 1
+                }
+            }
+            (0 until menu.size()).forEach {
+                if (menu.getItem(it).itemId == R.id.mMenuArticleCollection){
+                    mCurrentMenuItem = menu.getItem(it)
+                }
             }
         }
     }
@@ -157,10 +281,46 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<String>() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.mMenuArticleCollection -> {
-                item.setIcon(R.drawable.img_collection_icon2)
+                mCurrentMenuItem = item
+                mPresent.getDataByPost(0x5, getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_COLLECT_ACT).addParam("aid",aid))
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onMyItemChildClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
+        super.onMyItemChildClick(adapter, view, position)
+            mCurrentArticleItem = mArrayList[position]
+        if (view?.id == R.id.mIvArticleCommentInfoItemComment){
+            comment(0x3,mCurrentArticleItem?.comment_uid,mArrayList[position].comment_userData?.member_nickname,ARTICLE_COMMENT_REPLY_ACT,2)
+        }else if (view?.id == R.id.mIvArticleCommentInfoItemPraise){
+            mCurrentArticleItem?.isPriase = !mCurrentArticleItem?.isPriase!!
+            mBaseAdapter.notifyItemChanged(position+1)
+            mPresent.getDataByPost(0x4, getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_COMMENT_LIKE_ACT)
+                .addParam("theme",mCurrentArticleItem?.comment_id))
+        }
+    }
+
+    private fun comment(requestID: Int,cuid:Int?,nickName: String?,act:String,type:Int) {
+        val contentView = View.inflate(mContext, R.layout.dialog_article_comment_layout, null)
+        val et_content = contentView.findViewById<EditText>(R.id.mEtArticleCommentContent)
+        et_content.hint = "@$nickName"
+        val bt_submit = contentView.findViewById<TextView>(R.id.mTvArticleCommentSubmit)
+        val popUpWindow = PopupWindowDialog.showReplyDialog(mContext, contentView)
+        bt_submit.setOnClickListener {
+            if (et_content.isEmpty()) {
+                toast("请输入评论内容")
+                return@setOnClickListener
+            }
+            mContext.hideSoftInput(et_content)
+            popUpWindow.dismiss()
+            mPresent.getDataByPost(
+                requestID, getBaseParamsWithModAndAct(ARTICLE_MODULE, act)
+                    .addParam("theme", aid)
+                    .addParam("cuid",cuid)
+                    .addParam("content", et_content.getTextString())
+                    .addParam("type", "$type")
+            )
+        }
+    }
 }

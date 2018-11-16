@@ -11,11 +11,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.data.isLogin
 import com.android.ql.lf.article.ui.fragments.article.SelectTypeFragment
 import com.android.ql.lf.article.ui.fragments.bottom.FocusFragment
 import com.android.ql.lf.article.ui.fragments.bottom.IndexFragment
 import com.android.ql.lf.article.ui.fragments.bottom.MessageFragment
 import com.android.ql.lf.article.ui.fragments.bottom.MineFragment
+import com.android.ql.lf.article.ui.fragments.login.LoginFragment
 import com.android.ql.lf.baselibaray.ui.activity.BaseActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.collections.forEachWithIndex
@@ -96,7 +99,11 @@ class MainActivity : BaseActivity() {
                     } else {
                         mTlMainBottom.getTabAt(mVpMainContainer.currentItem)?.select()
                     }
-                    SelectTypeFragment.startSelectTypeFragment(this@MainActivity, "选择文章所属类别")
+                    if (UserInfo.isLogin()) {
+                        SelectTypeFragment.startSelectTypeFragment(this@MainActivity, "选择文章所属类别")
+                    }else{
+                        LoginFragment.startLoginFragment(this@MainActivity)
+                    }
                     return
                 }
                 var index = tab?.position!!

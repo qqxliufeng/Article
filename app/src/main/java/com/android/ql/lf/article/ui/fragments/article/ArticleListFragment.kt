@@ -49,9 +49,16 @@ class ArticleListFragment : BaseNetWorkingFragment(){
     }
 }
 
-class Classify(val classify_id: Int, val classify_title: String) : Parcelable {
+class Classify(
+    val classify_id: Int,
+    val classify_title: String,
+    var isChecked: Boolean = false,
+    val classify_pic: String = ""
+) : Parcelable {
     constructor(source: Parcel) : this(
         source.readInt(),
+        source.readString(),
+        1 == source.readInt(),
         source.readString()
     )
 
@@ -60,6 +67,8 @@ class Classify(val classify_id: Int, val classify_title: String) : Parcelable {
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
         writeInt(classify_id)
         writeString(classify_title)
+        writeInt((if (isChecked) 1 else 0))
+        writeString(classify_pic)
     }
 
     companion object {

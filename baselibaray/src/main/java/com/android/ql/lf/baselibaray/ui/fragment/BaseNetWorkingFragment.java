@@ -30,7 +30,7 @@ public abstract class BaseNetWorkingFragment extends BaseFragment implements INe
 
     public final String RESULT_CODE = "code";
     public final String RESULT_OBJECT = "result";
-    public final String MSG_FLAG = "codeError";
+    public final String MSG_FLAG = "msg";
     public final String SUCCESS_CODE = "200";
 
     @Inject

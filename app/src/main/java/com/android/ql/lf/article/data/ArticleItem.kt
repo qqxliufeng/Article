@@ -12,13 +12,13 @@ class ArticleItem : MultiItemEntity {
     var articles_title:String? = null
     var articles_address:Int? = null
     var articles_tags:String? = null
-    var articles_uid:String? = null
+    var articles_uid:Int? = null
     var articles_content:String? = null
     var articles_rec:Int? = null
     var articles_numcount:Int? = null
     var articles_read:Int? = null
     var articles_privacy:Int? = null
-    var articles_like:Int? = null
+    var articles_like:Int = 0
     var articles_comment:Int? = null
     var articles_status:Int? = null
     var articles_age:Int? = null
@@ -26,10 +26,12 @@ class ArticleItem : MultiItemEntity {
     var articles_picCount:Int = 0
     var articles_times:String? = null
     var articles_userData:ArticleUserDataBean? = null
+    var articles_love:Int = 0
 
 
     var articles_loveCount:Int? = null
     var articles_commentCount:Int? = null
+    var articles_balanceCount:Int? = null
 }
 
 data class ArticleUserDataBean( var member_id:Int,var member_nickname:String,var member_pic:String)

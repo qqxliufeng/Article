@@ -5,12 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
+import android.text.TextUtils
 import android.view.View
 import android.webkit.JavascriptInterface
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
-import com.android.ql.lf.article.utils.T_MODULE
-import com.android.ql.lf.article.utils.UPLOADING_PIC_ACT
+import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
+import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.GlideManager
@@ -41,6 +43,13 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
     private val selectedImages = arrayListOf<SelectedImageBean>()
 
     private var selectedImageBean : SelectedImageBean? = null
+
+    private var articleCount:Int = 0
+
+    private val classify by lazy {
+        arguments?.classLoader = this.javaClass.classLoader
+        arguments?.getParcelable<Classify>("types")
+    }
 
     override fun getLayoutId() = R.layout.fragment_article_edit_layout
 
@@ -124,19 +133,36 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
 
         mReArticleEdit.setOnTextChangeListener {
             val length = Jsoup.parse(it).body().text().length
+            articleCount = length
             (mContext as ArticleEditActivity).setSubTitleText(length)
             mTvEditCount.text = "${length}字"
         }
     }
 
     fun publicArticle(){
-        selectedImages.forEach {
-            if (it.httpPath == null || it.httpPath == ""){
-                toast("上传失败，请重新编辑")
-                return@forEach
+        if (!selectedImages.isEmpty()){
+            selectedImages.forEach {
+                if (it.httpPath == null || it.httpPath == ""){
+                    toast("上传失败，请重新编辑")
+                    return@forEach
+                }
             }
         }
-
+        if (mEtArticleEditTitle.isEmpty()){
+            toast("请输入文章标题")
+            return
+        }
+        if (articleCount == 0){
+            toast("请输入文章内容")
+            return
+        }
+        mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_ISSUE_ACT)
+            .addParam("classify",classify?.classify_id)
+            .addParam("age",UserInfo.user_age)
+            .addParam("address",UserInfo.user_address)
+            .addParam("title",mEtArticleEditTitle.getTextString())
+            .addParam("content",mReArticleEdit.html)
+            .addParam("count",articleCount))
     }
 
     private fun exec(js: String = "") {
@@ -190,6 +216,13 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
         }
     }
 
+    override fun onRequestStart(requestID: Int) {
+        super.onRequestStart(requestID)
+        if (requestID == 0x1){
+            getFastProgressDialog("正在上传文章……")
+        }
+    }
+
     override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
         if (requestID == 0x0) {
             val json = JSONObject(result as String)
@@ -198,6 +231,18 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
                 selectedImageBean?.httpPath = json.optString("result")
             } else {
                 toast("图片上传失败")
+            }
+        }else if (requestID == 0x1){
+            val check = checkResultCode(result)
+            if (check!=null) {
+                if (check.code == SUCCESS_CODE) {
+                    toast("上传成功")
+                } else if (check.code == "400") {
+                    toast("请先进行身份认证")
+                    WebViewContainerActivity.startWebViewContainerActivity(mContext, "authent.html")
+                }
+            }else{
+                toast("上传失败")
             }
         }
     }

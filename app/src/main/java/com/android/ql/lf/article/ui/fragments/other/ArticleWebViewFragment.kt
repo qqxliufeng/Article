@@ -150,7 +150,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         fun jump(type: Int) {
             when (ArticleType.getTypeNameById(type)) {
                 ArticleType.PRIVATE_ARTICLE -> {
-                    ArticleEditActivity.startArticleEditActivity(mContext,"title","content",switch.isChecked)
+//                    ArticleEditActivity.startArticleEditActivity(mContext,"title","content",switch.isChecked)
                 }
                 ArticleType.PUBLIC_ARTICLE -> {
                 }

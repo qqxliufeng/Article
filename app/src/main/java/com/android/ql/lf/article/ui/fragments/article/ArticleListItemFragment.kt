@@ -81,6 +81,11 @@ class ArticleListItemFragment : AbstractLazyLoadFragment<ArticleItem>() {
     }
 
     override fun onMyItemClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
-        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,mArrayList[position].articles_id!!)
+        val tempItem = mArrayList[position]
+        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,
+            tempItem.articles_id!!,
+            tempItem.articles_uid!!,
+            tempItem.articles_like,
+            tempItem.articles_love)
     }
 }

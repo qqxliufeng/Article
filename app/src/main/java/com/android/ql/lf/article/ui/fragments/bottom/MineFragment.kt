@@ -3,20 +3,19 @@ package com.android.ql.lf.article.ui.fragments.bottom
 import android.arch.lifecycle.Observer
 import android.view.View
 import com.android.ql.lf.article.R
-import com.android.ql.lf.article.data.ArticleType
-import com.android.ql.lf.article.data.UserInfo
-import com.android.ql.lf.article.data.UserInfoLiveData
-import com.android.ql.lf.article.data.isLogin
+import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.fragments.mine.PersonalEditFragment
 import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import kotlinx.android.synthetic.main.fragment_mine_layout.*
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.ui.fragments.login.LoginFragment
+import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
-import com.android.ql.lf.article.utils.alert
-import com.android.ql.lf.article.utils.doClickWithUserStatusStart
+import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.utils.GlideManager
+import com.android.ql.lf.baselibaray.utils.PreferenceUtils
+import org.json.JSONObject
 
 
 class MineFragment : BaseNetWorkingFragment() {
@@ -31,9 +30,13 @@ class MineFragment : BaseNetWorkingFragment() {
         UserInfoLiveData.observe(this, Observer<UserInfo> {
             GlideManager.loadFaceCircleImage(mContext,UserInfo.user_pic,mIvMineFace)
             mTvMineNickName.text = UserInfo.user_nickname
+            mTvMineFocusCount.text = "${UserInfo.user_loveCount}"
+            mTvMinelikeCount.text = "${UserInfo.user_likeCount}"
+            mTvMineFansCount.text = "${UserInfo.user_fanCount}"
+            mTvMineCollectionCount.text = "${UserInfo.user_colStatus}"
         })
         mRlMineUserInfoContainer.doClickWithUserStatusStart("") {
-            LoginFragment.startLoginFragment(mContext)
+            PersonalIndexFragment.startPersonalIndexFragment(mContext)
         }
         mTvMineEditPersonalInfo.doClickWithUserStatusStart("") {
             PersonalEditFragment.startPersonalEditFragment(mContext)
@@ -93,6 +96,26 @@ class MineFragment : BaseNetWorkingFragment() {
         }
         mTvMineProtocol.setOnClickListener {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "用户协议", "protocol.html",ArticleType.OTHER.type)
+        }
+        if (!UserInfo.isLogin() && PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1) != -1){
+            mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1)))
+        }
+    }
+
+    override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
+        if (requestID == 0x0) {
+            try {
+                val check = checkResultCode(result)
+                if (check != null) {
+                    if (check.code == SUCCESS_CODE) {
+                        val jsonObject = (check.obj as JSONObject).optJSONObject(RESULT_OBJECT)
+                        if (UserInfo.jsonToUserInfo(jsonObject)) {
+                            UserInfo.postUserInfo()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+            }
         }
     }
 }

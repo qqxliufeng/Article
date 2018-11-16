@@ -57,6 +57,11 @@ fun UserInfo.jsonToUserInfo(json: JSONObject): Boolean {
         user_birthday = json.optString("member_birthday")
         user_sex = json.optInt("member_sex")
         user_push = json.optInt("member_push")
+        user_loveCount = json.optInt("member_loveCount")
+        user_likeCount = json.optInt("member_likeCount")
+        user_fanCount  = json.optInt("member_fanCount")
+        user_colStatus = json.optInt("member_colStatus")
+        user_signature = json.optString("member_signature")
         PreferenceUtils.setPrefInt(MyApplication.getInstance(), USER_ID_FLAG, user_id)
         true
     } catch (e: Exception) {
@@ -75,10 +80,15 @@ object UserInfo {
     var user_status:Int? = null
     var user_address:Int? = null
     var user_classify:String? = null
-    var user_age:Int? = null
+    var user_age:Int = 1
     var user_birthday:String? = null
-    var user_sex:Int? = null
+    var user_sex:Int = 1
     var user_push:Int? = null
+    var user_signature:String? = null
+    var user_loveCount:Int = 0
+    var user_likeCount:Int = 0
+    var user_fanCount:Int  = 0
+    var user_colStatus:Int = 0
 }
 
 object UserInfoLiveData : LiveData<UserInfo>() {
