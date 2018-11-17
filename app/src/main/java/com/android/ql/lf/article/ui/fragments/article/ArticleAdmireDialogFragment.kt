@@ -15,14 +15,24 @@ import android.view.ViewGroup
 import android.widget.CheckedTextView
 import android.widget.EditText
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.utils.getTextString
+import com.android.ql.lf.article.utils.isEmpty
 import com.android.ql.lf.article.utils.isInteger
+import com.android.ql.lf.baselibaray.utils.GlideManager
 import kotlinx.android.synthetic.main.dialog_article_admire_layout.*
+import org.jetbrains.anko.support.v4.toast
 
 class ArticleAdmireDialogFragment : DialogFragment() {
 
     private val countList = listOf(2, 5, 10, 20, 50)
     private val checkedTextViewList = arrayListOf<CheckedTextView>()
     private var editText:EditText? = null
+
+    private var facePath:String = ""
+
+    private var price:Int = 0
+
+    private var callback:((content:String,price:Int)->Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
@@ -36,7 +46,16 @@ class ArticleAdmireDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        GlideManager.loadFaceCircleImage(context,facePath,mIvArticleAdmireUserInfoFace)
         mIvArticleAdmireClose.setOnClickListener { dismiss() }
+        mBtArticleAdmireUserAdmire.setOnClickListener {
+            if (price == 0){
+                toast("请选择赞赏金额")
+                return@setOnClickListener
+            }
+            this.callback?.invoke(if (mEtArticleAdmireLeaveMessage.isEmpty()){""}else{mEtArticleAdmireLeaveMessage.getTextString()},price)
+            dismiss()
+        }
         checkedTextViewList.clear()
         (0 until mClArticleAdmireTangContainer.childCount).forEach {
             val child = mClArticleAdmireTangContainer.getChildAt(it)
@@ -47,7 +66,8 @@ class ArticleAdmireDialogFragment : DialogFragment() {
                     checkedTextViewList.forEach {item->
                         item.isChecked = item == ch
                         if(item.isChecked){
-                            mTvArticleAdmireCount.text = "${countList[mClArticleAdmireTangContainer.indexOfChild(item)]}￥"
+                            price = countList[mClArticleAdmireTangContainer.indexOfChild(item)]
+                            mTvArticleAdmireCount.text = "${price}￥"
                         }
                     }
                     editText?.clearFocus()
@@ -64,6 +84,7 @@ class ArticleAdmireDialogFragment : DialogFragment() {
                     override fun afterTextChanged(s: Editable?) {
                         if (s!=null && !s.isNullOrEmpty()){
                             if (s.toString().isInteger()){
+                                price = s.toString().toInt()
                                 mTvArticleAdmireCount.text = "${s}￥"
                             }
                         }
@@ -77,6 +98,14 @@ class ArticleAdmireDialogFragment : DialogFragment() {
                 })
             }
         }
+    }
+
+    fun setFacePath(facePath:String){
+        this.facePath = facePath
+    }
+
+    fun setCallBack(callback:(content:String,price:Int)->Unit){
+        this.callback = callback
     }
 
     private fun getCheckViewText(count: Int): SpannableString {

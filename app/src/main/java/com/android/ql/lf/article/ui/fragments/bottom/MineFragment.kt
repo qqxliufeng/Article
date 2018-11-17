@@ -28,12 +28,21 @@ class MineFragment : BaseNetWorkingFragment() {
 
     override fun initView(view: View?) {
         UserInfoLiveData.observe(this, Observer<UserInfo> {
-            GlideManager.loadFaceCircleImage(mContext,UserInfo.user_pic,mIvMineFace)
-            mTvMineNickName.text = UserInfo.user_nickname
-            mTvMineFocusCount.text = "${UserInfo.user_loveCount}"
-            mTvMinelikeCount.text = "${UserInfo.user_likeCount}"
-            mTvMineFansCount.text = "${UserInfo.user_fanCount}"
-            mTvMineCollectionCount.text = "${UserInfo.user_colStatus}"
+            if (it!!.isLogin()) {
+                GlideManager.loadFaceCircleImage(mContext, UserInfo.user_pic, mIvMineFace)
+                mTvMineNickName.text = UserInfo.user_nickname
+                mTvMineFocusCount.text = "${UserInfo.user_loveCount}"
+                mTvMinelikeCount.text = "${UserInfo.user_likeCount}"
+                mTvMineFansCount.text = "${UserInfo.user_fanCount}"
+                mTvMineCollectionCount.text = "${UserInfo.user_colStatus}"
+            }else{
+                mIvMineFace.setImageResource(R.drawable.img_glide_circle_load_default)
+                mTvMineNickName.text = "登录/注册"
+                mTvMineFocusCount.text = "0"
+                mTvMinelikeCount.text = "0"
+                mTvMineFansCount.text = "0"
+                mTvMineCollectionCount.text = "0"
+            }
         })
         mRlMineUserInfoContainer.doClickWithUserStatusStart("") {
             PersonalIndexFragment.startPersonalIndexFragment(mContext)
@@ -84,11 +93,11 @@ class MineFragment : BaseNetWorkingFragment() {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "浏览历史", "history.html",ArticleType.OTHER.type)
         }
         mTvMineLogout.setOnClickListener {
-            if (UserInfo.isLogin()){
+            if (!UserInfo.isLogin()){
                 return@setOnClickListener
             }
             alert("提示", "是否要退出当前帐号？", "退出", "取消", { _, _ ->
-
+                UserInfo.loginOut()
             }, null)
         }
         mTvMineFeedback.setOnClickListener {

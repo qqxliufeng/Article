@@ -2,11 +2,15 @@ package com.android.ql.lf.article.ui.fragments.article
 
 import android.view.View
 import com.android.ql.lf.article.data.ArticleItem
+import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.data.isLogin
 import com.android.ql.lf.article.ui.adapters.ArticleListAdapter
+import com.android.ql.lf.article.ui.fragments.login.LoginFragment
 import com.android.ql.lf.article.utils.ARTICLE_LIST_ACT
 import com.android.ql.lf.article.utils.ARTICLE_MODULE
 import com.android.ql.lf.article.utils.getBaseParamsWithPage
 import com.android.ql.lf.baselibaray.ui.fragment.AbstractLazyLoadFragment
+import com.android.ql.lf.baselibaray.utils.RxBus
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import org.jetbrains.anko.bundleOf
@@ -18,17 +22,33 @@ class ArticleListItemFragment : AbstractLazyLoadFragment<ArticleItem>() {
 
         const val INVALID_ID = 0
 
-        fun startArticleListItem(classifyId: Int, ageId: Int, addressId: Int,like:Int = 1): ArticleListItemFragment {
+        fun startArticleListItem(classifyId: Int, ageId: Int, addressId: Int,like:Int = 1,reuid:Int = 0): ArticleListItemFragment {
             val articleListItemFragment = ArticleListItemFragment()
-            articleListItemFragment.arguments = bundleOf(Pair("classifyId", classifyId), Pair("ageId", ageId), Pair("addressId", addressId),Pair("like",like)   )
+            articleListItemFragment.arguments = bundleOf(
+                Pair("classifyId", classifyId),
+                Pair("ageId", ageId),
+                Pair("addressId", addressId),
+                Pair("like",like),
+                Pair("reuid",reuid))
             return articleListItemFragment
         }
     }
 
+    private var tempItem:ArticleItem? = null
+
     override fun createAdapter(): BaseQuickAdapter<ArticleItem, BaseViewHolder> = ArticleListAdapter(mArrayList)
+
+    private val updateArticleListSubscription by lazy {
+        RxBus.getDefault().toObservable(ArticleItem::class.java).subscribe {
+            if (tempItem != null && tempItem!!.articles_id == it.articles_id) {
+                onPostRefresh()
+            }
+        }
+    }
 
     override fun initView(view: View?) {
         super.initView(view)
+        updateArticleListSubscription
     }
 
     private val classifyId by lazy {
@@ -47,6 +67,10 @@ class ArticleListItemFragment : AbstractLazyLoadFragment<ArticleItem>() {
         arguments?.getInt("like", INVALID_ID) ?: INVALID_ID
     }
 
+    private val reuid by lazy {
+        arguments?.getInt("reuid", INVALID_ID) ?: INVALID_ID
+    }
+
     override fun loadData() {
         mPresent.getDataByPost(
             0x0, getBaseParamsWithPage(ARTICLE_MODULE, ARTICLE_LIST_ACT, currentPage)
@@ -54,7 +78,7 @@ class ArticleListItemFragment : AbstractLazyLoadFragment<ArticleItem>() {
                 .addParam("age", ageId)
                 .addParam("address", addressId)
                 .addParam("like",like)
-                .addParam("reuid", "")
+                .addParam("reuid", reuid)
         )
     }
 
@@ -81,11 +105,22 @@ class ArticleListItemFragment : AbstractLazyLoadFragment<ArticleItem>() {
     }
 
     override fun onMyItemClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
-        val tempItem = mArrayList[position]
-        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,
-            tempItem.articles_id!!,
-            tempItem.articles_uid!!,
-            tempItem.articles_like,
-            tempItem.articles_love)
+        if (UserInfo.isLogin()) {
+            tempItem = mArrayList[position]
+            ArticleInfoForNormalFragment.startArticleInfoForNormal(
+                mContext,
+                tempItem?.articles_id!!,
+                tempItem?.articles_uid!!,
+                tempItem?.articles_like ?: 0,
+                tempItem?.articles_love ?: 0
+            )
+        }else{
+            LoginFragment.startLoginFragment(mContext)
+        }
+    }
+
+    override fun onDestroyView() {
+        unsubscribe(updateArticleListSubscription)
+        super.onDestroyView()
     }
 }

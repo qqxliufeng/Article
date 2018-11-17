@@ -1,11 +1,11 @@
 package com.android.ql.lf.article.ui.fragments.article
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.content.ContextCompat
-import android.text.TextUtils
 import android.view.View
 import android.webkit.JavascriptInterface
 import com.android.ql.lf.article.R
@@ -15,24 +15,19 @@ import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
-import com.android.ql.lf.baselibaray.utils.GlideManager
-import com.android.ql.lf.baselibaray.utils.ImageUploadHelper
-import com.android.ql.lf.baselibaray.utils.PreferenceUtils
-import com.android.ql.lf.baselibaray.utils.compressAndSaveCacheFace
+import com.android.ql.lf.baselibaray.utils.*
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import jp.wasabeef.richeditor.RichEditor
 import kotlinx.android.synthetic.main.fragment_article_edit_layout.*
-import kotlinx.android.synthetic.main.fragment_login_second_step_layout.*
 import okhttp3.MultipartBody
 import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
 import org.jsoup.Jsoup
-import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
 import java.io.File
 
-class ArticleEditFragment : BaseNetWorkingFragment() {
+open class ArticleEditFragment : BaseNetWorkingFragment() {
 
     companion object {
         const val EDITOR_HTML_FLAG = "editor_html"
@@ -40,27 +35,42 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
 
     private var isBoldChecked: Boolean = false
 
-    private val selectedImages = arrayListOf<SelectedImageBean>()
+    protected val selectedImages = arrayListOf<SelectedImageBean>()
 
-    private var selectedImageBean : SelectedImageBean? = null
+    protected var selectedImageBean : SelectedImageBean? = null
 
-    private var articleCount:Int = 0
+    protected var articleCount:Int = 0
+
+    protected var tempHtml:String = ""
+
+    protected var aid:Int = 0
 
     private val classify by lazy {
         arguments?.classLoader = this.javaClass.classLoader
         arguments?.getParcelable<Classify>("types")
     }
 
+    private val isEditMode by lazy {
+        arguments?.getBoolean("is_edit", true) ?: true
+    }
+
+    protected val handler by lazy {
+        Handler(Looper.getMainLooper())
+    }
+
+    protected var act:String = ""
+
     override fun getLayoutId() = R.layout.fragment_article_edit_layout
 
     override fun initView(view: View?) {
         mEtArticleEditTitle.setText(arguments?.getString("title","")?:"")
+        mEtArticleEditTitle.requestFocus()
         mReArticleEdit.setPlaceholder("请输入内容")
         mReArticleEdit.setPadding(0, 10, 0, 10)
         mReArticleEdit.setTextColor(ContextCompat.getColor(mContext, R.color.normalTextColor))
         mReArticleEdit.setOnInitialLoadListener {
-            if (arguments?.getBoolean("is_edit", true)!!){
-                mReArticleEdit.focusEditor()
+            if (isEditMode){
+//                mReArticleEdit.focusEditor()
                 mEtArticleEditTitle.isEnabled = true
                 mIBArticleEditActionImage.isEnabled = true
                 mIBArticleEditActionBold.isEnabled = true
@@ -73,21 +83,6 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
                 mIBArticleEditActionLink.isEnabled = false
                 mReArticleEdit.setInputEnabled(false)
             }
-            val html = arguments?.getString("content", "") ?: ""
-            if (html != "") {
-                mReArticleEdit.html = html
-            }
-//            exec("""javascript:(function(){
-//                                    var images = document.getElementsByTagName("img")
-//                                    for (var i = 0; i < images.length; i++) {
-//                                        var image = images[i]
-//                                        if(image.src.indexOf("file://") == 0){
-//                                            var httpPath = aApi.getHttpPathByJSPath(image.src)
-//                                            image.src = httpPath
-//                                        }
-//                                    }
-//                                }())
-//                        """)
         }
         mReArticleEdit.addJavascriptInterface(MyEditorJavascriptInterface(),"aApi")
         mEtArticleEditTitle.setOnFocusChangeListener { v, hasFocus ->
@@ -135,11 +130,12 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
             val length = Jsoup.parse(it).body().text().length
             articleCount = length
             (mContext as ArticleEditActivity).setSubTitleText(length)
-            mTvEditCount.text = "${length}字"
+            tempHtml = it
         }
     }
 
-    fun publicArticle(){
+    fun publicArticle(act:String){
+        this.act = act
         if (!selectedImages.isEmpty()){
             selectedImages.forEach {
                 if (it.httpPath == null || it.httpPath == ""){
@@ -152,17 +148,49 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
             toast("请输入文章标题")
             return
         }
-        if (articleCount == 0){
+        if (articleCount == 0 && selectedImages.isEmpty()){
             toast("请输入文章内容")
             return
         }
-        mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_ISSUE_ACT)
-            .addParam("classify",classify?.classify_id)
-            .addParam("age",UserInfo.user_age)
-            .addParam("address",UserInfo.user_address)
-            .addParam("title",mEtArticleEditTitle.getTextString())
-            .addParam("content",mReArticleEdit.html)
-            .addParam("count",articleCount))
+        replaceImagePath()
+    }
+
+    private fun replaceImagePath() {
+        exec(
+            """javascript:(function(){
+                            var images = document.getElementsByTagName("img")
+                            for (var i = 0; i < images.length; i++) {
+                                var image = images[i]
+                                if(image.src.indexOf("file://") == 0){
+                                    var httpPath = aApi.getHttpPathByJSPath(image.src)
+                                    image.src = httpPath
+                                }
+                            }
+                            aApi.postUpload(document.getElementsByTagName('html')[0].innerHTML)
+                        }())
+                """
+        )
+    }
+
+    open fun upload(html: String) {
+        val param = getBaseParamsWithModAndAct(ARTICLE_MODULE, this.act)
+            .addParam("title", mEtArticleEditTitle.getTextString())
+            .addParam("content", html)
+            .addParam("count", articleCount)
+        if (this.act == ARTICLE_EDIT_ACT){
+            param.addParam("aid",aid)
+        }else{
+            param.addParam("age", UserInfo.user_age)
+            param.addParam("address", UserInfo.user_address)
+            param.addParam("classify", classify?.classify_id ?: 0)
+        }
+        mPresent.getDataByPost(
+            0x1, param
+        )
+    }
+
+    fun privateArticle(){
+        replaceImagePath()
     }
 
     private fun exec(js: String = "") {
@@ -191,7 +219,7 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
                 override fun onSuccess(file: File?) {
                     selectedImageBean = SelectedImageBean(file?.absolutePath ?: "", null)
                     selectedImages.add(selectedImageBean!!)
-                    mReArticleEdit.insertImage(selectedImageBean!!.srcPath, """img "style="width:100% """)
+                    mReArticleEdit.insertImage(selectedImageBean!!.srcPath, """img "style="width:100%;padding:15px 0px 15px 0px""")
                     ImageUploadHelper(object : ImageUploadHelper.OnImageUploadListener {
                         override fun onActionStart() {
                             getFastProgressDialog("正在上传图片……")
@@ -228,7 +256,8 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
             val json = JSONObject(result as String)
             val code = json.optInt("code")
             if (code == 200) {
-                selectedImageBean?.httpPath = json.optString("result")
+                toast("图片上传成功")
+                selectedImageBean?.httpPath = GlideManager.getImageUrl(json.optString("result"))
             } else {
                 toast("图片上传失败")
             }
@@ -236,7 +265,9 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
             val check = checkResultCode(result)
             if (check!=null) {
                 if (check.code == SUCCESS_CODE) {
+                    uploadSuccess()
                     toast("上传成功")
+                    finish()
                 } else if (check.code == "400") {
                     toast("请先进行身份认证")
                     WebViewContainerActivity.startWebViewContainerActivity(mContext, "authent.html")
@@ -247,11 +278,18 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
         }
     }
 
-    fun onBackPress() {
+    open fun uploadSuccess(){}
+
+    open fun onBackPress() {
         if (mReArticleEdit.html != "") {
             PreferenceUtils.setPrefString(mContext, EDITOR_HTML_FLAG, mReArticleEdit.html)
         }
         finish()
+    }
+
+    override fun onDestroyView() {
+        handler.removeCallbacksAndMessages(null)
+        super.onDestroyView()
     }
 
     inner class MyEditorJavascriptInterface{
@@ -267,8 +305,14 @@ class ArticleEditFragment : BaseNetWorkingFragment() {
             }
             return jsPath
         }
-    }
 
+        @JavascriptInterface
+        public fun postUpload(html: String){
+            handler.post {
+                upload(html)
+            }
+        }
+    }
 }
 
 data class LinkBean(val name: String, val address: String)

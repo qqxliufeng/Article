@@ -54,7 +54,7 @@ class CommentLinearLayout : LinearLayoutCompat {
                 addView(textView)
             } else {
                 list.forEach {
-                    val nickName = "${it.comment_userData?.member_nickname ?: ""}：@${it.comment_husername}"
+                    val nickName = "${it.comment_userData?.member_nickname ?: ""}：${it.comment_husername}"
                     addView(getTextView("$nickName ${it.comment_content}", nickName.length + 1))
                 }
             }

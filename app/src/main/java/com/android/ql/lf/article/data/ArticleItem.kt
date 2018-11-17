@@ -19,6 +19,7 @@ class ArticleItem : MultiItemEntity {
     var articles_read:Int? = null
     var articles_privacy:Int? = null
     var articles_like:Int = 0
+    var articles_collect:Int = 0
     var articles_comment:Int? = null
     var articles_status:Int? = null
     var articles_age:Int? = null

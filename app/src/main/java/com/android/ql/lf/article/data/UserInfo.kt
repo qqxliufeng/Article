@@ -38,6 +38,14 @@ fun UserInfo.clearUserInfo() {
 fun UserInfo.isLogin(): Boolean = user_id != -1 && user_phone != null
 
 
+fun UserInfo.loginOut(){
+    user_id = -1
+    user_phone = null
+    PreferenceUtils.setPrefInt(MyApplication.getInstance(), USER_ID_FLAG, user_id)
+    postUserInfo()
+}
+
+
 /**
  * 解析用户数据
  */
