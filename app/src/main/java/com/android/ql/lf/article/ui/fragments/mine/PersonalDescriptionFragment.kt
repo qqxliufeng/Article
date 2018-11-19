@@ -5,6 +5,7 @@ import android.support.v4.view.MenuItemCompat
 import android.view.*
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.data.postUserInfo
 import com.android.ql.lf.article.ui.widgets.SingleTextViewActionProvide
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
@@ -54,6 +55,7 @@ class PersonalDescriptionFragment : BaseNetWorkingFragment() {
         if (check!=null && check.code == SUCCESS_CODE){
             toast("签名修改成功")
             UserInfo.user_signature = mEtPersonalDescriptionContent.getTextString()
+            UserInfo.postUserInfo()
             finish()
         }else{
             toast("签名修改失败")

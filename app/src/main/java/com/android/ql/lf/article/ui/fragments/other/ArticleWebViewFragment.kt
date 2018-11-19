@@ -22,6 +22,7 @@ import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForTrashFragment
+import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
 import com.android.ql.lf.article.utils.loadLocalHtml
 import com.android.ql.lf.article.utils.setNormalSetting
 import com.android.ql.lf.article.utils.toDip
@@ -51,7 +52,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
             (mContext as FragmentContainerActivity).setOnBackPressListener(this)
         }
         mWVArticleWebViewContainer.setNormalSetting()
-        mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), "article")
+        mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), JS_BRIDGE_INTERFACE_NAME)
         mWVArticleWebViewContainer.settings.javaScriptCanOpenWindowsAutomatically = true
 
         mWVArticleWebViewContainer.webViewClient = MyWebViewClient()

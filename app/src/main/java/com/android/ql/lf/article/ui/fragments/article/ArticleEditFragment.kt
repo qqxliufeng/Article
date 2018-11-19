@@ -60,6 +60,8 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
 
     protected var act:String = ""
 
+    private var uploadStatus:Int = 1
+
     override fun getLayoutId() = R.layout.fragment_article_edit_layout
 
     override fun initView(view: View?) {
@@ -136,6 +138,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
 
     fun publicArticle(act:String){
         this.act = act
+        uploadStatus = 2
         if (!selectedImages.isEmpty()){
             selectedImages.forEach {
                 if (it.httpPath == null || it.httpPath == ""){
@@ -177,6 +180,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
             .addParam("title", mEtArticleEditTitle.getTextString())
             .addParam("content", html)
             .addParam("count", articleCount)
+            .addParam("status",uploadStatus)
         if (this.act == ARTICLE_EDIT_ACT){
             param.addParam("aid",aid)
         }else{
@@ -189,7 +193,14 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
         )
     }
 
-    fun privateArticle(){
+    private fun privateArticle(act: String){
+        this.act = act
+        uploadStatus = 1
+        if (articleCount == 0 && selectedImages.isEmpty()){
+            toast("文章取消")
+            finish()
+            return
+        }//
         replaceImagePath()
     }
 
@@ -278,13 +289,12 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
         }
     }
 
-    open fun uploadSuccess(){}
+    open fun uploadSuccess(){
+
+    }
 
     open fun onBackPress() {
-        if (mReArticleEdit.html != "") {
-            PreferenceUtils.setPrefString(mContext, EDITOR_HTML_FLAG, mReArticleEdit.html)
-        }
-        finish()
+        privateArticle(ARTICLE_ISSUE_ACT)
     }
 
     override fun onDestroyView() {

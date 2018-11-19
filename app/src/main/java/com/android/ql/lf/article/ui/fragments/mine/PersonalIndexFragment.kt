@@ -1,35 +1,67 @@
 package com.android.ql.lf.article.ui.fragments.mine
 
+import android.app.Activity
+import android.arch.lifecycle.Observer
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.text.TextUtils
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
+import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.data.UserInfoLiveData
+import com.android.ql.lf.article.data.isLogin
 import com.android.ql.lf.article.ui.adapters.ArticleListAdapter
 import com.android.ql.lf.article.ui.fragments.article.ArticleAdmireDialogFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
+import com.android.ql.lf.article.utils.*
+import com.android.ql.lf.baselibaray.data.ImageBean
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
+import com.android.ql.lf.baselibaray.utils.GlideManager
+import com.android.ql.lf.baselibaray.utils.ImageUploadHelper
+import com.android.ql.lf.baselibaray.utils.compressAndSaveCacheFace
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.BaseViewHolder
+import com.zhihu.matisse.Matisse
+import com.zhihu.matisse.MimeType
 import kotlinx.android.synthetic.main.fragment_personal_index_layout.*
+import okhttp3.MultipartBody
+import org.jetbrains.anko.bundleOf
+import org.jetbrains.anko.support.v4.toast
+import org.json.JSONObject
+import top.zibin.luban.OnCompressListener
+import java.io.File
+import java.util.ArrayList
 
 class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
 
     companion object {
-        fun startPersonalIndexFragment(context: Context) {
-            FragmentContainerActivity.from(context).setClazz(PersonalIndexFragment::class.java).setNeedNetWorking(true).setHiddenToolBar(true).start()
+        fun startPersonalIndexFragment(context: Context,pid:Int) {
+            FragmentContainerActivity
+                .from(context)
+                .setClazz(PersonalIndexFragment::class.java)
+                .setNeedNetWorking(true)
+                .setHiddenToolBar(true)
+                .setExtraBundle(bundleOf(Pair("pid",pid)))
+                .start()
         }
+    }
+
+    private val pid by lazy {
+        arguments?.getInt("pid") ?: -1
     }
 
     override fun createAdapter() = ArticleListAdapter(mArrayList)
 
     override fun getLayoutId() = R.layout.fragment_personal_index_layout
 
+    private var focusStatus = 0
+
     override fun initView(view: View?) {
         (mContext as FragmentContainerActivity).statusBarColor = Color.TRANSPARENT
         super.initView(view)
-        setLoadEnable(false)
+        setRefreshEnable(false)
         mIvBack.setImageResource(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material)
         mIvBack.setColorFilter(Color.WHITE)
         mAlPersonalIndex.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
@@ -45,7 +77,7 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                 Math.abs(verticalOffset) == appBarLayout.totalScrollRange -> {
                     mIvBack.setColorFilter(Color.BLACK)
                     mIvShare.setColorFilter(Color.BLACK)
-                    mCTLPersonalIndex.title = "NN~简单"
+                    mCTLPersonalIndex.title = UserInfo.user_nickname
                 }
                 else -> {
                     if (!mCTLPersonalIndex.title!!.isEmpty()) {
@@ -64,17 +96,155 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
             admireDialog.show(childFragmentManager,"admire_dialog")
         }
         mLlPersonalIndexFocus.setOnClickListener {  }
+        if (pid!=-1){
+            if (UserInfo.user_id == pid){
+                UserInfoLiveData.observe(this, Observer<UserInfo> {
+                    if (it!!.isLogin()) {
+                        GlideManager.loadFaceCircleImage(mContext,UserInfo.user_pic,mIvPersonalIndexUserFace)
+                        mTvPersonalIndexUserNickName.text = UserInfo.user_nickname
+                        mTvPersonalIndexUserDes.text = UserInfo.user_signature
+                    }
+                })
+                mLlPersonalIndexCurrentUserContainer.visibility = View.VISIBLE
+                mLlPersonalIndexFocus.visibility = View.GONE
+                mTvPersonalEditBgImage.visibility = View.VISIBLE
+                mTvPersonalIndexEditInfo.setOnClickListener {
+                    PersonalEditFragment.startPersonalEditFragment(mContext)
+                }
+                mTvPersonalEditBgImage.setOnClickListener {
+                    openImageChoose(MimeType.ofImage(),1)
+                }
+            }else{
+                mLlPersonalIndexCurrentUserContainer.visibility = View.GONE
+                mLlPersonalIndexFocus.visibility = View.VISIBLE
+                mTvPersonalEditBgImage.visibility = View.GONE
+            }
+        }
     }
 
     override fun onRefresh() {
-        (0 .. 10).forEach {
-            val articleItem = ArticleItem()
-            articleItem.mType = if( it % 2 == 0) ArticleListAdapter.MULTI_IMAGE_TYPE else ArticleListAdapter.SINGLE_IMAGE_TYPE
-            mArrayList.add(articleItem)
-        }
-        mBaseAdapter.notifyDataSetChanged()
-        onRequestEnd(-1)
+        super.onRefresh()
+        mPresent.getDataByPost(0x0, getBaseParamsWithPage(MEMBER_MODULE, MY_MAIN_ACT,currentPage).addParam("reuid",pid))
     }
 
+    override fun getEmptyMessage(): String {
+        return "暂无文章哦~"
+    }
 
+    override fun onRequestStart(requestID: Int) {
+        super.onRequestStart(requestID)
+        if (requestID == 0x2){
+            getFastProgressDialog("操作中……")
+        }
+    }
+
+    override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
+        when (requestID) {
+            0x0 -> {
+                processList(result as String,ArticleItem::class.java)
+                val check = checkResultCode(result)
+                if (check!=null && currentPage == 0){
+                    val json = (check.obj as JSONObject).optJSONObject("arr")
+                    if (json!=null){
+                        GlideManager.loadFaceCircleImage(mContext,json.optString("member_pic"),mIvPersonalIndexUserFace)
+                        mTvPersonalIndexUserNickName.text = json.optString("member_nickname")
+                        mTvPersonalIndexUserDes.text = if (TextUtils.isEmpty(json.optString("member_signature"))) { "暂无简介" }else{ json.optString("member_signature") }
+                        mTvPersonalIndexFocusCount.text = "${json.optString("member_likeCount")}关注"
+                        mTvPersonalIndexFansCount.text = "${json.optString("member_fanCount")}粉丝"
+                        mTvPersonalIndexArticleCount.text = "文章（${json.optString("member_articleCount")}）"
+                        mTvPersonalIndexNumAndLove.text = "写了${json.optString("member_fontCount")}字，获得了${json.optString("member_loveCount")}个喜欢"
+                        mTvPersonalIndexAddress.text = if (TextUtils.isEmpty(json.optString("member_address")) || json.optString("member_address") == "null"){ "北京" } else { json.optString("member_address") }
+                        mTvPersonalIndexAge.text = "${json.optString("member_age")}"
+                        focusStatus = json.optInt("member_likeStatus")
+                        val cover = json.optString("member_cover")
+                        if (!TextUtils.isEmpty(cover)) {
+                            GlideManager.loadImage(mContext,cover,mIvPersonalEditBgImage)
+                        }
+                        if (focusStatus == 0){
+                            mTvPersonalIndexFocus.text = "+ 关注"
+                        }else{
+                            mTvPersonalIndexFocus.text = "✓ 已关注"
+                        }
+                        mTvPersonalIndexFocus.setOnClickListener {
+                            mPresent.getDataByPost(
+                                0x2,
+                                getBaseParamsWithModAndAct(MEMBER_MODULE, MY_LIKE_DO_ACT).addParam("reuid", pid)
+                            )
+                        }
+                    }
+                }
+            }
+            0x1 -> {
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        toast("图片保存成功")
+                        val cover = (check.obj as JSONObject).optString("result")
+                        if (!TextUtils.isEmpty(cover)) {
+                            UserInfo.user_cover = cover
+                            GlideManager.loadImage(mContext,cover,mIvPersonalEditBgImage)
+                        }
+                    }
+                }
+            }
+            0x2->{
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        if (focusStatus == 0){
+                            focusStatus = 1
+                            mTvPersonalIndexFocus.text = "✓ 已关注"
+                        }else{
+                            focusStatus = 0
+                            mTvPersonalIndexFocus.text = "+ 关注"
+                        }
+                    }else{
+                        toast("操作失败，请重试")
+                    }
+                }else{
+                    toast("操作失败，请重试")
+                }
+            }
+        }
+    }
+
+    override fun actionTempList(tempList: ArrayList<ArticleItem>?) {
+        tempList?.forEach {
+            it.mType = if (it.articles_picCount > 2) ArticleListAdapter.MULTI_IMAGE_TYPE else ArticleListAdapter.SINGLE_IMAGE_TYPE
+        }
+    }
+
+    override fun onMyItemClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
+        super.onMyItemClick(adapter, view, position)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
+            compressAndSaveCacheFace(Matisse.obtainPathResult(data)[0], object : OnCompressListener {
+                override fun onSuccess(file: File?) {
+                    ImageUploadHelper(object : ImageUploadHelper.OnImageUploadListener {
+                        override fun onActionStart() {
+                            getFastProgressDialog("正在保存图片……")
+                        }
+
+                        override fun onActionEnd(builder: MultipartBody.Builder?) {
+                            builder?.addFormDataPart("uid","${UserInfo.user_id}")
+                            mPresent.uploadFile(0x1, MEMBER_MODULE, COVER_PIC_ACT, builder?.build()?.parts())
+                        }
+
+                        override fun onActionFailed() {
+                        }
+
+                    }).upload(arrayListOf(ImageBean(null, file?.absolutePath ?: "")))
+                }
+
+                override fun onError(e: Throwable?) {
+                }
+
+                override fun onStart() {
+                }
+            })
+        }
+    }
 }

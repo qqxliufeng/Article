@@ -45,7 +45,7 @@ class MineFragment : BaseNetWorkingFragment() {
             }
         })
         mRlMineUserInfoContainer.doClickWithUserStatusStart("") {
-            PersonalIndexFragment.startPersonalIndexFragment(mContext)
+            PersonalIndexFragment.startPersonalIndexFragment(mContext,UserInfo.user_id)
         }
         mTvMineEditPersonalInfo.doClickWithUserStatusStart("") {
             PersonalEditFragment.startPersonalEditFragment(mContext)

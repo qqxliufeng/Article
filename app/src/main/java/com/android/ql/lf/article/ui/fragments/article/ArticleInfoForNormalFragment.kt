@@ -1,6 +1,9 @@
 package com.android.ql.lf.article.ui.fragments.article
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.support.v7.view.menu.MenuBuilder
 import android.view.Menu
 import android.view.MenuInflater
@@ -8,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.CheckedTextView
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -23,9 +27,7 @@ import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.article.utils.*
-import com.android.ql.lf.baselibaray.utils.GlideManager
-import com.android.ql.lf.baselibaray.utils.RxBus
-import com.android.ql.lf.baselibaray.utils.hideSoftInput
+import com.android.ql.lf.baselibaray.utils.*
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.google.gson.Gson
@@ -34,6 +36,15 @@ import kotlinx.android.synthetic.main.fragment_article_info_for_normal_layout.*
 import org.jetbrains.anko.bundleOf
 import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
+import rx.Observable
+import rx.Observer
+import rx.Scheduler
+import rx.android.schedulers.AndroidSchedulers
+import rx.functions.Func1
+import rx.schedulers.Schedulers
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 
 class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem>() {
 
@@ -87,6 +98,8 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
         }
     }
 
+    private var focusTextView:CheckedTextView? = null
+
     override fun getLayoutId() = R.layout.fragment_article_info_for_normal_layout
 
     override fun onAttach(context: Context?) {
@@ -132,7 +145,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
         mHeaderWebView.setNormalSetting()
         mBaseAdapter.addHeaderView(mHeaderView)
         mHeaderView.findViewById<LinearLayout>(R.id.mLlArticleInfoForAuthInfo).setOnClickListener {
-            PersonalIndexFragment.startPersonalIndexFragment(mContext)
+            PersonalIndexFragment.startPersonalIndexFragment(mContext,mCurrentArticle?.articles_userData?.member_id ?: -1)
         }
         mTvArticleInfoForNormalBottomComment.setOnClickListener {
             comment(0x2, -1, -1, mCurrentArticle?.articles_userData?.member_nickname, ARTICLE_COMMENT_DO_ACT, 1)
@@ -161,6 +174,28 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
         }
         mTvArticleInfoForNormalBottomActionShare.setOnClickListener {
             val shareDialog = ArticleShareDialogFragment()
+            shareDialog.setCreateImage {
+                val shortImage = Bitmap.createBitmap(mContext.getScreen().first, mHeaderWebView.measuredHeight, Bitmap.Config.RGB_565)
+                Observable.just(shortImage).map {
+                    val canvas = Canvas(it)   // 画布的宽高和屏幕的宽高保持一致
+                    mHeaderWebView.draw(canvas)
+                    val dir = File(BaseConfig.IMAGE_PATH)
+                    dir.mkdirs()
+                    val shareBitmapFile = File(dir,"share_article.jpg")
+                    if (!shareBitmapFile.exists()){
+                        shareBitmapFile.createNewFile()
+                    }
+                    ImageFactory.compressAndGenImage(shortImage,shareBitmapFile.absolutePath,200)
+                    shareBitmapFile
+                }.subscribeOn(Schedulers.io())
+                    .doOnSubscribe {
+                        getFastProgressDialog("正在创建图片……")
+                    }.observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        progressDialog?.dismiss()
+                        toast("图片创建成功！")
+                    }
+            }
             shareDialog.show(childFragmentManager, "share_dialog")
         }
         mTvArticleInfoForNormalBottomActionLove.setOnClickListener {
@@ -182,6 +217,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
             0x8 -> getFastProgressDialog("设置中……")
             0x9 -> getFastProgressDialog("投稿中……")
             0x10 -> getFastProgressDialog("赞赏中……")
+            0x11 -> getFastProgressDialog("加载中……")
         }
     }
 
@@ -242,21 +278,23 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                         } else {
                             mCurrentMenuItem?.setIcon(R.drawable.img_collection_icon2)
                         }
-                        val focusTextView = mHeaderView.findViewById<TextView>(R.id.mCtvArticleInfoForAuthInfoFocus)
+                        focusTextView = mHeaderView.findViewById(R.id.mCtvArticleInfoForAuthInfoFocus)
                         if (UserInfo.user_id == mCurrentArticle?.articles_uid) {
-                            focusTextView.visibility = View.GONE
+                            focusTextView?.visibility = View.GONE
                         } else {
-                            focusTextView.visibility = View.VISIBLE
-                            if (mCurrentArticle?.articles_like == 1) {
-                                focusTextView.text = "+ 关注"
+                            focusTextView?.visibility = View.VISIBLE
+                            if (mCurrentArticle?.articles_like == 0) {
+                                focusTextView?.text = "+ 关注"
+                                focusTextView?.isChecked = false
                             } else {
-                                focusTextView.text = "✓ 已关注"
+                                focusTextView?.text = "✓ 已关注"
+                                focusTextView?.isChecked = true
                             }
                         }
-                        focusTextView.doClickWithUserStatusStart("") {
+                        focusTextView?.doClickWithUserStatusStart("") {
                             mPresent.getDataByPost(
-                                0x1,
-                                getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_LIKE_ACT).addParam("aid", aid)
+                                0x11,
+                                getBaseParamsWithModAndAct(MEMBER_MODULE, MY_LIKE_DO_ACT).addParam("reuid", mCurrentArticle?.articles_userData?.member_id)
                             )
                         }
                     }
@@ -342,7 +380,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
             }
             0x6 -> { //评论点赞
             }
-            0x7->{ //放入回收站
+            0x7 -> { //放入回收站
                 val check = checkResultCode(result)
                 if (check != null) {
                     if (check.code == SUCCESS_CODE) {
@@ -354,7 +392,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                     }
                 }
             }
-            0x8->{ //设置为私密
+            0x8 -> { //设置为私密
                 val check = checkResultCode(result)
                 if (check != null) {
                     if (check.code == SUCCESS_CODE) {
@@ -366,7 +404,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                     }
                 }
             }
-            0x9->{ //投稿
+            0x9 -> { //投稿
                 val check = checkResultCode(result)
                 if (check != null) {
                     if (check.code == SUCCESS_CODE) {
@@ -378,13 +416,32 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                     }
                 }
             }
-            0x10->{ //赞赏
+            0x10-> { //赞赏
                 val check = checkResultCode(result)
                 if (check != null) {
                     if (check.code == SUCCESS_CODE) {
                         toast("赞赏成功")
                     } else {
                         toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    }
+                }
+            }
+            0x11-> { //关注
+                val check = checkResultCode(result)
+                if (check != null) {
+                    toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    if (check.code == SUCCESS_CODE) {
+                        if (mCurrentArticle?.articles_like == 1){//
+                            mCurrentArticle?.articles_like = 0
+                            focusTextView?.text = "+ 关注"
+                            focusTextView?.isChecked = false
+                        }else{
+                            mCurrentArticle?.articles_like = 1
+                            focusTextView?.text = "✓ 已关注"
+                            focusTextView?.isChecked = true
+                        }
+                    } else {
+                        toast("关注失败，请重试……")
                     }
                 }
             }

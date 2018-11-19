@@ -10,11 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.android.ql.lf.article.R
-import kotlinx.android.synthetic.main.dialog_app_share_layout.*
+import kotlinx.android.synthetic.main.dialog_article_share_layout.*
 import org.jetbrains.anko.support.v4.toast
 
 class ArticleShareDialogFragment : BottomSheetDialogFragment() {
 
+    private var onCreateImage:(()->Unit)? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.dialog_article_share_layout, container, false)
@@ -36,6 +37,14 @@ class ArticleShareDialogFragment : BottomSheetDialogFragment() {
             dismiss()
             shareMore()
         }
+        mTvAppShareCreateImage.setOnClickListener {
+            dismiss()
+            onCreateImage?.invoke()
+        }
+    }
+
+    fun setCreateImage(onCreateImage:(()->Unit)){
+        this.onCreateImage = onCreateImage
     }
 
 

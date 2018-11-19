@@ -13,6 +13,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
 import com.android.ql.lf.article.utils.loadLocalHtml
 import com.android.ql.lf.article.utils.setNormalSetting
 import com.android.ql.lf.baselibaray.ui.activity.BaseActivity
@@ -43,7 +44,7 @@ class WebViewContainerActivity : BaseActivity() {
         mIvArticleWebViewClose.setOnClickListener { finish() }
 
         mWVArticleWebViewContainer.setNormalSetting()
-        mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), "article")
+        mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), JS_BRIDGE_INTERFACE_NAME)
 
         mWVArticleWebViewContainer.webViewClient = MyWebViewClient()
         mWVArticleWebViewContainer.webChromeClient = MyChromeWebViewClient()

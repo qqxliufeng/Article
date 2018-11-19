@@ -6,6 +6,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
+const val JS_BRIDGE_INTERFACE_NAME:String = "article"
 
 @SuppressLint("SetJavaScriptEnabled")
 fun WebView.setNormalSetting() {

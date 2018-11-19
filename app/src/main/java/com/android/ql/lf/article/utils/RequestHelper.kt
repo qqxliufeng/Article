@@ -54,7 +54,11 @@ const val MEMBER_MODULE = "member"
 const val PERSONAL_ACT = "personal"
 const val EDIT_USER_PIC_ACT = "editUserPic"
 const val PERSONAL_EDIT_ACT = "personalEdit"
+const val MY_MAIN_ACT = "myMain"
+const val COVER_PIC_ACT = "coverPic"
+const val MY_LIKE_DO_ACT = "myLikeDo"
 
 /**       消息模块                **/
 const val MESSAGE_MODULE = "message"
 const val MESSAGE_ACT = "message"
+const val PUSH_ACT = "push"
