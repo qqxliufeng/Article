@@ -33,6 +33,14 @@ public class GlideManager {
                 .into(imageView);
     }
 
+    public static void loadLocalImage(Context context, String path, ImageView imageView) {
+        Glide.with(context).load(path)
+                .error(R.drawable.img_glide_load_default)
+                .placeholder(R.drawable.img_glide_load_default)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(imageView);
+    }
+
     public static void loadRoundImage(Context context, String path, ImageView imageView, int rounded) {
         Glide.with(context)
                 .load(getImageUrl(path))

@@ -17,6 +17,7 @@ fun WebView.setNormalSetting() {
     settings.defaultFontSize  = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,10.0f,this.resources.displayMetrics).toInt()
     settings.loadWithOverviewMode = true
     settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.SINGLE_COLUMN
+//    this.clearCache(true)
 }
 
 

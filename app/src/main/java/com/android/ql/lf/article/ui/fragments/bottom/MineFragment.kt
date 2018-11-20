@@ -10,8 +10,10 @@ import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import kotlinx.android.synthetic.main.fragment_mine_layout.*
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.ui.fragments.login.LoginFragment
+import com.android.ql.lf.article.ui.fragments.mine.FeedBackFragment
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
+import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.android.ql.lf.baselibaray.utils.PreferenceUtils
@@ -69,10 +71,10 @@ class MineFragment : BaseNetWorkingFragment() {
             WebViewContainerActivity.startWebViewContainerActivity(mContext, "wallet.html")
         }
         mTvMineTrash.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "回收站", "contribute.html",ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "回收站", "contribute.html",ArticleType.TRASH_ARTICLE.type)
         }
-        mTvMineAuth.doClickWithUserStatusStart("") {
-            WebViewContainerActivity.startWebViewContainerActivity(mContext, "authent.html")
+        mTvMineAuth.doClickWithUserStatusStart("")  {
+            WebViewContainerActivity.startWebViewContainerActivity(mContext, "authent-info.html")
         }
         mTvMineCollection.doClickWithUserStatusStart("") {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收录文章", "contribute.html",ArticleType.COLLECTION_ARTICLE.type)
@@ -100,11 +102,13 @@ class MineFragment : BaseNetWorkingFragment() {
                 UserInfo.loginOut()
             }, null)
         }
-        mTvMineFeedback.setOnClickListener {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "意见反馈", "feedback.html",ArticleType.OTHER.type)
+        mTvMineFeedback.doClickWithUserStatusStart("") {
+            FeedBackFragment.startFeedBackFragment(mContext)
         }
         mTvMineProtocol.setOnClickListener {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "用户协议", "protocol.html",ArticleType.OTHER.type)
+            NetWebViewFragment.startNetWebViewFragment(mContext,"http://article.581vv.com/article/protocol.html")
+//            NetWebViewFragment.startNetWebViewFragment(mContext,"http://www.baidu.com")
+//            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "用户协议", "protocol.html",ArticleType.OTHER.type)
         }
         if (!UserInfo.isLogin() && PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1) != -1){
             mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1)))

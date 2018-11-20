@@ -12,9 +12,16 @@
     <!--页面样式-->
     <link rel="stylesheet" href="css/style.css"/>
     <!--js-->
-    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
     <!--rem js-->
-    <script type="text/javascript" src="js/rem.js"></script>
+    <script type="text/javascript" src="js/rem.js" ></script>
+    <!--mui js-->
+    <script type="text/javascript" src="js/mui.min.js" ></script>
+    <!--common js-->
+    <script type="text/javascript" src="js/common.js" ></script>
+    <!--vue js-->
+    <script type="text/javascript" src="js/vue.min.js" ></script>
+    <script type="text/javascript" src="js/template.js"></script>
 
     <style type="text/css">
         .protocol h4{
@@ -34,37 +41,33 @@
 </head>
 <body>
 <!--意见反馈 -->
-<div class="protocol">
-    <h4>XXXXXX协议</h4>
+<div class="protocol"  id="app">
+    <h4>用户协议</h4>
 
-    <div>
-        <p>委托方（以下简称“甲方”）</p>
-
-        <p>受托方（以下简称“乙方”）</p>
-
-        <p>本合同由甲方与乙方在平等自愿的基础上，依据《中华人民共和国合同法》有关规定就甲方商标注册事宜，经双方友好协商后订立。</p>
-
-        　　<p>一、代理项目</p>
-
-        　　<p>甲方现委托乙方办理 的如下事宜：</p>
-
-        　　<P>二、乙方义务</P>
-
-        　　<P>1、乙方须在收到甲方相关委托文件以及相应费用后3个工作日内做完所有前期准备并将相关文件转递申请，但涉及公证认证等无法控制的因素的除外。</P>
-
-        　　<P>2、乙方应保证按指定国家的主管机关要求提交申请材料，在代理过程中应及时将进展情况通知乙方。</P>
-
-        　　<P>3、乙方任何向官方所做的说明和回答，必须征得甲方同意。</P>
-
-        　　<P>4、如有涉及甲方同意进行并已经支付费用的后续程序，乙方应保证在指定国家的法律允许的期限内使当地事务所接到指令，但因甲方原因以及不可抗力造成的后果，乙方不承担责任。</P>
-
-        　　<P>三、甲方义务</P>
-
-        　　<P>1、甲方应及时向甲方提供申请所需文件资料，包含申请过程中可能出现的答复该国官方指令所需的文件资料；尽可能核实客户方文件的真</P>
+    <div v-html="protocol">
     </div>
 
 </div>
 <script>
+    $(function(){
+          var vue = new vue({
+           el:"#app",
+           data:{
+              protocol:""
+           },
+           methods:{
+               getData:function(){
+                   dataRequest.method("/api/member/accountProtocol",{},"post",
+                   function(res){
+                      if(res.code == 200){
+                          vue.protocol = res.result
+                      }
+                   })
+               }
+           }
+        })
+        vue.getData();
+    })
 </script>
 </body>
 </html>

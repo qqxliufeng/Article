@@ -8,10 +8,7 @@ import android.support.v7.widget.Toolbar
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.ArticleType
@@ -19,6 +16,7 @@ import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoDisplayFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
+import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForTrashFragment
 import com.android.ql.lf.article.ui.fragments.article.Classify
 import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
 import com.android.ql.lf.article.utils.loadLocalHtml
@@ -90,6 +88,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
     }
 
     override fun onDestroyView() {
+        mWVArticleWebViewContainer.destroy()
         unsubscribe(updateArticleListSubscription)
         super.onDestroyView()
     }
@@ -111,8 +110,8 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-            mPbArticleProgress.visibility = View.VISIBLE
-            mPbArticleProgress.progress = 0
+            mPbArticleProgress?.visibility = View.VISIBLE
+            mPbArticleProgress?.progress = 0
         }
 
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
@@ -120,9 +119,14 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
             return true
         }
 
+        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            view?.loadUrl(request?.url?.path)
+            return super.shouldOverrideUrlLoading(view, request)
+        }
+
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            mPbArticleProgress.visibility = View.GONE
+            mPbArticleProgress?.visibility = View.GONE
 //            mTvArticleWebViewTitle.text = view?.title ?: ""
         }
     }
@@ -131,7 +135,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
 
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
-            mPbArticleProgress.progress = newProgress
+            mPbArticleProgress?.progress = newProgress
         }
     }
 
@@ -183,6 +187,9 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 ArticleType.COLLECTION_ARTICLE -> {
                 }
                 ArticleType.POST_ARTICLE -> {
+                }
+                ArticleType.TRASH_ARTICLE->{
+                    ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
                 }
                 else -> {
                 }

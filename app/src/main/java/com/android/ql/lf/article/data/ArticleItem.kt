@@ -43,6 +43,7 @@ enum class ArticleType(val type: Int) {
     PUBLIC_ARTICLE(1),
     COLLECTION_ARTICLE(3),
     POST_ARTICLE(4),
+    TRASH_ARTICLE(5),
     OTHER(-1);
 
     companion object {
@@ -59,6 +60,9 @@ enum class ArticleType(val type: Int) {
                 }
                 POST_ARTICLE.type -> {
                     POST_ARTICLE
+                }
+                TRASH_ARTICLE.type->{
+                    TRASH_ARTICLE
                 }
                 else -> {
                     POST_ARTICLE

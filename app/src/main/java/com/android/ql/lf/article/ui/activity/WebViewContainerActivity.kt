@@ -4,15 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.view.WindowManager
-import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import android.widget.Toast
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
 import com.android.ql.lf.article.utils.loadLocalHtml
 import com.android.ql.lf.article.utils.setNormalSetting
@@ -90,6 +89,7 @@ class WebViewContainerActivity : BaseActivity() {
         if (mWVArticleWebViewContainer.canGoBack()) {
             mWVArticleWebViewContainer.goBack()
         } else {
+            mWVArticleWebViewContainer.destroy()
             super.onBackPressed()
         }
     }
@@ -125,14 +125,22 @@ class WebViewContainerActivity : BaseActivity() {
             super.onProgressChanged(view, newProgress)
             mPbArticleProgress.progress = newProgress
         }
+
+        override fun onShowFileChooser(
+            webView: WebView?,
+            filePathCallback: ValueCallback<Array<Uri>>?,
+            fileChooserParams: FileChooserParams?
+        ): Boolean {
+            toast("asdafd")
+            return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
+        }
     }
 
     inner class WebViewInterface {
 
         @JavascriptInterface
         fun getUserId(): String {
-            Toast.makeText(this@WebViewContainerActivity, "test", Toast.LENGTH_LONG).show()
-            return "122w343w4"
+            return UserInfo.user_id.toString()
         }
     }
 
