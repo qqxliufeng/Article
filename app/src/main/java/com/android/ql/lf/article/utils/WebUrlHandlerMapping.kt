@@ -5,6 +5,7 @@ import android.util.TypedValue
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.android.ql.lf.baselibaray.utils.BaseConfig
 
 const val JS_BRIDGE_INTERFACE_NAME:String = "article"
 
@@ -26,7 +27,8 @@ fun WebView.urlHanler(url: String?) {
 }
 
 fun WebView.loadLocalHtml(url: String = "") {
-    loadUrl("file:///android_asset/$url")
+//    loadUrl("file:///android_asset/$url")
+    loadUrl("${BaseConfig.BASE_IP}article/$url")
 }
 
 fun WebView.resetImage(){

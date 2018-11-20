@@ -50,10 +50,6 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
         arguments?.getParcelable<Classify>("types")
     }
 
-    private val isEditMode by lazy {
-        arguments?.getBoolean("is_edit", true) ?: true
-    }
-
     protected val handler by lazy {
         Handler(Looper.getMainLooper())
     }
@@ -71,20 +67,12 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
         mReArticleEdit.setPadding(0, 10, 0, 10)
         mReArticleEdit.setTextColor(ContextCompat.getColor(mContext, R.color.normalTextColor))
         mReArticleEdit.setOnInitialLoadListener {
-            if (isEditMode){
 //                mReArticleEdit.focusEditor()
-                mEtArticleEditTitle.isEnabled = true
-                mIBArticleEditActionImage.isEnabled = true
-                mIBArticleEditActionBold.isEnabled = true
-                mIBArticleEditActionLink.isEnabled = true
-                mReArticleEdit.setInputEnabled(true)
-            }else{
-                mEtArticleEditTitle.isEnabled = false
-                mIBArticleEditActionImage.isEnabled = false
-                mIBArticleEditActionBold.isEnabled = false
-                mIBArticleEditActionLink.isEnabled = false
-                mReArticleEdit.setInputEnabled(false)
-            }
+            mEtArticleEditTitle.isEnabled = true
+            mIBArticleEditActionImage.isEnabled = true
+            mIBArticleEditActionBold.isEnabled = true
+            mIBArticleEditActionLink.isEnabled = true
+            mReArticleEdit.setInputEnabled(true)
         }
         mReArticleEdit.addJavascriptInterface(MyEditorJavascriptInterface(),"aApi")
         mEtArticleEditTitle.setOnFocusChangeListener { v, hasFocus ->
@@ -138,7 +126,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
 
     fun publicArticle(act:String){
         this.act = act
-        uploadStatus = 2
+        uploadStatus = 1
         if (!selectedImages.isEmpty()){
             selectedImages.forEach {
                 if (it.httpPath == null || it.httpPath == ""){
@@ -195,7 +183,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
 
     private fun privateArticle(act: String){
         this.act = act
-        uploadStatus = 1
+        uploadStatus = 2
         if (articleCount == 0 && selectedImages.isEmpty()){
             toast("文章取消")
             finish()

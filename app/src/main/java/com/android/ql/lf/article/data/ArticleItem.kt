@@ -38,8 +38,9 @@ class ArticleItem : MultiItemEntity {
 data class ArticleUserDataBean( var member_id:Int,var member_nickname:String,var member_pic:String)
 
 enum class ArticleType(val type: Int) {
-    PRIVATE_ARTICLE(1),
-    PUBLIC_ARTICLE(2),
+    //文章状态  1 公开  2 私密  3 收录  4 投稿
+    PRIVATE_ARTICLE(2),
+    PUBLIC_ARTICLE(1),
     COLLECTION_ARTICLE(3),
     POST_ARTICLE(4),
     OTHER(-1);

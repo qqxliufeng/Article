@@ -2,12 +2,9 @@ package com.android.ql.lf.article.ui.fragments.other
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.SwitchCompat
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -15,19 +12,20 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.TextView
-import android.widget.Toast
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
-import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForTrashFragment
+import com.android.ql.lf.article.ui.fragments.article.ArticleInfoDisplayFragment
+import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
+import com.android.ql.lf.article.ui.fragments.article.Classify
 import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
 import com.android.ql.lf.article.utils.loadLocalHtml
 import com.android.ql.lf.article.utils.setNormalSetting
-import com.android.ql.lf.article.utils.toDip
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
+import com.android.ql.lf.baselibaray.utils.RxBus
 import kotlinx.android.synthetic.main.fragment_article_web_view_layout.*
 import org.jetbrains.anko.bundleOf
 import org.jetbrains.anko.support.v4.toast
@@ -44,6 +42,12 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
 
     private val switch by lazy { SwitchCompat(mContext) }
 
+    private val updateArticleListSubscription by lazy {
+        RxBus.getDefault().toObservable(ArticleItem::class.java).subscribe {
+           mWVArticleWebViewContainer.reload()
+        }
+    }
+
     override fun getLayoutId() = R.layout.fragment_article_web_view_layout
 
     @SuppressLint("JavascriptInterface", "SetJavaScriptEnabled")
@@ -51,6 +55,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         if (mContext is FragmentContainerActivity) {
             (mContext as FragmentContainerActivity).setOnBackPressListener(this)
         }
+        updateArticleListSubscription
         mWVArticleWebViewContainer.setNormalSetting()
         mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), JS_BRIDGE_INTERFACE_NAME)
         mWVArticleWebViewContainer.settings.javaScriptCanOpenWindowsAutomatically = true
@@ -82,6 +87,11 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
             else -> {
             }
         }
+    }
+
+    override fun onDestroyView() {
+        unsubscribe(updateArticleListSubscription)
+        super.onDestroyView()
     }
 
     override fun onBackPress(): Boolean {
@@ -142,18 +152,33 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
          * 获取文章类型
          */
         @JavascriptInterface
-        fun getArticleType() = arguments?.getInt("type") ?: 0
+        fun getArticleType():Int{
+            return arguments?.getInt("type") ?: 0
+        }
 
         /**
          * 根据不同的类型，跳转到不同的页面
          */
         @JavascriptInterface
-        fun jump(type: Int) {
+        fun jump(type: Int,aid:String,title: String,content:String) {
             when (ArticleType.getTypeNameById(type)) {
                 ArticleType.PRIVATE_ARTICLE -> {
-//                    ArticleEditActivity.startArticleEditActivity(mContext,"title","content",switch.isChecked)
+                    if (switch.isChecked){
+                        //进入编辑模式
+                        ArticleEditActivity.startArticleEditActivity(mContext,
+                            title,
+                            content,
+                            Classify(0,"",false,""),
+                            1,
+                            aid.toInt())
+                    }else{
+                        //进入预览模式
+                        ArticleInfoDisplayFragment.startArticleInfoDisplayFragment(mContext,aid.toInt(),UserInfo.user_id)
+                    }
                 }
                 ArticleType.PUBLIC_ARTICLE -> {
+                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+//                    ArticleEditActivity.startArticleEditActivity(mContext,"title","content",switch.isChecked)
                 }
                 ArticleType.COLLECTION_ARTICLE -> {
                 }

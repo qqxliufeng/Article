@@ -3,7 +3,6 @@ package com.android.ql.lf.article.ui.fragments.article
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Paint
 import android.support.v7.view.menu.MenuBuilder
 import android.view.Menu
 import android.view.MenuInflater
@@ -20,7 +19,7 @@ import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
-import com.android.ql.lf.article.ui.fragments.other.NteWebViewFragment
+import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
 import com.android.ql.lf.article.ui.widgets.CommentLinearLayout
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
@@ -31,20 +30,14 @@ import com.android.ql.lf.baselibaray.utils.*
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.adapter_article_comment_info_item_layout.*
 import kotlinx.android.synthetic.main.fragment_article_info_for_normal_layout.*
 import org.jetbrains.anko.bundleOf
 import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
 import rx.Observable
-import rx.Observer
-import rx.Scheduler
 import rx.android.schedulers.AndroidSchedulers
-import rx.functions.Func1
 import rx.schedulers.Schedulers
 import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
 
 class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem>() {
 
@@ -239,7 +232,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                             }
 
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                                NteWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
+                                NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
                                 return true
                             }
                         }
@@ -506,7 +499,6 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 ArticleEditActivity.startArticleEditActivity(mContext,
                     mCurrentArticle?.articles_title?:"",
                     mCurrentArticle?.articles_content?:"",
-                    false,
                     Classify(0,"",false,""),
                     1,
                     mCurrentArticle?.articles_id ?: 0)

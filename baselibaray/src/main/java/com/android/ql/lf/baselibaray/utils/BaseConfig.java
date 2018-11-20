@@ -11,6 +11,8 @@ public class BaseConfig {
     public static final String BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static final String APP_PATH = BASE_PATH + "/qlarticle/";
     public static final String IMAGE_PATH = APP_PATH + "/img/";
+    public static final String WX_APP_ID = "";
+
     public static String getFileProvidePath(Context context) {
         return context.getPackageName() + ".fileProvider";
     }

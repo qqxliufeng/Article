@@ -65,7 +65,7 @@ class SelectTypeFragment : BaseRecyclerViewFragment<Classify>() {
                 toast("请选择一个文章类别")
                 return@setOnClickListener
             }
-            ArticleEditActivity.startArticleEditActivity(mContext,"","",true,mCurrentClassify!!)
+            ArticleEditActivity.startArticleEditActivity(mContext,"","",mCurrentClassify!!)
             finish()
         }
         mTvSelectTypeTitle.text = arguments?.getString("title", "") ?: ""

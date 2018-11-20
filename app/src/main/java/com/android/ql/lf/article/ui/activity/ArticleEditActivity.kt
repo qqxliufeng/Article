@@ -20,11 +20,10 @@ import org.jsoup.Jsoup
 class ArticleEditActivity : BaseActivity() {
 
     companion object {
-        fun startArticleEditActivity(context: Context,title:String,content: String, isEdit: Boolean,types:Classify,mode:Int = 0,aid:Int = 0) {
+        fun startArticleEditActivity(context: Context,title:String,content: String, types:Classify,mode:Int = 0,aid:Int = 0) {
             val intent = Intent(context, ArticleEditActivity::class.java)
             intent.putExtra("title",title)
             intent.putExtra("content", content)
-            intent.putExtra("is_edit", isEdit)
             intent.putExtra("types",types)
             intent.putExtra("mode",mode)
             intent.putExtra("aid",aid)
@@ -45,7 +44,6 @@ class ArticleEditActivity : BaseActivity() {
     private val articleEditFragment by lazy {
         val articleEditFragment = ArticleEditFragment()
         articleEditFragment.arguments = bundleOf(
-            Pair("is_edit", intent.getBooleanExtra("is_edit", false)),
             Pair("title", intent.getStringExtra("title")),
             Pair("types",types)
         )
