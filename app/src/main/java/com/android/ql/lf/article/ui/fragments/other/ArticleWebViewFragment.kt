@@ -182,7 +182,6 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 }
                 ArticleType.PUBLIC_ARTICLE -> {
                     ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
-//                    ArticleEditActivity.startArticleEditActivity(mContext,"title","content",switch.isChecked)
                 }
                 ArticleType.COLLECTION_ARTICLE -> {
                 }

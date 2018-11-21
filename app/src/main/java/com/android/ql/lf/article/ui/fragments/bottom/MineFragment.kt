@@ -1,20 +1,22 @@
 package com.android.ql.lf.article.ui.fragments.bottom
 
 import android.arch.lifecycle.Observer
+import android.content.Intent
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
-import com.android.ql.lf.article.ui.fragments.mine.PersonalEditFragment
+import com.android.ql.lf.article.ui.activity.AuthActivity
 import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import kotlinx.android.synthetic.main.fragment_mine_layout.*
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.ui.fragments.login.LoginFragment
-import com.android.ql.lf.article.ui.fragments.mine.FeedBackFragment
-import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
+import com.android.ql.lf.article.ui.fragments.mine.*
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
+import com.android.ql.lf.article.ui.fragments.start.SelectUserLikeTypeFragment
 import com.android.ql.lf.article.utils.*
+import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.android.ql.lf.baselibaray.utils.PreferenceUtils
 import org.json.JSONObject
@@ -33,8 +35,8 @@ class MineFragment : BaseNetWorkingFragment() {
             if (it!!.isLogin()) {
                 GlideManager.loadFaceCircleImage(mContext, UserInfo.user_pic, mIvMineFace)
                 mTvMineNickName.text = UserInfo.user_nickname
-                mTvMineFocusCount.text = "${UserInfo.user_loveCount}"
-                mTvMinelikeCount.text = "${UserInfo.user_likeCount}"
+                mTvMineFocusCount.text = "${UserInfo.user_likeCount}"
+                mTvMinelikeCount.text = "${UserInfo.user_loveCount}"
                 mTvMineFansCount.text = "${UserInfo.user_fanCount}"
                 mTvMineCollectionCount.text = "${UserInfo.user_colStatus}"
             }else{
@@ -59,22 +61,29 @@ class MineFragment : BaseNetWorkingFragment() {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attention.html", ArticleType.OTHER.type)
         }
         mLlMineFansCount.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "粉丝", "attention.html",ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "粉丝", "attentionMy.html",ArticleType.OTHER.type)
         }
         mLlMineLikeCount.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "喜欢", "like.html",ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "喜欢", "alist.html",ArticleType.LOVE_ARTICLE.type)
         }
         mLlMineCollectionCount.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收藏文章", "like.html",ArticleType.COLLECTION_ARTICLE.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收藏文章", "alist.html",ArticleType.MY_COLLECTION_ARTICLE.type)
         }
         mTvMineWallet.doClickWithUserStatusStart("") {
             WebViewContainerActivity.startWebViewContainerActivity(mContext, "wallet.html")
         }
         mTvMineTrash.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "回收站", "contribute.html",ArticleType.TRASH_ARTICLE.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "回收站", "recovery.html",ArticleType.TRASH_ARTICLE.type)
         }
         mTvMineAuth.doClickWithUserStatusStart("")  {
-            WebViewContainerActivity.startWebViewContainerActivity(mContext, "authent-info.html")
+            when(AuthStatus.getNameByFlag(UserInfo.user_status)){
+                AuthStatus.NO_AUTH->{
+                    IdentityAuthFragment.startIdentityAuthFragment(mContext)
+                }
+                AuthStatus.WAIT_AUTH,AuthStatus.COMPLEMENT_AUTH,AuthStatus.FAIL_AUTH->{
+                    IdentityAuthUpdateFragment.startIdentityAuthUpdateFragment(mContext)
+                }
+            }
         }
         mTvMineCollection.doClickWithUserStatusStart("") {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收录文章", "contribute.html",ArticleType.COLLECTION_ARTICLE.type)
@@ -89,7 +98,9 @@ class MineFragment : BaseNetWorkingFragment() {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "私密文章", "contribute.html",ArticleType.PRIVATE_ARTICLE.type)
         }
         mTvMineAccountSafe.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "帐号与安全", "safety.html",ArticleType.OTHER.type)
+            val intent = Intent(mContext,AuthActivity::class.java)
+            startActivity(intent)
+//            FragmentContainerActivity.from(mContext).setNeedNetWorking(true).setTitle("帐号与安全").setClazz(AccountSafeFragment::class.java).start()
         }
         mTvMineHistory.doClickWithUserStatusStart("") {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "浏览历史", "history.html",ArticleType.OTHER.type)
@@ -103,12 +114,10 @@ class MineFragment : BaseNetWorkingFragment() {
             }, null)
         }
         mTvMineFeedback.doClickWithUserStatusStart("") {
-            FeedBackFragment.startFeedBackFragment(mContext)
+            FeedBackFragment.startFeedBackFragment(mContext,1)
         }
         mTvMineProtocol.setOnClickListener {
             NetWebViewFragment.startNetWebViewFragment(mContext,"http://article.581vv.com/article/protocol.html")
-//            NetWebViewFragment.startNetWebViewFragment(mContext,"http://www.baidu.com")
-//            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "用户协议", "protocol.html",ArticleType.OTHER.type)
         }
         if (!UserInfo.isLogin() && PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1) != -1){
             mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1)))

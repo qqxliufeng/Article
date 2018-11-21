@@ -37,6 +37,12 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':baselibaray')
@@ -44,4 +50,5 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
+    implementation(name: 'core-4.3.1-openDefaultRelease', ext: 'aar')
 }

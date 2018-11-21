@@ -71,6 +71,8 @@ fun UserInfo.jsonToUserInfo(json: JSONObject): Boolean {
         user_colStatus = json.optInt("member_colStatus")
         user_signature = json.optString("member_signature")
         user_cover = json.optString("member_cover")
+        user_front = json.optString("member_front")
+        user_reverse = json.optString("member_reverse")
         PreferenceUtils.setPrefInt(MyApplication.getInstance(), USER_ID_FLAG, user_id)
         true
     } catch (e: Exception) {
@@ -86,7 +88,7 @@ object UserInfo {
     var user_balance:Int? = null
     var user_fans:Int? = null
     var user_tags:String? = null
-    var user_status:Int? = null
+    var user_status:Int = 1
     var user_address:Int? = null
     var user_classify:String? = null
     var user_age:Int = 1
@@ -99,6 +101,29 @@ object UserInfo {
     var user_fanCount:Int  = 0
     var user_colStatus:Int = 0
     var user_cover:String? = null
+    var user_front:String? = null
+    var user_reverse:String? = null
+}
+
+enum class AuthStatus(flag:Int){
+//    1 未认证  2 待审核  3 已认证 4 认证失败
+    NO_AUTH(1),
+    WAIT_AUTH(2),
+    COMPLEMENT_AUTH(3),
+    FAIL_AUTH(4);
+
+    companion object {
+        fun getNameByFlag(flag: Int):AuthStatus{
+            return when(flag){
+                1-> NO_AUTH
+                2-> WAIT_AUTH
+                3-> COMPLEMENT_AUTH
+                4-> FAIL_AUTH
+                else-> NO_AUTH
+            }
+        }
+    }
+
 }
 
 object UserInfoLiveData : LiveData<UserInfo>() {

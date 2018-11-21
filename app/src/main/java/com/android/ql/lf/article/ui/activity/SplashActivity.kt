@@ -36,7 +36,7 @@ class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks
     }
 
     private fun startMain() {
-        if (TextUtils.isEmpty(PreferenceUtils.getPrefString(this, "sex", ""))) {
+        if (TextUtils.isEmpty(PreferenceUtils.getPrefString(this, "sex", "")) || !PreferenceUtils.getPrefBoolean(this,"just_jump",false)) {
             StartCustomTypeFragment.startCustomInfoFragment(this)
         } else {
             startActivity(Intent(this, MainActivity::class.java))

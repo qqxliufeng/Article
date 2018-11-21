@@ -12,6 +12,7 @@ import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
+import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthFragment
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
@@ -269,7 +270,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
                     finish()
                 } else if (check.code == "400") {
                     toast("请先进行身份认证")
-                    WebViewContainerActivity.startWebViewContainerActivity(mContext, "authent.html")
+                    IdentityAuthFragment.startIdentityAuthFragment(mContext)
                 }
             }else{
                 toast("上传失败")

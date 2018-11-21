@@ -6,12 +6,14 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.view.WindowManager
 import android.webkit.*
 import android.widget.Toast
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.ui.fragments.mine.FeedBackFragment
 import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
 import com.android.ql.lf.article.utils.loadLocalHtml
 import com.android.ql.lf.article.utils.setNormalSetting
@@ -50,15 +52,13 @@ class WebViewContainerActivity : BaseActivity() {
         val url = intent.getStringExtra("url") ?: ""
         mWVArticleWebViewContainer.loadLocalHtml(url)
         when (url) {
-            "authent.html" -> {
-                mTvArticleWebViewAction.visibility = View.VISIBLE
-                mTvArticleWebViewAction.setOnClickListener {
-                    toast("提交成功")
-                    finish()
-                }
-            }
             "wallet.html" ->{
-                mTvArticleWebViewAction.visibility = View.GONE
+                mTvArticleWebViewAction.visibility = View.VISIBLE
+                mTvArticleWebViewAction.text = "充值问题"
+                mTvArticleWebViewAction.setTextColor(ContextCompat.getColor(this,R.color.colorAccent))
+                mTvArticleWebViewAction.setOnClickListener {
+                    FeedBackFragment.startFeedBackFragment(this,2)
+                }
                 mMLlWebViewContainer.registFragmentSizeObserver { wdiff, hdiff ->
                     if (hdiff < -200) { // 处理输入法弹出事件
                         mWVArticleWebViewContainer.loadUrl("""

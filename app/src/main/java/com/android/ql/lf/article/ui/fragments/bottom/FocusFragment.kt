@@ -31,7 +31,6 @@ class FocusFragment : BaseNetWorkingFragment() {
                 mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_REUSER_ACT))
             }
         })
-
         mIvBottomFocusSearch.setOnClickListener {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "搜索", "search.html", ArticleType.OTHER.type)
         }

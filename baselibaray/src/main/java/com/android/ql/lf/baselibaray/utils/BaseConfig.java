@@ -13,6 +13,15 @@ public class BaseConfig {
     public static final String IMAGE_PATH = APP_PATH + "/img/";
     public static final String WX_APP_ID = "";
 
+    public static final String WB_APP_ID = "3743717577";
+    public static final String WB_SECRET = "da97a16b57e4cf02188fb6dc86ecec0b";
+
+    public static final String WB_REDIRECT_URL = "http://www.vllage.com/";// 应用的回调页
+    public static final String WB_SCOPE = // 应用申请的高级权限
+            "email,direct_messages_read,direct_messages_write,"
+                    + "friendships_groups_read,friendships_groups_write,statuses_to_me_read,"
+                    + "follow_app_official_microblog," + "invitation_write";
+
     public static String getFileProvidePath(Context context) {
         return context.getPackageName() + ".fileProvider";
     }

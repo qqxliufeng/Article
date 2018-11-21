@@ -20,6 +20,7 @@ class SelectUserInfoFragment : BaseNetWorkingFragment() {
             alert("是否要跳过？","跳过","不跳过"){_,_->
                 PreferenceUtils.setPrefString(mContext, "sex","")
                 PreferenceUtils.setPrefString(mContext, "birthday","")
+                PreferenceUtils.setPrefBoolean(mContext,"just_jump",true)
                 startActivity(Intent(mContext,MainActivity::class.java))
                 finish()
             }

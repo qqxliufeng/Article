@@ -25,6 +25,7 @@ import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_article_info_for_display_layout.*
 import kotlinx.android.synthetic.main.layout_article_info_auth_top_view.*
 import org.jetbrains.anko.bundleOf
+import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
 
 class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
@@ -72,6 +73,7 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
     override fun onRequestStart(requestID: Int) {
         when (requestID) {
             0x1 -> getFastProgressDialog("正在加载……")
+            0x0 -> getFastProgressDialog("正在公开发布……")
         }
     }
 
@@ -116,6 +118,16 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
                     }
                 }
             }
+            0x0 -> {
+                val check = checkResultCode(result)
+                if (check != null && check.code == SUCCESS_CODE) {
+                    toast("公开发布成功")
+                    RxBus.getDefault().post(ArticleItem())
+                    finish()
+                }else{
+                    toast("发布失败……")
+                }
+            }
         }
     }
 
@@ -128,7 +140,10 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
         when (item?.itemId) {
             R.id.mMenuArticlePublic->{
                 alert("是否要公开发布？","是","否"){_,_->
-
+                    mPresent.getDataByPost(0x0,
+                        getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_STATUS_ACT)
+                            .addParam("status","1")
+                            .addParam("aid",aid))
                 }
             }
         }

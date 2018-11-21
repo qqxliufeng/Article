@@ -7,6 +7,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.text.TextUtils
 import android.view.View
+import android.widget.EditText
+import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.UserInfo
@@ -14,6 +16,7 @@ import com.android.ql.lf.article.data.UserInfoLiveData
 import com.android.ql.lf.article.data.isLogin
 import com.android.ql.lf.article.ui.adapters.ArticleListAdapter
 import com.android.ql.lf.article.ui.fragments.article.ArticleAdmireDialogFragment
+import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean
@@ -21,6 +24,7 @@ import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.android.ql.lf.baselibaray.utils.ImageUploadHelper
+import com.android.ql.lf.baselibaray.utils.RxBus
 import com.android.ql.lf.baselibaray.utils.compressAndSaveCacheFace
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.zhihu.matisse.Matisse
@@ -52,6 +56,16 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
         arguments?.getInt("pid") ?: -1
     }
 
+    private var tempItem:ArticleItem? = null
+
+    private val updateArticleListSubscription by lazy {
+        RxBus.getDefault().toObservable(ArticleItem::class.java).subscribe {
+            if (tempItem != null && tempItem!!.articles_id == it.articles_id) {
+                onPostRefresh()
+            }
+        }
+    }
+
     override fun createAdapter() = ArticleListAdapter(mArrayList)
 
     override fun getLayoutId() = R.layout.fragment_personal_index_layout
@@ -61,6 +75,7 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
     override fun initView(view: View?) {
         (mContext as FragmentContainerActivity).statusBarColor = Color.TRANSPARENT
         super.initView(view)
+        updateArticleListSubscription
         setRefreshEnable(false)
         mIvBack.setImageResource(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material)
         mIvBack.setColorFilter(Color.WHITE)
@@ -90,6 +105,19 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
         mLlPersonalIndexLeaveMessage.setOnClickListener {
             val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
             val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
+            val submit = contentView.findViewById<TextView>(R.id.mTvArticleCommentSubmit)
+            val content = contentView.findViewById<EditText>(R.id.mEtArticleCommentContent)
+            submit.text = "发表留言"
+            submit.setOnClickListener {
+                if (content.isEmpty()){
+                    toast("请输入留言内容")
+                    return@setOnClickListener
+                }
+                popUpWindow.dismiss()
+                mPresent.getDataByPost(0x3, getBaseParamsWithModAndAct(MESSAGE_MODULE,LEAVE_DO_ACT)
+                    .addParam("cuid",pid)
+                    .addParam("content",content.getTextString()))
+            }
         }
         mTvPersonalIndexPraise.setOnClickListener {
             val admireDialog = ArticleAdmireDialogFragment()
@@ -124,6 +152,11 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
 
     override fun onRefresh() {
         super.onRefresh()
+        mPresent.getDataByPost(0x0, getBaseParamsWithPage(MEMBER_MODULE, MY_MAIN_ACT,currentPage).addParam("reuid",pid))
+    }
+
+    override fun onLoadMore() {
+        super.onLoadMore()
         mPresent.getDataByPost(0x0, getBaseParamsWithPage(MEMBER_MODULE, MY_MAIN_ACT,currentPage).addParam("reuid",pid))
     }
 
@@ -216,6 +249,14 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
 
     override fun onMyItemClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
         super.onMyItemClick(adapter, view, position)
+        tempItem = mArrayList[position]
+        ArticleInfoForNormalFragment.startArticleInfoForNormal(
+            mContext,
+            tempItem?.articles_id!!,
+            tempItem?.articles_uid!!,
+            tempItem?.articles_like ?: 0,
+            tempItem?.articles_love ?: 0
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -247,4 +288,10 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
             })
         }
     }
+
+    override fun onDestroyView() {
+        unsubscribe(updateArticleListSubscription)
+        super.onDestroyView()
+    }
+
 }
