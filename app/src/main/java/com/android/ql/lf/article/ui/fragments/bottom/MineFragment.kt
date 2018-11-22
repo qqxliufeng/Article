@@ -1,28 +1,33 @@
 package com.android.ql.lf.article.ui.fragments.bottom
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.activity.AuthActivity
-import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
-import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
-import kotlinx.android.synthetic.main.fragment_mine_layout.*
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
-import com.android.ql.lf.article.ui.fragments.login.LoginFragment
 import com.android.ql.lf.article.ui.fragments.mine.*
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
-import com.android.ql.lf.article.ui.fragments.start.SelectUserLikeTypeFragment
+import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
 import com.android.ql.lf.article.utils.*
-import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
+import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.android.ql.lf.baselibaray.utils.PreferenceUtils
+import com.sina.weibo.sdk.share.WbShareCallback
+import com.sina.weibo.sdk.share.WbShareHandler
+import kotlinx.android.synthetic.main.fragment_mine_layout.*
+import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
 
 
 class MineFragment : BaseNetWorkingFragment() {
+
+    private val shareHandler by lazy {
+        WbShareHandler(mContext as Activity)
+    }
 
     private val shareDialogFragment by lazy {
         AppShareDialogFragment()
@@ -55,6 +60,7 @@ class MineFragment : BaseNetWorkingFragment() {
             PersonalEditFragment.startPersonalEditFragment(mContext)
         }
         mTvMineShare.setOnClickListener {
+            shareDialogFragment.setWeiBoShareHandler(shareHandler)
             shareDialogFragment.show(childFragmentManager, "app_share_dialog")
         }
         mLlMineFocusCount.doClickWithUserStatusStart("") {
@@ -122,6 +128,22 @@ class MineFragment : BaseNetWorkingFragment() {
         if (!UserInfo.isLogin() && PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1) != -1){
             mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1)))
         }
+    }
+
+    fun onWeiboShareResult(data:Intent){
+        shareHandler.doResultIntent(data, object : WbShareCallback {
+            override fun onWbShareFail() {
+                toast("分享失败……")
+            }
+
+            override fun onWbShareCancel() {
+                toast("分享取消……")
+            }
+
+            override fun onWbShareSuccess() {
+                toast("分享成功……")
+            }
+        })
     }
 
     override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {

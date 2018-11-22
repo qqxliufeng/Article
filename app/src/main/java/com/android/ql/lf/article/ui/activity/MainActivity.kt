@@ -1,5 +1,6 @@
 package com.android.ql.lf.article.ui.activity
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.support.design.widget.TabLayout
@@ -38,6 +39,8 @@ class MainActivity : BaseActivity() {
         ContextCompat.getColor(this, R.color.normalTextColor)
     }
 
+    private val mineFragment by lazy { MineFragment() }
+
     private var exists = 0L
 
     override fun getLayoutId() = R.layout.activity_main
@@ -63,7 +66,7 @@ class MainActivity : BaseActivity() {
                         MessageFragment()
                     }
                     3->{
-                        MineFragment()
+                        mineFragment
                     }
                     else -> {
                         IndexFragment()
@@ -156,6 +159,13 @@ class MainActivity : BaseActivity() {
         mTlMainBottom.addTab(messageTab)
         mTlMainBottom.addTab(mineTab)
         indexTab.select()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (data!=null) {
+            mineFragment.onWeiboShareResult(data)
+        }
     }
 
     override fun onBackPressed() {

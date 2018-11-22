@@ -4,7 +4,6 @@ import com.android.ql.lf.baselibaray.application.BaseApplication
 import com.android.ql.lf.baselibaray.utils.BaseConfig
 import com.sina.weibo.sdk.WbSdk
 import com.sina.weibo.sdk.auth.AuthInfo
-import org.jsoup.Connection
 
 class MyApplication : BaseApplication() {
 
@@ -18,7 +17,11 @@ class MyApplication : BaseApplication() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        WbSdk.install(this, AuthInfo(this,BaseConfig.WB_APP_ID,BaseConfig.WB_REDIRECT_URL,BaseConfig.WB_SCOPE))
+        WbSdk.install(this, AuthInfo(this,
+            BaseConfig.WB_APP_ID,
+            BaseConfig.WB_REDIRECT_URL,
+            BaseConfig.WB_SCOPE)
+        )
     }
 
 }

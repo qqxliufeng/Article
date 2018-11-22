@@ -73,6 +73,10 @@ fun UserInfo.jsonToUserInfo(json: JSONObject): Boolean {
         user_cover = json.optString("member_cover")
         user_front = json.optString("member_front")
         user_reverse = json.optString("member_reverse")
+
+        user_qq = json.optString("member_qq")
+        user_wx = json.optString("member_wx")
+        user_weibo = json.optString("member_weibo")
         PreferenceUtils.setPrefInt(MyApplication.getInstance(), USER_ID_FLAG, user_id)
         true
     } catch (e: Exception) {
@@ -103,6 +107,9 @@ object UserInfo {
     var user_cover:String? = null
     var user_front:String? = null
     var user_reverse:String? = null
+    var user_qq:String? = null
+    var user_wx:String? = null
+    var user_weibo:String? = null
 }
 
 enum class AuthStatus(flag:Int){

@@ -4,22 +4,24 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.support.v4.content.ContextCompat
+import android.text.TextUtils
 import android.view.View
 import android.view.WindowManager
 import android.webkit.*
-import android.widget.Toast
+import com.alipay.sdk.app.PayTask
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.fragments.mine.FeedBackFragment
-import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
-import com.android.ql.lf.article.utils.loadLocalHtml
-import com.android.ql.lf.article.utils.setNormalSetting
+import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.activity.BaseActivity
 import kotlinx.android.synthetic.main.activity_web_view_container_layout.*
 import org.jetbrains.anko.toast
+
 
 class WebViewContainerActivity : BaseActivity() {
 
@@ -30,11 +32,38 @@ class WebViewContainerActivity : BaseActivity() {
             intent.putExtra("url", url)
             context.startActivity(intent)
         }
+
+        val SDK_PAY_FLAG = 1
+    }
+
+    private val mHandler = object : Handler(Looper.getMainLooper()){
+
+        override fun handleMessage(msg: Message?) {
+            when(msg?.what){
+                SDK_PAY_FLAG->{
+                    val payResult = PayResult(msg.obj as Map<String, String>)
+                    /**
+                    对于支付结果，请商户依赖服务端的异步通知结果。同步通知结果，仅作为支付结束的通知。
+                     */
+                    val resultInfo = payResult.result// 同步返回需要验证的信息
+                    val resultStatus = payResult.resultStatus
+                    // 判断resultStatus 为9000则代表支付成功
+                    if (TextUtils.equals(resultStatus, "9000")) {
+                        // 该笔订单是否真实支付成功，需要依赖服务端的异步通知。
+                        toast("支付成功")
+                        mWVArticleWebViewContainer.reload()
+                    } else {
+                        toast("支付失败")
+                        // 该笔订单真实的支付结果，需要依赖服务端的异步通知。
+                    }
+                }
+            }
+        }
     }
 
     override fun getLayoutId() = R.layout.activity_web_view_container_layout
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint("JavascriptInterface","SetJavaScriptEnabled")
     override fun initView() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -94,6 +123,11 @@ class WebViewContainerActivity : BaseActivity() {
         }
     }
 
+    override fun onDestroy() {
+        mHandler.removeCallbacksAndMessages(null)
+        super.onDestroy()
+    }
+
     inner class MyWebViewClient : WebViewClient() {
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -116,6 +150,11 @@ class WebViewContainerActivity : BaseActivity() {
             }
             mPbArticleProgress.visibility = View.GONE
             mTvArticleWebViewTitle.text = view?.title ?: ""
+            if (url!= null && url.endsWith("wallet.html",true)){
+                mTvArticleWebViewAction.visibility = View.VISIBLE
+            }else{
+                mTvArticleWebViewAction.visibility = View.GONE
+            }
         }
     }
 
@@ -126,14 +165,6 @@ class WebViewContainerActivity : BaseActivity() {
             mPbArticleProgress.progress = newProgress
         }
 
-        override fun onShowFileChooser(
-            webView: WebView?,
-            filePathCallback: ValueCallback<Array<Uri>>?,
-            fileChooserParams: FileChooserParams?
-        ): Boolean {
-            toast("asdafd")
-            return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
-        }
     }
 
     inner class WebViewInterface {
@@ -142,6 +173,37 @@ class WebViewContainerActivity : BaseActivity() {
         fun getUserId(): String {
             return UserInfo.user_id.toString()
         }
-    }
 
+        @JavascriptInterface
+        fun aliPay(sign:String,price:String){
+            mHandler.post {
+                alert("提示","是否要支付金额${price}元","支付","取消",{_,_->
+                    val runnable = Runnable {
+                        val payTask = PayTask(this@WebViewContainerActivity)
+                        val result = payTask.payV2(sign,true)
+                        val msg = Message()
+                        msg.what = SDK_PAY_FLAG
+                        msg.obj = result
+                        mHandler.sendMessage(msg)
+                    }
+                    val thread = Thread(runnable)
+                    thread.start()
+                },null)
+            }
+        }
+
+        @JavascriptInterface
+        fun myAlert(content:String){
+            runOnUiThread{
+                alert("提示",content,"确定","",null,null)
+            }
+        }
+
+        @JavascriptInterface
+        fun myToast(message:String){
+            runOnUiThread {
+                toast(message)
+            }
+        }
+    }
 }

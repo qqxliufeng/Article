@@ -80,7 +80,7 @@
 	     	 	 	<li>¥ 68</li>
 	     	 	 	<li>¥ 98</li>
 	     	 	 </ul>
-	     	 	 <button type="button" class="redbg white">充值</button>
+	     	 	 <button type="button" class="redbg white" onclick="Recharge()">充值</button>
 	     	 </div>
 	     </div>
 	     <!--充值内容  end-->
@@ -166,6 +166,10 @@
 	      	$("#price").on("keyup",function(){
 	      		$(".withdraw-main").css({'top':'10%'})
 	      	})
+
+	      	function Recharge(){
+	      	    alert(article.aliPay(123456))
+	      	}
 
 
 

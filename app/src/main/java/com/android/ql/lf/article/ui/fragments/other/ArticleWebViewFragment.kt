@@ -56,7 +56,6 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         updateArticleListSubscription
         mWVArticleWebViewContainer.setNormalSetting()
         mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), JS_BRIDGE_INTERFACE_NAME)
-        mWVArticleWebViewContainer.settings.javaScriptCanOpenWindowsAutomatically = true
 
         mWVArticleWebViewContainer.webViewClient = MyWebViewClient()
         mWVArticleWebViewContainer.webChromeClient = MyChromeWebViewClient()

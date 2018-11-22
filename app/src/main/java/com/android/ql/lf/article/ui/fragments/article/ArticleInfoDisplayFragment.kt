@@ -15,6 +15,8 @@ import com.android.ql.lf.article.data.ArticleCommentItem
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
+import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthFragment
+import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthUpdateFragment
 import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
@@ -121,9 +123,21 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
             0x0 -> {
                 val check = checkResultCode(result)
                 if (check != null && check.code == SUCCESS_CODE) {
-                    toast("公开发布成功")
-                    RxBus.getDefault().post(ArticleItem())
-                    finish()
+                    when {
+                        check.code == SUCCESS_CODE -> {
+                            toast("公开发布成功")
+                            RxBus.getDefault().post(ArticleItem())
+                            finish()
+                        }
+                        check.code == "400" -> {
+                            toast("请先进行身份认证")
+                            IdentityAuthFragment.startIdentityAuthFragment(mContext)
+                        }
+                        check.code == "500" -> {
+                            toast("当前身份认证信息正信审核中……")
+                            IdentityAuthUpdateFragment.startIdentityAuthUpdateFragment(mContext)
+                        }
+                    }
                 }else{
                     toast("发布失败……")
                 }

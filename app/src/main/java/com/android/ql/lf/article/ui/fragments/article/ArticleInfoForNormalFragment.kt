@@ -331,6 +331,9 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                     if (check.code == SUCCESS_CODE) {
                         if (mCurrentArticle?.articles_love == 0) {
                             mCurrentArticle?.articles_love = 1
+                            val loveCount = (mCurrentArticle?.articles_loveCount ?:0) + 1
+                            mCurrentArticle?.articles_loveCount = loveCount
+                            mTvArticleInfoForNormalBottomActionLove.text = "喜欢 $loveCount"
                             toast("喜欢成功")
                             mTvArticleInfoForNormalBottomActionLove.setCompoundDrawablesWithIntrinsicBounds(
                                 0,
@@ -340,6 +343,10 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                             )
                         } else {
                             mCurrentArticle?.articles_love = 0
+                            var loveCount = (mCurrentArticle?.articles_loveCount ?:0) - 1
+                            loveCount = Math.max(loveCount,0)
+                            mCurrentArticle?.articles_loveCount = loveCount
+                            mTvArticleInfoForNormalBottomActionLove.text = "喜欢 $loveCount"
                             toast("取消喜欢成功")
                             mTvArticleInfoForNormalBottomActionLove.setCompoundDrawablesWithIntrinsicBounds(
                                 0,

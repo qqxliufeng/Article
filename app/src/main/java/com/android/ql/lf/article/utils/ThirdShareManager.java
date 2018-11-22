@@ -2,8 +2,13 @@ package com.android.ql.lf.article.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import com.android.ql.lf.article.R;
 import com.android.ql.lf.article.application.MyApplication;
+import com.sina.weibo.sdk.api.WebpageObject;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
+import com.sina.weibo.sdk.utils.Utility;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
@@ -86,4 +91,23 @@ public class ThirdShareManager {
 //        return shareContent;
 //    }
 
+    /**
+     * 创建多媒体（网页）消息对象。
+     *
+     * @return 多媒体（网页）消息对象。
+     */
+    public static WeiboMultiMessage getWebpageObj(Context context, String title, String description, String actionUrl) {
+        WeiboMultiMessage weiboMultiMessage = new WeiboMultiMessage();
+        WebpageObject mediaObject = new WebpageObject();
+        mediaObject.identify = Utility.generateGUID();
+        mediaObject.title = title;
+        mediaObject.description = description;
+        Bitmap  bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+        // 设置 Bitmap 类型的图片到视频对象里         设置缩略图。 注意：最终压缩过的缩略图大小不得超过 32kb。
+        mediaObject.setThumbImage(bitmap);
+        mediaObject.actionUrl = actionUrl;
+        mediaObject.defaultText = description;
+        weiboMultiMessage.mediaObject = mediaObject;
+        return weiboMultiMessage;
+    }
 }

@@ -31,7 +31,9 @@
                    android:layout_gravity="center"
                    android:src="@drawable/img_wx_unselect_icon"
                    android:id="@+id/mIvAccountSafeWX"/>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        <TextView
+                android:id="@+id/mTvAccountSafeWX"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:text="未绑定"
                   android:layout_marginLeft="@dimen/dp_10"
                   android:textColor="@color/normalTextColor"/>
@@ -49,7 +51,9 @@
                    android:layout_gravity="center"
                    android:src="@drawable/img_wb_unselect_icon"
                    android:id="@+id/mIvAccountSafeWB"/>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        <TextView
+                android:id="@+id/mTvAccountSafeWB"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:text="未绑定"
                   android:layout_marginLeft="@dimen/dp_10"
                   android:textColor="@color/normalTextColor"/>
@@ -68,7 +72,9 @@
                    android:layout_gravity="center"
                    android:src="@drawable/img_qq_unselect_icon"
                    android:id="@+id/mIvAccountSafeQQ"/>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        <TextView
+                android:id="@+id/mTvAccountSafeQQ"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:text="未绑定"
                   android:layout_marginLeft="@dimen/dp_10"
                   android:textColor="@color/normalTextColor"/>

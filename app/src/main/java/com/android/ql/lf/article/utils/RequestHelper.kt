@@ -60,6 +60,7 @@ const val MY_LIKE_DO_ACT = "myLikeDo"
 const val ARTICLE_DEL_ACT = "articleDel" //文章真正删除
 const val IDEA_DO_ACT = "ideaDo"
 const val PERSONAL_CERT_ACT = "personalCert"
+const val ACCOUNT_SAFE_ACT = "accountSafe"
 
 /**       消息模块                **/
 const val MESSAGE_MODULE = "message"
