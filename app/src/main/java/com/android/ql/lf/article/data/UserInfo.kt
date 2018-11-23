@@ -2,7 +2,9 @@ package com.android.ql.lf.article.data
 
 import android.arch.lifecycle.LiveData
 import com.android.ql.lf.article.application.MyApplication
+import com.android.ql.lf.article.ui.fragments.bottom.MineFragment
 import com.android.ql.lf.baselibaray.utils.PreferenceUtils
+import com.android.ql.lf.baselibaray.utils.RxBus
 import org.json.JSONObject
 
 const val USER_ID_FLAG = "user_id"
@@ -11,6 +13,13 @@ const val USER_ID_FLAG = "user_id"
  * 广播用户数据
  */
 fun UserInfo.postUserInfo() = UserInfoLiveData.postUserInfo()
+
+/**
+ * 重新请求用信息广播
+ */
+fun UserInfo.reloadUserInfo(){
+    RxBus.getDefault().post(MineFragment.UPDATE_USER_INFO_FLAG)
+}
 
 /**
  * 更新用户数据

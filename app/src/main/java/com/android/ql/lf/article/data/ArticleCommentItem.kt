@@ -16,7 +16,7 @@ class ArticleCommentItem {
     var comment_type: Int? = null
     var comment_like: Int? = null
     var comment_userData: ArticleCommentUserData? = null
-    var comment_reply: ArrayList<ArticleCommentReply>? = null
+    var comment_reply: ArrayList<ArticleCommentReply>? = arrayListOf()
     var isPriase :Boolean = false
 }
 

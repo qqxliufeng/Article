@@ -11,14 +11,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleShareItem
 import com.android.ql.lf.article.utils.ThirdShareManager
+import com.android.ql.lf.baselibaray.data.BaseShareItem
 import com.sina.weibo.sdk.share.WbShareHandler
 import kotlinx.android.synthetic.main.dialog_app_share_layout.*
 import org.jetbrains.anko.support.v4.toast
 
-class AppShareDialogFragment : BottomSheetDialogFragment() {
+open class AppShareDialogFragment : BottomSheetDialogFragment() {
 
-    private var shareHandler:WbShareHandler? = null
+    protected var shareHandler:WbShareHandler? = null
+
+    protected var baseShareItem : BaseShareItem? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.dialog_app_share_layout, container, false)
@@ -26,55 +30,63 @@ class AppShareDialogFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mTvAppShareCancel.setOnClickListener { dismiss() }
-        mTvAppShareOpenWithBrowser.setOnClickListener {
+        mTvAppShareCancel?.setOnClickListener { dismiss() }
+        mTvAppShareOpenWithBrowser?.setOnClickListener {
             openWithBrowser()
             dismiss()
         }
-        mTvAppShareCopy.setOnClickListener {
+        mTvAppShareCopy?.setOnClickListener {
             copyBroad()
             dismiss()
         }
-        mTvAppShareMore.setOnClickListener {
+        mTvAppShareMore?.setOnClickListener {
             dismiss()
             shareMore()
         }
-        mTvAppShareWeiBo.setOnClickListener {
+        mTvAppShareWeiBo?.setOnClickListener {
             dismiss()
             webiboShare()
         }
     }
 
-    fun setWeiBoShareHandler(shareHandler: WbShareHandler){
+    open fun setWeiBoShareHandler(shareHandler: WbShareHandler){
         this.shareHandler = shareHandler
     }
 
-    fun webiboShare(){
+    open fun setShareArticle(baseShareItem : BaseShareItem){
+        this.baseShareItem = baseShareItem
+    }
+
+    open fun webiboShare(){
         shareHandler?.registerApp()
         shareHandler?.setProgressColor(ContextCompat.getColor(context!!,R.color.colorAccent))
         shareHandler?.shareMessage(ThirdShareManager.getWebpageObj(context!!,resources.getString(R.string.app_name),"这是一款好用的文章app","http://article.581vv.com"),false)
     }
 
-    fun shareMore() {
+    open fun shareMore() {
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_SEND
         sendIntent.type = "text/plain"
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Share")
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "I have successfully share my message through my app")
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, context?.packageName)
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "一款好用的社交文章app")
         startActivity(Intent.createChooser(sendIntent, "share"))
     }
 
-    fun openWithBrowser() {
-        val browserIntent = Intent()
-        browserIntent.data = Uri.parse("http://www.baidu.com")
-        browserIntent.action = Intent.ACTION_VIEW
-        startActivity(browserIntent)
+    open fun openWithBrowser() {
+        if (baseShareItem!=null) {
+            val browserIntent = Intent()
+            browserIntent.data = Uri.parse(baseShareItem?.url)
+            browserIntent.action = Intent.ACTION_VIEW
+            startActivity(browserIntent)
+        }
     }
 
-    fun copyBroad() {
-        val copyBroadManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        copyBroadManager.text = "http://www.baidu.com"
-        toast("复制成功")
+    open fun copyBroad() {
+        if (baseShareItem!=null) {
+            val copyBroadManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            copyBroadManager.text = baseShareItem?.url ?: ""
+            toast("复制成功")
+        }
     }
 
 }

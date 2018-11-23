@@ -5,10 +5,14 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.support.v7.widget.SwitchCompat
 import android.support.v7.widget.Toolbar
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.webkit.*
+import android.widget.EditText
+import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.ArticleType
@@ -18,14 +22,16 @@ import com.android.ql.lf.article.ui.fragments.article.ArticleInfoDisplayFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForTrashFragment
 import com.android.ql.lf.article.ui.fragments.article.Classify
-import com.android.ql.lf.article.utils.JS_BRIDGE_INTERFACE_NAME
-import com.android.ql.lf.article.utils.loadLocalHtml
-import com.android.ql.lf.article.utils.setNormalSetting
+import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
+import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
+import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.RxBus
+import com.android.ql.lf.baselibaray.utils.showSoftInput
 import kotlinx.android.synthetic.main.fragment_article_web_view_layout.*
 import org.jetbrains.anko.bundleOf
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.support.v4.toast
 
 class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivity.OnBackPressListener {
@@ -105,6 +111,47 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         }
     }
 
+    override fun onRequestStart(requestID: Int) {
+        when(requestID){
+            0x0->{
+                getFastProgressDialog("正在回复……")
+            }
+            0x1->{
+                getFastProgressDialog("正在评论……")
+            }
+        }
+    }
+
+    override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
+        when(requestID){
+            0x0->{
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        toast("回复成功")
+                    }else{
+                        toast("回复失败……")
+                    }
+                }else{
+                    toast("回复失败……")
+                }
+            }
+            0x1->{
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        toast("评论成功")
+                        mWVArticleWebViewContainer.reload()
+                    }else{
+                        toast("评论失败……")
+                    }
+                }else{
+                    toast("评论失败……")
+                }
+            }
+        }
+    }
+
     inner class MyWebViewClient : WebViewClient() {
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -164,6 +211,9 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
          */
         @JavascriptInterface
         fun jump(type: Int,aid:String,title: String,content:String) {
+            if (TextUtils.isEmpty(aid)){
+                return
+            }
             when (ArticleType.getTypeNameById(type)) {
                 ArticleType.PRIVATE_ARTICLE -> {
                     if (switch.isChecked){
@@ -190,7 +240,44 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                     ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
                 }
                 else -> {
+                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
                 }
+            }
+        }
+
+        /**
+         * 用于消息收藏中的跳转
+         */
+        @JavascriptInterface
+        fun myJump(type: String,aid:String){
+            if (TextUtils.isEmpty(aid)){
+                return
+            }
+            mContext.runOnUiThread {
+                when (ArticleType.getTypeNameById(type.toInt())){
+                    ArticleType.PRIVATE_ARTICLE -> {
+                        ArticleInfoDisplayFragment.startArticleInfoDisplayFragment(mContext,aid.toInt(),UserInfo.user_id)
+                    }
+                    ArticleType.PUBLIC_ARTICLE -> {
+                        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                    }
+                    ArticleType.TRASH_ARTICLE->{
+                        ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
+                    }
+                    else->{
+                        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun startPersonalIndexById(id:String){
+            if (TextUtils.isEmpty(id)){
+                return
+            }
+            mContext.runOnUiThread {
+                PersonalIndexFragment.startPersonalIndexFragment(mContext,id.toInt())
             }
         }
 
@@ -200,6 +287,68 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
         @JavascriptInterface
         fun getContentById(id:Int){
         }
-    }
 
+
+        /**
+         * 弹出回复框
+         */
+        @JavascriptInterface
+        fun showReplyDialog(cuid:String){
+            if (TextUtils.isEmpty(cuid)){
+                return
+            }
+            mContext.runOnUiThread {
+                val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
+                val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
+                val submit = contentView.findViewById<TextView>(R.id.mTvArticleCommentSubmit)
+                val content = contentView.findViewById<EditText>(R.id.mEtArticleCommentContent)
+                submit.text = "发表回复"
+                submit.setOnClickListener {
+                    if (content.isEmpty()){
+                        toast("请输入回复内容")
+                        return@setOnClickListener
+                    }
+                    popUpWindow.dismiss()
+                    mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MESSAGE_MODULE, LEAVE_DO_ACT)
+                        .addParam("cuid",cuid)
+                        .addParam("content",content.getTextString()))
+                }
+                contentView.postDelayed({
+                    PopupWindowDialog.toggleSoft(mContext)
+                },100)
+            }
+        }
+
+
+        /**
+         * 弹出评论对话框
+         */
+        @JavascriptInterface
+        fun showCommentDialig(cuid:String,reid:String){
+            if (TextUtils.isEmpty(cuid) || TextUtils.isEmpty(reid)){
+                return
+            }
+            mContext.runOnUiThread {
+                val contentView = View.inflate(mContext,R.layout.dialog_comment_layout,null)
+                val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
+                val submit = contentView.findViewById<TextView>(R.id.mTvArticleCommentSubmit)
+                val content = contentView.findViewById<EditText>(R.id.mEtArticleCommentContent)
+                submit.setOnClickListener {
+                    if (content.isEmpty()){
+                        toast("请输入评论内容")
+                        return@setOnClickListener
+                    }
+                    popUpWindow.dismiss()
+                    mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MESSAGE_MODULE, COMMENT_REPLY_ACT)
+                        .addParam("cuid",cuid)
+                        .addParam("content",content.getTextString())
+                        .addParam("reid",reid)
+                        .addParam("type","2"))
+                }
+                contentView.post {
+                    PopupWindowDialog.toggleSoft(mContext)
+                }
+            }
+        }
+    }
 }

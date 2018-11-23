@@ -16,6 +16,7 @@ import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.android.ql.lf.baselibaray.utils.PreferenceUtils
+import com.android.ql.lf.baselibaray.utils.RxBus
 import com.sina.weibo.sdk.share.WbShareCallback
 import com.sina.weibo.sdk.share.WbShareHandler
 import kotlinx.android.synthetic.main.fragment_mine_layout.*
@@ -25,6 +26,10 @@ import org.json.JSONObject
 
 class MineFragment : BaseNetWorkingFragment() {
 
+    companion object {
+        const val UPDATE_USER_INFO_FLAG = "update_user_info_flag"
+    }
+
     private val shareHandler by lazy {
         WbShareHandler(mContext as Activity)
     }
@@ -33,9 +38,18 @@ class MineFragment : BaseNetWorkingFragment() {
         AppShareDialogFragment()
     }
 
+    private val userInfoSubscript by lazy {
+        RxBus.getDefault().toObservable(String::class.java).subscribe {
+            if (it == UPDATE_USER_INFO_FLAG){
+               mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1)))
+            }
+        }
+    }
+
     override fun getLayoutId() = R.layout.fragment_mine_layout
 
     override fun initView(view: View?) {
+        userInfoSubscript
         UserInfoLiveData.observe(this, Observer<UserInfo> {
             if (it!!.isLogin()) {
                 GlideManager.loadFaceCircleImage(mContext, UserInfo.user_pic, mIvMineFace)
@@ -64,7 +78,7 @@ class MineFragment : BaseNetWorkingFragment() {
             shareDialogFragment.show(childFragmentManager, "app_share_dialog")
         }
         mLlMineFocusCount.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attention.html", ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attentionMessage.html", ArticleType.OTHER.type)
         }
         mLlMineFansCount.doClickWithUserStatusStart("") {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "粉丝", "attentionMy.html",ArticleType.OTHER.type)
@@ -162,4 +176,10 @@ class MineFragment : BaseNetWorkingFragment() {
             }
         }
     }
+
+    override fun onDestroyView() {
+        unsubscribe(userInfoSubscript)
+        super.onDestroyView()
+    }
+
 }

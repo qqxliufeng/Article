@@ -2,6 +2,7 @@ package com.android.ql.lf.baselibaray.ui.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -100,6 +101,8 @@ public abstract class BaseFragment extends Fragment {
     public void finish() {
         ((Activity) mContext).finish();
     }
+
+    public void onMyActivityResult(int requestCode, int resultCode, Intent data){}
 
     @Override
     public void onDestroyView() {

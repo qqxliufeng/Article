@@ -264,13 +264,19 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
         }else if (requestID == 0x1){
             val check = checkResultCode(result)
             if (check!=null) {
-                if (check.code == SUCCESS_CODE) {
-                    uploadSuccess()
-                    toast("上传成功")
-                    finish()
-                } else if (check.code == "400") {
-                    toast("请先进行身份认证")
-                    IdentityAuthFragment.startIdentityAuthFragment(mContext)
+                when {
+                    check.code == SUCCESS_CODE -> {
+                        uploadSuccess()
+                        toast("上传成功")
+                        finish()
+                    }
+                    check.code == "400" -> {
+                        toast("请先进行身份认证")
+                        IdentityAuthFragment.startIdentityAuthFragment(mContext)
+                    }
+                    check.code == "500" -> {
+                        toast("当前身份信息正在认证中，暂不能发布文章……")
+                    }
                 }
             }else{
                 toast("上传失败")

@@ -1,26 +1,23 @@
 package com.android.ql.lf.article.ui.fragments.share
 
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.BottomSheetDialogFragment
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.ArticleShareItem
+import com.android.ql.lf.article.utils.ThirdShareManager
+import com.android.ql.lf.baselibaray.data.BaseShareItem
 import kotlinx.android.synthetic.main.dialog_article_share_layout.*
-import org.jetbrains.anko.support.v4.toast
 
-class ArticleShareDialogFragment : BottomSheetDialogFragment() {
+class ArticleShareDialogFragment : AppShareDialogFragment() {
 
     private var onCreateImage:(()->Unit)? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.dialog_article_share_layout, container, false)
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,33 +38,21 @@ class ArticleShareDialogFragment : BottomSheetDialogFragment() {
             dismiss()
             onCreateImage?.invoke()
         }
+        mTvArticleShareWeibo.setOnClickListener {
+            dismiss()
+            webiboShare()
+        }
     }
 
     fun setCreateImage(onCreateImage:(()->Unit)){
         this.onCreateImage = onCreateImage
     }
 
-
-    fun shareMore() {
-        val sendIntent = Intent()
-        sendIntent.action = Intent.ACTION_SEND
-        sendIntent.type = "text/plain"
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Share")
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "I have successfully share my message through my app")
-        startActivity(Intent.createChooser(sendIntent, "share"))
+    override fun webiboShare(){
+        if (baseShareItem!=null) {
+            shareHandler?.registerApp()
+            shareHandler?.setProgressColor(ContextCompat.getColor(context!!,R.color.colorAccent))
+            shareHandler?.shareMessage(ThirdShareManager.getWebpageObj(context!!,baseShareItem?.title ?: "",baseShareItem?.content ?: "",baseShareItem?.url ?: ""),false)
+        }
     }
-
-    fun openWithBrowser() {
-        val browserIntent = Intent()
-        browserIntent.data = Uri.parse("http://www.baidu.com")
-        browserIntent.action = Intent.ACTION_VIEW
-        startActivity(browserIntent)
-    }
-
-    fun copyBroad() {
-        val copyBroadManager = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        copyBroadManager.text = "http://www.baidu.com"
-        toast("复制成功")
-    }
-
 }

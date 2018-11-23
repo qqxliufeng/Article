@@ -1,6 +1,8 @@
 package com.android.ql.lf.article.ui.fragments.article
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.support.v7.view.menu.MenuBuilder
@@ -30,6 +32,8 @@ import com.android.ql.lf.baselibaray.utils.*
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.google.gson.Gson
+import com.sina.weibo.sdk.share.WbShareCallback
+import com.sina.weibo.sdk.share.WbShareHandler
 import kotlinx.android.synthetic.main.fragment_article_info_for_normal_layout.*
 import org.jetbrains.anko.bundleOf
 import org.jetbrains.anko.support.v4.toast
@@ -92,6 +96,12 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
     }
 
     private var focusTextView:CheckedTextView? = null
+
+    private val shareDialog by lazy {  ArticleShareDialogFragment() }
+
+    private val weiboShareHandler by lazy {
+        WbShareHandler(mContext as Activity)
+    }
 
     override fun getLayoutId() = R.layout.fragment_article_info_for_normal_layout
 
@@ -166,30 +176,37 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
             }
         }
         mTvArticleInfoForNormalBottomActionShare.setOnClickListener {
-            val shareDialog = ArticleShareDialogFragment()
-            shareDialog.setCreateImage {
-                val shortImage = Bitmap.createBitmap(mContext.getScreen().first, mHeaderWebView.measuredHeight, Bitmap.Config.RGB_565)
-                Observable.just(shortImage).map {
-                    val canvas = Canvas(it)   // 画布的宽高和屏幕的宽高保持一致
-                    mHeaderWebView.draw(canvas)
-                    val dir = File(BaseConfig.IMAGE_PATH)
-                    dir.mkdirs()
-                    val shareBitmapFile = File(dir,"share_article.jpg")
-                    if (!shareBitmapFile.exists()){
-                        shareBitmapFile.createNewFile()
-                    }
-                    ImageFactory.compressAndGenImage(shortImage,shareBitmapFile.absolutePath,200)
-                    shareBitmapFile
-                }.subscribeOn(Schedulers.io())
-                    .doOnSubscribe {
-                        getFastProgressDialog("正在创建图片……")
-                    }.observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {
-                        progressDialog?.dismiss()
-                        toast("图片创建成功！")
-                    }
+            if (mCurrentArticle!=null) {
+                shareDialog.setWeiBoShareHandler(weiboShareHandler)
+                shareDialog.setShareArticle(ArticleShareItem(mCurrentArticle?.articles_title,mCurrentArticle?.articles_content,"",BaseConfig.BASE_IP))
+                shareDialog.setCreateImage {
+                    val shortImage = Bitmap.createBitmap(
+                        mContext.getScreen().first,
+                        mHeaderWebView.measuredHeight,
+                        Bitmap.Config.RGB_565
+                    )
+                    Observable.just(shortImage).map {
+                        val canvas = Canvas(it)   // 画布的宽高和屏幕的宽高保持一致
+                        mHeaderWebView.draw(canvas)
+                        val dir = File(BaseConfig.IMAGE_PATH)
+                        dir.mkdirs()
+                        val shareBitmapFile = File(dir, "share_article.jpg")
+                        if (!shareBitmapFile.exists()) {
+                            shareBitmapFile.createNewFile()
+                        }
+                        ImageFactory.compressAndGenImage(shortImage, shareBitmapFile.absolutePath, 200)
+                        shareBitmapFile
+                    }.subscribeOn(Schedulers.io())
+                        .doOnSubscribe {
+                            getFastProgressDialog("正在创建图片……")
+                        }.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            progressDialog?.dismiss()
+                            toast("图片创建成功！")
+                        }
+                }
+                shareDialog.show(childFragmentManager, "share_dialog")
             }
-            shareDialog.show(childFragmentManager, "share_dialog")
         }
         mTvArticleInfoForNormalBottomActionLove.setOnClickListener {
             mPresent.getDataByPost(
@@ -329,6 +346,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 val check = checkResultCode(result)
                 if (check != null) {
                     if (check.code == SUCCESS_CODE) {
+                        UserInfo.reloadUserInfo()
                         if (mCurrentArticle?.articles_love == 0) {
                             mCurrentArticle?.articles_love = 1
                             val loveCount = (mCurrentArticle?.articles_loveCount ?:0) + 1
@@ -364,6 +382,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 val check = checkResultCode(result)
                 if (check != null) {
                     if (check.code == SUCCESS_CODE) {
+                        UserInfo.reloadUserInfo()
                         if (mCurrentArticle?.articles_collect == 0) {
                             mCurrentArticle?.articles_collect = 1
                             toast("收藏成功")
@@ -431,6 +450,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 if (check != null) {
                     toast((check.obj as JSONObject).optString(MSG_FLAG))
                     if (check.code == SUCCESS_CODE) {
+                        UserInfo.reloadUserInfo()
                         if (mCurrentArticle?.articles_like == 1){//
                             mCurrentArticle?.articles_like = 0
                             focusTextView?.text = "+ 关注"
@@ -583,6 +603,23 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                     .addParam("type", "$type")
             )
         }
+        contentView.post { PopupWindowDialog.toggleSoft(mContext) }
+    }
+
+    override fun onMyActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        weiboShareHandler.doResultIntent(data, object : WbShareCallback {
+                override fun onWbShareFail() {
+                    toast("分享失败")
+                }
+
+                override fun onWbShareCancel() {
+                    toast("分享取消")
+                }
+
+                override fun onWbShareSuccess() {
+                    toast("分享成功")
+                }
+            })
     }
 
     override fun onDestroyView() {

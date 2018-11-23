@@ -21,6 +21,7 @@ import com.android.ql.lf.baselibaray.application.BaseApplication;
 import com.android.ql.lf.baselibaray.component.ApiServerModule;
 import com.android.ql.lf.baselibaray.component.DaggerApiServerComponent;
 import com.android.ql.lf.baselibaray.present.GetDataFromNetPresent;
+import com.android.ql.lf.baselibaray.ui.fragment.BaseFragment;
 
 import java.lang.reflect.Method;
 
@@ -48,6 +49,7 @@ public class FragmentContainerActivity extends BaseActivity {
     public int actionBarHeight = 0;
 
     private OnBackPressListener onBackPressListener;
+    private BaseFragment fragment;
 
     public void setOnBackPressListener(OnBackPressListener onBackPressListener) {
         this.onBackPressListener = onBackPressListener;
@@ -86,19 +88,18 @@ public class FragmentContainerActivity extends BaseActivity {
     }
 
     private void initFragment() {
-        Fragment fragment;
         Method method;
         try {
             if (extraInfo.extraBundle != null) {
                 method = extraInfo.clazz.getMethod("newInstance", Bundle.class);
-                fragment = (Fragment) method.invoke(null, extraInfo.extraBundle);
+                fragment = (BaseFragment) method.invoke(null, extraInfo.extraBundle);
             } else {
                 method = extraInfo.clazz.getMethod("newInstance");
-                fragment = (Fragment) method.invoke(null);
+                fragment = (BaseFragment) method.invoke(null);
             }
         } catch (NoSuchMethodException e) {
             try {
-                fragment = (Fragment) extraInfo.clazz.newInstance();
+                fragment = (BaseFragment) extraInfo.clazz.newInstance();
                 fragment.setArguments(extraInfo.extraBundle);
             } catch (Exception e1) {
                 fragment = null;
@@ -196,6 +197,9 @@ public class FragmentContainerActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (fragment!=null){
+            fragment.onMyActivityResult(requestCode,resultCode,data);
+        }
     }
 
     @Override

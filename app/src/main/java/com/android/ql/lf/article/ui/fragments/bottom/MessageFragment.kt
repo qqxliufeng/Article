@@ -182,8 +182,6 @@ class MessageFragment : BaseRecyclerViewFragment<LeaveMessage>() {
 
     override fun onMyItemClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
         super.onMyItemClick(adapter, view, position)
-//        startActivity(Intent(mContext,ChatActivity::class.java))
-//        ArticleWebViewFragment.startArticleWebViewFragment(mContext,"留言","message.html")
-        LeaveMessageInfoFragment.startLeaveMessageInfoFragment(mContext)
+        LeaveMessageInfoFragment.startLeaveMessageInfoFragment(mContext,mArrayList[position].leave_uid)
     }
 }

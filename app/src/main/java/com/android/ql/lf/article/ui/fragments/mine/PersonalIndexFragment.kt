@@ -10,10 +10,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import com.android.ql.lf.article.R
-import com.android.ql.lf.article.data.ArticleItem
-import com.android.ql.lf.article.data.UserInfo
-import com.android.ql.lf.article.data.UserInfoLiveData
-import com.android.ql.lf.article.data.isLogin
+import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.adapters.ArticleListAdapter
 import com.android.ql.lf.article.ui.fragments.article.ArticleAdmireDialogFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
@@ -58,6 +55,9 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
 
     private var tempItem:ArticleItem? = null
 
+    private var nickName:String? = null
+    private var facePath:String? = null
+
     private val updateArticleListSubscription by lazy {
         RxBus.getDefault().toObservable(ArticleItem::class.java).subscribe {
             if (tempItem != null && tempItem!!.articles_id == it.articles_id) {
@@ -92,7 +92,7 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                 Math.abs(verticalOffset) == appBarLayout.totalScrollRange -> {
                     mIvBack.setColorFilter(Color.BLACK)
                     mIvShare.setColorFilter(Color.BLACK)
-                    mCTLPersonalIndex.title = UserInfo.user_nickname
+                    mCTLPersonalIndex.title = nickName ?: ""
                 }
                 else -> {
                     if (!mCTLPersonalIndex.title!!.isEmpty()) {
@@ -118,12 +118,19 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                     .addParam("cuid",pid)
                     .addParam("content",content.getTextString()))
             }
+            contentView.post { PopupWindowDialog.toggleSoft(mContext) }
         }
         mTvPersonalIndexPraise.setOnClickListener {
             val admireDialog = ArticleAdmireDialogFragment()
+            admireDialog.setCallBack{content, price ->
+                mPresent.getDataByPost(0x4, getBaseParamsWithModAndAct(ARTICLE_MODULE,ARTICLE_ADMIRE_ACT)
+                    .addParam("cuid",pid)
+                    .addParam("content",content)
+                    .addParam("price",price))
+            }
+            admireDialog.setFacePath(facePath ?: "")
             admireDialog.show(childFragmentManager,"admire_dialog")
         }
-        mLlPersonalIndexFocus.setOnClickListener {  }
         if (pid!=-1){
             if (UserInfo.user_id == pid){
                 UserInfoLiveData.observe(this, Observer<UserInfo> {
@@ -166,8 +173,10 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
 
     override fun onRequestStart(requestID: Int) {
         super.onRequestStart(requestID)
-        if (requestID == 0x2){
-            getFastProgressDialog("操作中……")
+        when (requestID) {
+            0x2 -> getFastProgressDialog("操作中……")
+            0x3 -> getFastProgressDialog("正在发表留言……")
+            0x4 -> getFastProgressDialog("正在发表留言……")
         }
     }
 
@@ -179,8 +188,10 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                 if (check!=null && currentPage == 0){
                     val json = (check.obj as JSONObject).optJSONObject("arr")
                     if (json!=null){
-                        GlideManager.loadFaceCircleImage(mContext,json.optString("member_pic"),mIvPersonalIndexUserFace)
-                        mTvPersonalIndexUserNickName.text = json.optString("member_nickname")
+                        facePath = json.optString("member_pic")
+                        GlideManager.loadFaceCircleImage(mContext,facePath,mIvPersonalIndexUserFace)
+                        nickName = json.optString("member_nickname")
+                        mTvPersonalIndexUserNickName.text = nickName
                         mTvPersonalIndexUserDes.text = if (TextUtils.isEmpty(json.optString("member_signature"))) { "暂无简介" }else{ json.optString("member_signature") }
                         mTvPersonalIndexFocusCount.text = "${json.optString("member_likeCount")}关注"
                         mTvPersonalIndexFansCount.text = "${json.optString("member_fanCount")}粉丝"
@@ -224,6 +235,7 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                 val check = checkResultCode(result)
                 if (check!=null){
                     if (check.code == SUCCESS_CODE){
+                        UserInfo.reloadUserInfo()
                         if (focusStatus == 0){
                             focusStatus = 1
                             mTvPersonalIndexFocus.text = "✓ 已关注"
@@ -236,6 +248,30 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                     }
                 }else{
                     toast("操作失败，请重试")
+                }
+            }
+            0x3->{
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        toast("留言发表成功……")
+                    }else{
+                        toast("留言发表失败……")
+                    }
+                }else{
+                    toast("留言发表失败……")
+                }
+            }
+            0x4->{
+                val check = checkResultCode(result)
+                if (check!=null){
+                    if (check.code == SUCCESS_CODE){
+                        toast("赞赏成功……")
+                    }else{
+                        toast((check.obj as JSONObject).optString(MSG_FLAG))
+                    }
+                }else{
+                    toast("赞赏失败……")
                 }
             }
         }
