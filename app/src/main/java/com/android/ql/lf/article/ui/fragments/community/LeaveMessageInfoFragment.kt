@@ -5,11 +5,14 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.LeaveMessage
+import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
+import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
@@ -47,9 +50,18 @@ class LeaveMessageInfoFragment : BaseRecyclerViewFragment<LeaveMessage>() {
             override fun convert(helper: BaseViewHolder?, item: LeaveMessage?) {
                 helper?.setText(R.id.mTvLeaveMessageItemUserNickName,item?.leave_userData?.member_nickname)
                 GlideManager.loadFaceCircleImage(mContext,item?.leave_userData?.member_pic,helper?.getView(R.id.mIvLeaveMessageItemUserFace))
-                helper?.setText(R.id.mTvLeaveMessageItemContent,item?.leave_content)
+                if (item?.leave_theme == 0) {
+                    helper?.setTextColor(R.id.mTvLeaveMessageItemContent,mContext.resources.getColor(R.color.blackTextColor))
+                    helper?.setText(R.id.mTvLeaveMessageItemContent, item.leave_content)
+                }else{
+                    helper?.setTextColor(R.id.mTvLeaveMessageItemContent,mContext.resources.getColor(android.R.color.holo_blue_dark))
+                    helper?.setText(R.id.mTvLeaveMessageItemContent, "《${item?.leave_content}》")
+                }
                 helper?.setText(R.id.mTvLeaveMessageItemTime,item?.leave_times)
                 helper?.addOnClickListener(R.id.mTvLeaveMessageItemReply)
+                helper?.addOnClickListener(R.id.mTvLeaveMessageItemUserNickName)
+                helper?.addOnClickListener(R.id.mIvLeaveMessageItemUserFace)
+                helper?.addOnClickListener(R.id.mTvLeaveMessageItemContent)
             }
         }
 
@@ -96,23 +108,31 @@ class LeaveMessageInfoFragment : BaseRecyclerViewFragment<LeaveMessage>() {
 
     override fun onMyItemChildClick(adapter: BaseQuickAdapter<*, *>?, view: View?, position: Int) {
         super.onMyItemChildClick(adapter, view, position)
-        if (view!!.id == R.id.mTvLeaveMessageItemReply){
-            val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
-            val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
-            val submit = contentView.findViewById<TextView>(R.id.mTvArticleCommentSubmit)
-            val content = contentView.findViewById<EditText>(R.id.mEtArticleCommentContent)
-            submit.text = "发表回复"
-            submit.setOnClickListener {
-                if (content.isEmpty()){
-                    toast("请输入留言内容")
-                    return@setOnClickListener
+        when {
+            view!!.id == R.id.mTvLeaveMessageItemReply -> {
+                val contentView = View.inflate(mContext,R.layout.dialog_article_comment_layout,null)
+                val popUpWindow = PopupWindowDialog.showReplyDialog(mContext,contentView)
+                val submit = contentView.findViewById<TextView>(R.id.mTvArticleCommentSubmit)
+                val content = contentView.findViewById<EditText>(R.id.mEtArticleCommentContent)
+                submit.text = "发表回复"
+                submit.setOnClickListener {
+                    if (content.isEmpty()){
+                        toast("请输入留言内容")
+                        return@setOnClickListener
+                    }
+                    popUpWindow.dismiss()
+                    mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MESSAGE_MODULE, LEAVE_DO_ACT)
+                        .addParam("cuid",cuid)
+                        .addParam("content",content.getTextString()))
                 }
-                popUpWindow.dismiss()
-                mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MESSAGE_MODULE, LEAVE_DO_ACT)
-                    .addParam("cuid",cuid)
-                    .addParam("content",content.getTextString()))
+                contentView.post { PopupWindowDialog.toggleSoft(mContext) }
             }
-            contentView.post { PopupWindowDialog.toggleSoft(mContext) }
+            view.id == R.id.mIvLeaveMessageItemUserFace || view.id == R.id.mTvLeaveMessageItemUserNickName -> PersonalIndexFragment.startPersonalIndexFragment(mContext,mArrayList[position].leave_userData?.member_id ?: 0)
+            view.id == R.id.mTvLeaveMessageItemContent ->{
+                if (mArrayList[position].leave_theme != 0){
+                   ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,mArrayList[position].leave_theme)
+                }
+            }
         }
     }
 }

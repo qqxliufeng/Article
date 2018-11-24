@@ -42,6 +42,10 @@ class LoginSecondStepFragment : BaseNetWorkingFragment() {
         PreferenceUtils.getPrefString(mContext, "user_phone", "")
     }
 
+    private val password by lazy {
+        PreferenceUtils.getPrefString(mContext, "user_password", "")
+    }
+
     private val code by lazy {
         PreferenceUtils.getPrefString(mContext, "user_code", "")
     }
@@ -70,9 +74,10 @@ class LoginSecondStepFragment : BaseNetWorkingFragment() {
                     .addParam("code", code)
                     .addParam("sex", sex)
                     .addParam("birthday", birthday)
+                    .addParam("password",password)
                     .addParam("nickname", mEtLoginUserNickName.getTextString())
                     .addParam("address", "")
-                    .addParam("classify", "")
+                    .addParam("classify", PreferenceUtils.getPrefString(mContext,"my_classify",""))
                     .addParam("pic", facePath)
             )
         }

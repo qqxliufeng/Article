@@ -103,6 +103,8 @@ class MessageFragment : BaseRecyclerViewFragment<LeaveMessage>() {
         super.onRefresh()
         if (UserInfo.isLogin()) {
             mPresent.getDataByPost(0x0, getBaseParamsWithPage(MESSAGE_MODULE, MESSAGE_ACT, currentPage))
+        }else{
+            onRequestEnd(-1)
         }
     }
 

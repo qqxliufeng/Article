@@ -11,6 +11,7 @@ class LeaveMessage {
     var leave_rid : Int = 0
     var leave_cuid : Int = 0
     var leave_type : Int = 0
+    var leave_theme : Int = 0
     var leave_times:String? = null
     var leave_userData : LeaveMessageUserData? = null
 }

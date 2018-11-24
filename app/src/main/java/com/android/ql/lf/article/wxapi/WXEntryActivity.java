@@ -29,7 +29,7 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        iwxapi = WXAPIFactory.createWXAPI(this, BaseConfig.WX_APP_ID, false);
+        iwxapi = WXAPIFactory.createWXAPI(this, BaseConfig.WX_APP_ID, true);
         iwxapi.handleIntent(getIntent(), this);
     }
 
@@ -42,8 +42,6 @@ public class WXEntryActivity extends AppCompatActivity implements IWXAPIEventHan
         switch (baseResp.errCode) {
             case BaseResp.ErrCode.ERR_OK:
                 if (baseResp instanceof SendAuth.Resp) {
-                    SendAuth.Resp newResp = (SendAuth.Resp) baseResp;
-                    String code = newResp.code;
                     RxBus.getDefault().post(baseResp);
                 } else if (baseResp instanceof SendMessageToWX.Resp) {
                     Toast.makeText(this, "分享成功", Toast.LENGTH_SHORT).show();

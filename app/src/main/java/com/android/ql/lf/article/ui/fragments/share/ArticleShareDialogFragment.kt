@@ -7,13 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleShareItem
+import com.android.ql.lf.article.ui.fragments.mine.MyFriendListFragment
 import com.android.ql.lf.article.utils.ThirdShareManager
 import com.android.ql.lf.baselibaray.data.BaseShareItem
+import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
+import com.android.ql.lf.baselibaray.utils.BaseConfig
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
+import com.tencent.mm.opensdk.openapi.IWXAPI
 import kotlinx.android.synthetic.main.dialog_article_share_layout.*
 
 class ArticleShareDialogFragment : AppShareDialogFragment() {
 
     private var onCreateImage:(()->Unit)? = null
+
+    private var shareFriend:(()->Unit)? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.dialog_article_share_layout, container, false)
@@ -42,10 +49,34 @@ class ArticleShareDialogFragment : AppShareDialogFragment() {
             dismiss()
             webiboShare()
         }
+        mTvAppShareFriend.setOnClickListener {
+            dismiss()
+            shareFriend?.invoke()
+        }
+        mTvAppShareWXFriend.setOnClickListener {
+            dismiss()
+            shareArticleToWXFriend()
+        }
+        mTvAppShareWXCircle.setOnClickListener {
+            dismiss()
+            shareArticleToWXCircle()
+        }
     }
 
     fun setCreateImage(onCreateImage:(()->Unit)){
         this.onCreateImage = onCreateImage
+    }
+
+    fun setShareFriend(shareFriend:(()->Unit)?){
+        this.shareFriend = shareFriend
+    }
+
+    private fun shareArticleToWXFriend(){
+        ThirdShareManager.wxShare(iWxApi,null,SendMessageToWX.Req.WXSceneSession,baseShareItem as ArticleShareItem)
+    }
+
+    private fun shareArticleToWXCircle(){
+        ThirdShareManager.wxShare(iWxApi,null,SendMessageToWX.Req.WXSceneTimeline,baseShareItem as ArticleShareItem)
     }
 
     override fun webiboShare(){

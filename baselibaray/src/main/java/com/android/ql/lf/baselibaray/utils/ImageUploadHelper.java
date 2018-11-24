@@ -104,6 +104,71 @@ public class ImageUploadHelper {
         }
     }
 
+    public void uploadMultiImage(final ArrayList<ImageBean> list) {
+        if (list != null && !list.isEmpty()) {
+            File dir = new File(BaseConfig.IMAGE_PATH);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            ArrayList<String> tempPath = new ArrayList<>();
+            for (ImageBean imageBean : list) {
+                tempPath.add(imageBean.getUriPath());
+            }
+            Observable.just(tempPath).map(new Func1<ArrayList<String>, ArrayList<File>>() {
+                @Override
+                public ArrayList<File> call(ArrayList<String> list) {
+                    try {
+                        return (ArrayList<File>) Luban
+                                .with(BaseApplication.getInstance())
+                                .ignoreBy(100)
+                                .setTargetDir(BaseConfig.IMAGE_PATH)
+                                .load(list)
+                                .get();
+                    } catch (IOException e) {
+                        return null;
+                    }
+                }
+            }).subscribeOn(Schedulers.io())
+                    .doOnSubscribe(new Action0() {
+                        @Override
+                        public void call() {
+                            if (onImageUploadListener != null) {
+                                onImageUploadListener.onActionStart();
+                            }
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<ArrayList<File>>() {
+                        @Override
+                        public void onCompleted() {
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            if (onImageUploadListener != null) {
+                                onImageUploadListener.onActionFailed();
+                            }
+                        }
+
+                        @Override
+                        public void onNext(ArrayList<File> files) {
+                            if (onImageUploadListener != null && files != null) {
+                                MultipartBody.Builder builder = ImageUploadHelper.createMultipartBody();
+                                for (int i = 0; i < files.size(); i++) {
+                                    File file = files.get(i);
+                                    builder.addFormDataPart("img[]", file.getName(), RequestBody.create(MultipartBody.FORM, file));
+                                }
+                                onImageUploadListener.onActionEnd(builder);
+                            } else {
+                                if (onImageUploadListener != null) {
+                                    onImageUploadListener.onActionFailed();
+                                }
+                            }
+                        }
+                    });
+        }
+    }
+
     public void upload(final ArrayList<ImageBean> list, final ArrayList<String> keys) {
         if (list != null && !list.isEmpty()) {
             File dir = new File(BaseConfig.IMAGE_PATH);

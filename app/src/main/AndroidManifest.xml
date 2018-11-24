@@ -62,8 +62,26 @@
         <activity android:name=".wxapi.WXEntryActivity"
                   android:exported="true"
                   android:launchMode="singleTop"
-                  android:screenOrientation="portrait"
                   android:theme="@android:style/Theme.NoDisplay"/>
+
+        <activity
+                android:name="com.tencent.tauth.AuthActivity"
+                android:noHistory="true"
+                android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tencent1106743534" />
+            </intent-filter>
+        </activity>
+
+        <activity
+                android:name="com.tencent.connect.common.AssistActivity"
+                android:screenOrientation="behind"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                android:configChanges="orientation|keyboardHidden">
+        </activity>
 
         <provider
                 android:name="android.support.v4.content.FileProvider"

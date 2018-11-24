@@ -95,6 +95,7 @@ class FeedBackFragment : BaseNetWorkingFragment() {
             }else {
                 ImageUploadHelper(object : ImageUploadHelper.OnImageUploadListener {
                     override fun onActionStart() {
+                        getFastProgressDialog("正在上传问题~")
                     }
 
                     override fun onActionEnd(builder: MultipartBody.Builder?) {
@@ -107,7 +108,7 @@ class FeedBackFragment : BaseNetWorkingFragment() {
 
                     override fun onActionFailed() {
                     }
-                }).upload(imageList.filter { it.uriPath != null } as ArrayList<ImageBean>)
+                }).uploadMultiImage(imageList.filter { it.uriPath != null } as ArrayList<ImageBean>)
             }
         }
     }
@@ -120,12 +121,6 @@ class FeedBackFragment : BaseNetWorkingFragment() {
             }
             mTvFeedBackImageCount.text = "${imageList.size - 1}/4"
             mRvFeedBackImageContent.adapter.notifyDataSetChanged()
-        }
-    }
-
-    override fun onRequestStart(requestID: Int) {
-        if (requestID == 0){
-            getFastProgressDialog("正在上传问题~")
         }
     }
 

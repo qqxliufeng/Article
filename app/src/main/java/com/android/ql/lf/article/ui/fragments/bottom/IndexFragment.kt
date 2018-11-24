@@ -55,6 +55,9 @@ class IndexFragment : BaseNetWorkingFragment() {
                         ageList.add(classify)
                     }
                 }
+                typeList.add(0,Classify(0,"推荐"))
+                ageList.add(0,Classify(0,"推荐"))
+                addressList.add(0,Classify(0,"推荐"))
                 mVpIndexBottom.adapter = object : FragmentStatePagerAdapter(childFragmentManager) {
                     override fun getItem(position: Int): Fragment {
                         return when(position){

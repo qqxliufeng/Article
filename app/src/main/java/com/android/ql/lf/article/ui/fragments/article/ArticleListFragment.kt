@@ -36,7 +36,7 @@ class ArticleListFragment : BaseNetWorkingFragment(){
                     0-> ArticleListItemFragment.startArticleListItem((list[position] as Classify).classify_id,ArticleListItemFragment.INVALID_ID,ArticleListItemFragment.INVALID_ID)
                     1-> ArticleListItemFragment.startArticleListItem(ArticleListItemFragment.INVALID_ID,(list[position] as Classify).classify_id,ArticleListItemFragment.INVALID_ID)
                     2-> ArticleListItemFragment.startArticleListItem(ArticleListItemFragment.INVALID_ID,ArticleListItemFragment.INVALID_ID,(list[position] as Classify).classify_id)
-                    else-> ArticleListItemFragment.startArticleListItem(ArticleListItemFragment.INVALID_ID,ArticleListItemFragment.INVALID_ID,(list[position] as Classify).classify_id)
+                    else-> ArticleListItemFragment.startArticleListItem(ArticleListItemFragment.INVALID_ID,ArticleListItemFragment.INVALID_ID,ArticleListItemFragment.INVALID_ID)
                 }
             }
             override fun getCount() = list.size

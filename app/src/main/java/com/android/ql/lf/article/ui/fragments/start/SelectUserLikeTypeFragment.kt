@@ -15,11 +15,13 @@ import com.android.ql.lf.article.utils.LOGIN_MODULE
 import com.android.ql.lf.article.utils.getBaseParamsWithModAndAct
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
 import com.android.ql.lf.baselibaray.utils.GlideManager
+import com.android.ql.lf.baselibaray.utils.PreferenceUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import kotlinx.android.synthetic.main.fragment_select_user_like_type_layout.*
 import kotlinx.android.synthetic.main.layout_pre_step.*
 import org.jetbrains.anko.support.v4.toast
+import java.lang.StringBuilder
 import java.util.ArrayList
 
 class SelectUserLikeTypeFragment : BaseRecyclerViewFragment<Classify>() {
@@ -60,6 +62,15 @@ class SelectUserLikeTypeFragment : BaseRecyclerViewFragment<Classify>() {
         }
         mTvSelectTypeNextStep.setOnClickListener {
             toast("正在为您生成主页")
+            if (!selectItemsList.isEmpty()) {
+                val stringBuilder = StringBuilder()
+                selectItemsList.forEach {
+                    stringBuilder.append(it.classify_id)
+                    stringBuilder.append(",")
+                }
+                stringBuilder.deleteCharAt(stringBuilder.lastIndex)
+                PreferenceUtils.setPrefString(mContext,"my_classify",stringBuilder.toString())
+            }
             mTvSelectTypeNextStep.postDelayed({
                 startActivity(Intent(mContext, MainActivity::class.java))
                 finish()

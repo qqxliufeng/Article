@@ -9,7 +9,16 @@ import com.android.ql.lf.article.utils.ACCOUNT_SAFE_ACT
 import com.android.ql.lf.article.utils.MEMBER_MODULE
 import com.android.ql.lf.article.utils.getBaseParamsWithModAndAct
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
+import com.android.ql.lf.baselibaray.utils.BaseConfig
+import com.android.ql.lf.baselibaray.utils.RxBus
 import com.sina.weibo.sdk.auth.Oauth2AccessToken
+import com.sina.weibo.sdk.auth.sso.SsoHandler
+import com.tencent.mm.opensdk.modelbase.BaseResp
+import com.tencent.mm.opensdk.modelmsg.SendAuth
+import com.tencent.mm.opensdk.openapi.WXAPIFactory
+import com.tencent.tauth.IUiListener
+import com.tencent.tauth.Tencent
+import com.tencent.tauth.UiError
 import kotlinx.android.synthetic.main.fragment_account_safe_layout.*
 import org.jetbrains.anko.support.v4.toast
 
@@ -18,18 +27,34 @@ import org.jetbrains.anko.support.v4.toast
  * Created by lf on 18.11.21.
  * @author lf on 18.11.21
  */
-class AccountSafeFragment : BaseNetWorkingFragment() {
+class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
 
     override fun getLayoutId() = R.layout.fragment_account_safe_layout
 
     private var type: Int = 1
 
+    private val wxAuthSubscription by lazy {
+        RxBus.getDefault().toObservable(BaseResp::class.java).subscribe {
+            onWeiXinAuthSuccess((it as SendAuth.Resp).code)
+        }
+    }
+
+    private val iwxapi by lazy {
+        WXAPIFactory.createWXAPI(mContext,BaseConfig.WX_APP_ID,true)
+    }
+
     override fun initView(view: View?) {
+        wxAuthSubscription
         mTvAccountSafePhone.text = UserInfo.user_phone
         if (TextUtils.isEmpty(UserInfo.user_wx)) {
             mIvAccountSafeWX.setImageResource(R.drawable.img_wx_unselect_icon)
             mTvAccountSafeWX.text = "未绑定"
             mLlAccountSafeWX.setOnClickListener {
+                iwxapi.registerApp(BaseConfig.WX_APP_ID)
+                val req = SendAuth.Req()
+                req.scope = "snsapi_userinfo"
+                req.state = "wechat_sdk_ql_bs"
+                iwxapi.sendReq(req)
             }
         } else {
             mIvAccountSafeWX.setImageResource(R.drawable.img_wx_select_icon)
@@ -38,7 +63,10 @@ class AccountSafeFragment : BaseNetWorkingFragment() {
         if (TextUtils.isEmpty(UserInfo.user_qq)) {
             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_unselect_icon)
             mTvAccountSafeQQ.text = "未绑定"
-            mLlAccountSafeQQ.setOnClickListener {}
+            mLlAccountSafeQQ.setOnClickListener {
+                val tencent = Tencent.createInstance(BaseConfig.TENCENT_ID, mContext.applicationContext)
+                tencent.login(this@AccountSafeFragment, "all",this@AccountSafeFragment)
+            }
         } else {
             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_select_icon)
             mTvAccountSafeQQ.text = "已绑定"
@@ -82,10 +110,24 @@ class AccountSafeFragment : BaseNetWorkingFragment() {
         )
     }
 
+    override fun onComplete(p0: Any?) {
+        if (p0 != null) {
+            onQQAuthSuccess(p0.toString())
+        }
+    }
+
+    override fun onCancel() {
+        toast("QQ绑定取消")
+    }
+
+    override fun onError(p0: UiError?) {
+        toast("QQ绑定失败")
+    }
+
     override fun onRequestStart(requestID: Int) {
         super.onRequestStart(requestID)
         if (requestID == 0x0) {
-            getFastProgressDialog("正在授权……")
+            getFastProgressDialog("正在绑定……")
         }
     }
 
@@ -134,6 +176,11 @@ class AccountSafeFragment : BaseNetWorkingFragment() {
                 mTvAccountSafeWB.text = "未绑定"
             }
         }
+    }
+
+    override fun onDestroyView() {
+        unsubscribe(wxAuthSubscription)
+        super.onDestroyView()
     }
 
 }

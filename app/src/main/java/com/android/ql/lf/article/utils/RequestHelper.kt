@@ -18,6 +18,7 @@ fun getBaseParamsWithPage(mod: String, act: String, page: Int = 0, pageSize: Int
 /**       公用模块                **/
 const val T_MODULE = "t"
 const val UPLOADING_PIC_ACT = "uploadingPic"
+const val WX_LOGIN_ACT = "wxlogin"
 
 /**       登录模块                **/
 const val LOGIN_MODULE = "login"
@@ -61,6 +62,7 @@ const val ARTICLE_DEL_ACT = "articleDel" //文章真正删除
 const val IDEA_DO_ACT = "ideaDo"
 const val PERSONAL_CERT_ACT = "personalCert"
 const val ACCOUNT_SAFE_ACT = "accountSafe"
+const val MY_LIKE_FRIEND_ACT = "myLikeFriend"
 
 /**       消息模块                **/
 const val MESSAGE_MODULE = "message"
@@ -69,3 +71,4 @@ const val PUSH_ACT = "push"
 const val LEAVE_DO_ACT = "LeaveDo"
 const val MY_LEAVE_DETAIL_ACT = "myLeaveDetail"
 const val COMMENT_REPLY_ACT = "commentReply"
+const val LEAVE_SHARE_DO_ACT = "LeaveShareDo"

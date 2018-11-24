@@ -1,16 +1,11 @@
 package com.android.ql.lf.article.ui.fragments.login
 
 import android.content.Context
+import android.content.Intent
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
-import android.view.View
-import android.view.ViewGroup
-import com.android.ql.lf.article.R
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
-import com.android.ql.lf.baselibaray.ui.fragment.BaseFragment
-import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.ui.fragment.BaseViewPagerFragment
-import kotlinx.android.synthetic.main.fragment_login_layout.*
 
 class LoginFragment : BaseViewPagerFragment() {
 
@@ -20,23 +15,37 @@ class LoginFragment : BaseViewPagerFragment() {
         }
     }
 
+    private val loginFragment by lazy { LoginForSMSCodeFragment() }
+
     override fun getViewPagerAdapter() = object : FragmentPagerAdapter(childFragmentManager) {
 
         override fun getItem(position: Int): Fragment {
             return when (position) {
                 0 -> {
-                    LoginFirstStepFragment()
+                    loginFragment
                 }
                 1 -> {
                     LoginSecondStepFragment()
                 }
+                2 -> {
+                    LoginForPasswordFragment()
+                }
+                3 -> {
+                    LoginForRegisterFragment()
+                }
                 else -> {
-                    LoginFirstStepFragment()
+                    LoginForSMSCodeFragment()
                 }
             }
         }
 
-        override fun getCount() = 2
+        override fun getCount() = 4
+    }
+
+
+    override fun onMyActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onMyActivityResult(requestCode, resultCode, data)
+        loginFragment.onMyActivityResult(requestCode,resultCode,data)
     }
 
     override fun positionFailed(position: Int) {

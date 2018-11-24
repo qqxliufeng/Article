@@ -11,7 +11,9 @@ public class BaseConfig {
     public static final String BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static final String APP_PATH = BASE_PATH + "/qlarticle/";
     public static final String IMAGE_PATH = APP_PATH + "/img/";
-    public static final String WX_APP_ID = "";
+    public static final String WX_APP_ID = "wxabd0f5c0faf7a1a1";
+
+    public static final String TENCENT_ID = "1106743534";
 
     public static final String WB_APP_ID = "3743717577";
 

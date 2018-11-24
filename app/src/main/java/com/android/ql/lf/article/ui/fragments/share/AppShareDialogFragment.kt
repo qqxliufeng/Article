@@ -15,14 +15,18 @@ import com.android.ql.lf.article.data.ArticleShareItem
 import com.android.ql.lf.article.utils.ThirdShareManager
 import com.android.ql.lf.baselibaray.data.BaseShareItem
 import com.sina.weibo.sdk.share.WbShareHandler
+import com.tencent.mm.opensdk.openapi.IWXAPI
 import kotlinx.android.synthetic.main.dialog_app_share_layout.*
 import org.jetbrains.anko.support.v4.toast
 
 open class AppShareDialogFragment : BottomSheetDialogFragment() {
 
+    protected var iWxApi : IWXAPI? = null
+
     protected var shareHandler:WbShareHandler? = null
 
     protected var baseShareItem : BaseShareItem? = null
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.dialog_app_share_layout, container, false)
@@ -51,6 +55,10 @@ open class AppShareDialogFragment : BottomSheetDialogFragment() {
 
     open fun setWeiBoShareHandler(shareHandler: WbShareHandler){
         this.shareHandler = shareHandler
+    }
+
+    fun setWxApi(iwxapi: IWXAPI){
+        this.iWxApi = iwxapi
     }
 
     open fun setShareArticle(baseShareItem : BaseShareItem){

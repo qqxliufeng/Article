@@ -19,10 +19,12 @@ import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
+import com.android.ql.lf.article.ui.fragments.mine.MyFriendListFragment
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
+import com.android.ql.lf.article.ui.fragments.share.ImagePosterShareFragment
 import com.android.ql.lf.article.ui.widgets.CommentLinearLayout
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
@@ -34,6 +36,8 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.google.gson.Gson
 import com.sina.weibo.sdk.share.WbShareCallback
 import com.sina.weibo.sdk.share.WbShareHandler
+import com.tencent.mm.opensdk.openapi.IWXAPI
+import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import kotlinx.android.synthetic.main.fragment_article_info_for_normal_layout.*
 import org.jetbrains.anko.bundleOf
 import org.jetbrains.anko.support.v4.toast
@@ -101,6 +105,10 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
 
     private val weiboShareHandler by lazy {
         WbShareHandler(mContext as Activity)
+    }
+
+    private val wxApi by lazy {
+        WXAPIFactory.createWXAPI(mContext,BaseConfig.WX_APP_ID,true)
     }
 
     override fun getLayoutId() = R.layout.fragment_article_info_for_normal_layout
@@ -178,7 +186,11 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
         mTvArticleInfoForNormalBottomActionShare.setOnClickListener {
             if (mCurrentArticle!=null) {
                 shareDialog.setWeiBoShareHandler(weiboShareHandler)
-                shareDialog.setShareArticle(ArticleShareItem(mCurrentArticle?.articles_title,mCurrentArticle?.articles_content,"",BaseConfig.BASE_IP))
+                shareDialog.setWxApi(wxApi)
+                shareDialog.setShareFriend {
+                    MyFriendListFragment.startFriendListFragment(context!!,mCurrentArticle?.articles_title ?: "",mCurrentArticle?.articles_desc ?: "",mCurrentArticle?.articles_id ?: 0)
+                }
+                shareDialog.setShareArticle(ArticleShareItem(mCurrentArticle?.articles_title,mCurrentArticle?.articles_desc,"","http://article.581vv.com/article/share.html?theme=${mCurrentArticle?.articles_id ?: 0}"))
                 shareDialog.setCreateImage {
                     val shortImage = Bitmap.createBitmap(
                         mContext.getScreen().first,
@@ -190,7 +202,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                         mHeaderWebView.draw(canvas)
                         val dir = File(BaseConfig.IMAGE_PATH)
                         dir.mkdirs()
-                        val shareBitmapFile = File(dir, "share_article.jpg")
+                        val shareBitmapFile = File(dir, "${System.currentTimeMillis()}.jpg")
                         if (!shareBitmapFile.exists()) {
                             shareBitmapFile.createNewFile()
                         }
@@ -198,11 +210,11 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                         shareBitmapFile
                     }.subscribeOn(Schedulers.io())
                         .doOnSubscribe {
-                            getFastProgressDialog("正在创建图片……")
+                            getFastProgressDialog("加载中……")
                         }.observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
                             progressDialog?.dismiss()
-                            toast("图片创建成功！")
+                            ImagePosterShareFragment.startImagePosterShareFragment(mContext,it.absolutePath)
                         }
                 }
                 shareDialog.show(childFragmentManager, "share_dialog")
