@@ -25,8 +25,8 @@ class ArticleListAdapter(list: ArrayList<ArticleItem>) : BaseMultiItemQuickAdapt
             MULTI_IMAGE_TYPE -> {
                 helper?.setText(R.id.mTvArticleItemTitle,item.articles_title)
                 helper?.setText(R.id.mTvArticleItemAuthName,item.articles_userData?.member_nickname)
-                helper?.setText(R.id.mTvArticleItemCommentCount,"${item.articles_comment}")
-                helper?.setText(R.id.mTvArticleItemLikeCount,"${item.articles_like}")
+                helper?.setText(R.id.mTvArticleItemCommentCount,"${item.articles_commentCount}")
+                helper?.setText(R.id.mTvArticleItemLikeCount,"${item.articles_loveCount}")
                 helper?.setText(R.id.mTvArticleItemPraiseCount,"${item.articles_balanceCount}")
                 helper?.setText(R.id.mTvArticleItemType,item.articles_tags)
                 val imageContainer = helper?.getView<ImageContainerLinearLayout>(R.id.mICllArticleListItemContainer)
@@ -36,8 +36,8 @@ class ArticleListAdapter(list: ArrayList<ArticleItem>) : BaseMultiItemQuickAdapt
                 helper?.setText(R.id.mTvArticleItemContent,item.articles_content)
                 helper?.setText(R.id.mTvArticleItemTitle,item.articles_title)
                 helper?.setText(R.id.mTvArticleItemAuthName,item.articles_userData?.member_nickname)
-                helper?.setText(R.id.mTvArticleItemCommentCount,"${item.articles_comment}")
-                helper?.setText(R.id.mTvArticleItemLikeCount,"${item.articles_like}")
+                helper?.setText(R.id.mTvArticleItemCommentCount,"${item.articles_commentCount}")
+                helper?.setText(R.id.mTvArticleItemLikeCount,"${item.articles_loveCount}")
                 helper?.setText(R.id.mTvArticleItemPraiseCount,"${item.articles_balanceCount}")
                 helper?.setText(R.id.mTvArticleItemType,item.articles_tags)
                 if (item.articles_picCount == 0){

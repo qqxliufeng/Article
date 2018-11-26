@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+
+
 
     <application
             android:name=".application.MyApplication"
@@ -72,7 +75,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="tencent1106743534" />
+                <data android:scheme="tencent1107995446" />
             </intent-filter>
         </activity>
 

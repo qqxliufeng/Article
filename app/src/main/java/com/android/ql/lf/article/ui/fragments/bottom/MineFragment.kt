@@ -3,6 +3,7 @@ package com.android.ql.lf.article.ui.fragments.bottom
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.content.Intent
+import android.support.v4.content.ContextCompat
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
@@ -13,12 +14,15 @@ import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
 import com.android.ql.lf.article.utils.*
+import com.android.ql.lf.baselibaray.data.BaseShareItem
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
+import com.android.ql.lf.baselibaray.utils.BaseConfig
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.android.ql.lf.baselibaray.utils.PreferenceUtils
 import com.android.ql.lf.baselibaray.utils.RxBus
 import com.sina.weibo.sdk.share.WbShareCallback
 import com.sina.weibo.sdk.share.WbShareHandler
+import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import kotlinx.android.synthetic.main.fragment_mine_layout.*
 import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
@@ -32,6 +36,10 @@ class MineFragment : BaseNetWorkingFragment() {
 
     private val shareHandler by lazy {
         WbShareHandler(mContext as Activity)
+    }
+
+    private val iWxAPI by lazy {
+        WXAPIFactory.createWXAPI(mContext,BaseConfig.WX_APP_ID,true)
     }
 
     private val shareDialogFragment by lazy {
@@ -75,6 +83,8 @@ class MineFragment : BaseNetWorkingFragment() {
         }
         mTvMineShare.setOnClickListener {
             shareDialogFragment.setWeiBoShareHandler(shareHandler)
+            shareDialogFragment.setWxApi(iWxAPI)
+            shareDialogFragment.setShareArticle(AppShareItem)
             shareDialogFragment.show(childFragmentManager, "app_share_dialog")
         }
         mLlMineFocusCount.doClickWithUserStatusStart("") {
@@ -137,7 +147,7 @@ class MineFragment : BaseNetWorkingFragment() {
             FeedBackFragment.startFeedBackFragment(mContext,1)
         }
         mTvMineProtocol.setOnClickListener {
-            NetWebViewFragment.startNetWebViewFragment(mContext,"http://article.581vv.com/article/protocol.html")
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "用户协议", "protocol.html",ArticleType.OTHER.type)
         }
         if (!UserInfo.isLogin() && PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1) != -1){
             mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",PreferenceUtils.getPrefInt(mContext,USER_ID_FLAG,-1)))

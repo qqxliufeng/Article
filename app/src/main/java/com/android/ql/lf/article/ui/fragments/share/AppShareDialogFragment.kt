@@ -3,6 +3,7 @@ package com.android.ql.lf.article.ui.fragments.share
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.BottomSheetDialogFragment
@@ -15,6 +16,7 @@ import com.android.ql.lf.article.data.ArticleShareItem
 import com.android.ql.lf.article.utils.ThirdShareManager
 import com.android.ql.lf.baselibaray.data.BaseShareItem
 import com.sina.weibo.sdk.share.WbShareHandler
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import kotlinx.android.synthetic.main.dialog_app_share_layout.*
 import org.jetbrains.anko.support.v4.toast
@@ -51,6 +53,26 @@ open class AppShareDialogFragment : BottomSheetDialogFragment() {
             dismiss()
             webiboShare()
         }
+        mTvAppShareWXFriend?.setOnClickListener {
+            dismiss()
+            shareWX()
+        }
+        mTvAppShareWXCircle?.setOnClickListener {
+            dismiss()
+            shareCircle()
+        }
+    }
+
+    private fun shareCircle() {
+        if (iWxApi!=null && baseShareItem!=null) {
+            ThirdShareManager.wxShareApp(iWxApi,BitmapFactory.decodeResource(resources,R.drawable.ic_launcher),SendMessageToWX.Req.WXSceneTimeline,baseShareItem)
+        }
+    }
+
+    private fun shareWX() {
+        if (iWxApi!=null && baseShareItem!=null) {
+            ThirdShareManager.wxShareApp(iWxApi,BitmapFactory.decodeResource(resources,R.drawable.ic_launcher),SendMessageToWX.Req.WXSceneSession,baseShareItem)
+        }
     }
 
     open fun setWeiBoShareHandler(shareHandler: WbShareHandler){
@@ -68,16 +90,18 @@ open class AppShareDialogFragment : BottomSheetDialogFragment() {
     open fun webiboShare(){
         shareHandler?.registerApp()
         shareHandler?.setProgressColor(ContextCompat.getColor(context!!,R.color.colorAccent))
-        shareHandler?.shareMessage(ThirdShareManager.getWebpageObj(context!!,resources.getString(R.string.app_name),"这是一款好用的文章app","http://article.581vv.com"),false)
+        shareHandler?.shareMessage(ThirdShareManager.getWebpageObj(context!!,resources.getString(R.string.app_name),baseShareItem?.content ?: "",baseShareItem?.url ?: ""),false)
     }
 
     open fun shareMore() {
-        val sendIntent = Intent()
-        sendIntent.action = Intent.ACTION_SEND
-        sendIntent.type = "text/plain"
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, context?.packageName)
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "一款好用的社交文章app")
-        startActivity(Intent.createChooser(sendIntent, "share"))
+        if (baseShareItem!=null) {
+            val sendIntent = Intent()
+            sendIntent.action = Intent.ACTION_SEND
+            sendIntent.type = "text/plain"
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, resources.getString(R.string.app_name))
+            sendIntent.putExtra(Intent.EXTRA_TEXT, baseShareItem?.content)
+            startActivity(Intent.createChooser(sendIntent, "share"))
+        }
     }
 
     open fun openWithBrowser() {
@@ -96,5 +120,4 @@ open class AppShareDialogFragment : BottomSheetDialogFragment() {
             toast("复制成功")
         }
     }
-
 }

@@ -1,8 +1,10 @@
 package com.android.ql.lf.article.ui.fragments.mine
 
+import android.content.Intent
 import android.text.TextUtils
 import android.view.View
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.application.MyApplication
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.AuthActivity
 import com.android.ql.lf.article.utils.ACCOUNT_SAFE_ACT
@@ -64,8 +66,7 @@ class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_unselect_icon)
             mTvAccountSafeQQ.text = "未绑定"
             mLlAccountSafeQQ.setOnClickListener {
-                val tencent = Tencent.createInstance(BaseConfig.TENCENT_ID, mContext.applicationContext)
-                tencent.login(this@AccountSafeFragment, "all",this@AccountSafeFragment)
+                MyApplication.getInstance().tencent?.login(this@AccountSafeFragment, "all",this@AccountSafeFragment)
             }
         } else {
             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_select_icon)
@@ -124,6 +125,11 @@ class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
         toast("QQ绑定失败")
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Tencent.onActivityResultData(requestCode,resultCode,data,this)
+    }
+
     override fun onRequestStart(requestID: Int) {
         super.onRequestStart(requestID)
         if (requestID == 0x0) {
@@ -136,17 +142,20 @@ class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
             val check = checkResultCode(result)
             if (check != null) {
                 if (check.code == SUCCESS_CODE) {
-                    toast("授权成功")
+                    toast("绑定成功")
                     when (type) {
                         1 -> {
+                            UserInfo.user_qq = "1"
                             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_select_icon)
                             mTvAccountSafeQQ.text = "已绑定"
                         }
                         2 -> {
+                            UserInfo.user_wx = "1"
                             mIvAccountSafeWX.setImageResource(R.drawable.img_wx_select_icon)
                             mTvAccountSafeWX.text = "已绑定"
                         }
                         3 -> {
+                            UserInfo.user_weibo = "1"
                             mIvAccountSafeWB.setImageResource(R.drawable.img_wb_select_icon)
                             mTvAccountSafeWB.text = "已绑定"
                         }

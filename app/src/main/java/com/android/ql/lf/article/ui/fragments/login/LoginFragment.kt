@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
+import android.view.View
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseViewPagerFragment
 
@@ -16,6 +17,19 @@ class LoginFragment : BaseViewPagerFragment() {
     }
 
     private val loginFragment by lazy { LoginForSMSCodeFragment() }
+
+    override fun initView(view: View?) {
+        super.initView(view)
+        (mContext as FragmentContainerActivity).setOnBackPressListener {
+            if (noScrollViewPager?.currentItem == 0) {
+                finish()
+                false
+            }else{
+                noScrollViewPager.currentItem = 0
+                true
+            }
+        }
+    }
 
     override fun getViewPagerAdapter() = object : FragmentPagerAdapter(childFragmentManager) {
 
@@ -33,14 +47,19 @@ class LoginFragment : BaseViewPagerFragment() {
                 3 -> {
                     LoginForRegisterFragment()
                 }
+                4 -> {
+                    LoginBindPhoneFragment()
+                }
                 else -> {
                     LoginForSMSCodeFragment()
                 }
             }
         }
 
-        override fun getCount() = 4
+        override fun getCount() = 5
     }
+
+
 
 
     override fun onMyActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

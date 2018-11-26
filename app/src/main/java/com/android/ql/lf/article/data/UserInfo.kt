@@ -61,8 +61,14 @@ fun UserInfo.loginOut(){
 fun UserInfo.jsonToUserInfo(json: JSONObject): Boolean {
     return try {
         user_id = json.optInt("member_id")
+        if (user_id == -1){
+            return false
+        }
         user_nickname = json.optString("member_nickname")
         user_phone = json.optString("member_phone")
+        if (user_phone == null){
+            return false
+        }
         user_pic = json.optString("member_pic")
         user_balance = json.optInt("member_balance")
         user_fans = json.optInt("member_fans")

@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import com.android.ql.lf.article.R;
 import com.android.ql.lf.article.data.ArticleShareItem;
+import com.android.ql.lf.article.data.PersonalShareItem;
+import com.android.ql.lf.baselibaray.data.BaseShareItem;
 import com.sina.weibo.sdk.api.ImageObject;
 import com.sina.weibo.sdk.api.WebpageObject;
 import com.sina.weibo.sdk.api.WeiboMultiMessage;
@@ -52,6 +54,34 @@ public class ThirdShareManager {
         wxMediaMessage.description = articleShareItem.getContent();
         wxMediaMessage.title = articleShareItem.getTitle();
 //        wxMediaMessage.thumbData = bmpToByteArray(Bitmap.createScaledBitmap(bitmap, 150, 150, true), true);
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = buildTransaction("webpage");
+        req.message = wxMediaMessage;
+        req.scene = type;
+        api.sendReq(req);
+    }
+
+    public static void wxShareApp(IWXAPI api, Bitmap bitmap, int type, BaseShareItem articleShareItem) {
+        WXWebpageObject wxWebpageObject = new WXWebpageObject();
+        wxWebpageObject.webpageUrl = articleShareItem.getUrl();
+        WXMediaMessage wxMediaMessage = new WXMediaMessage(wxWebpageObject);
+        wxMediaMessage.description = articleShareItem.getContent();
+        wxMediaMessage.title = articleShareItem.getTitle();
+        wxMediaMessage.thumbData = bmpToByteArray(Bitmap.createScaledBitmap(bitmap, 150, 150, true), true);
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = buildTransaction("webpage");
+        req.message = wxMediaMessage;
+        req.scene = type;
+        api.sendReq(req);
+    }
+
+    public static void wxSharePersonalIndex(IWXAPI api, Bitmap bitmap, int type, PersonalShareItem personalShareItem) {
+        WXWebpageObject wxWebpageObject = new WXWebpageObject();
+        wxWebpageObject.webpageUrl = personalShareItem.getUrl();
+        WXMediaMessage wxMediaMessage = new WXMediaMessage(wxWebpageObject);
+        wxMediaMessage.description = personalShareItem.getContent();
+        wxMediaMessage.title = personalShareItem.getTitle();
+        wxMediaMessage.thumbData = bmpToByteArray(Bitmap.createScaledBitmap(bitmap, 150, 150, true), true);
         SendMessageToWX.Req req = new SendMessageToWX.Req();
         req.transaction = buildTransaction("webpage");
         req.message = wxMediaMessage;
@@ -124,6 +154,25 @@ public class ThirdShareManager {
         mediaObject.title = title;
         mediaObject.description = description;
         Bitmap  bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+        // 设置 Bitmap 类型的图片到视频对象里         设置缩略图。 注意：最终压缩过的缩略图大小不得超过 32kb。
+        mediaObject.setThumbImage(bitmap);
+        mediaObject.actionUrl = actionUrl;
+        mediaObject.defaultText = description;
+        weiboMultiMessage.mediaObject = mediaObject;
+        return weiboMultiMessage;
+    }
+
+    /**
+     * 创建多媒体（网页）消息对象。
+     *
+     * @return 多媒体（网页）消息对象。
+     */
+    public static WeiboMultiMessage getWebpageObjWithBitmap(String title, String description, String actionUrl,Bitmap bitmap) {
+        WeiboMultiMessage weiboMultiMessage = new WeiboMultiMessage();
+        WebpageObject mediaObject = new WebpageObject();
+        mediaObject.identify = Utility.generateGUID();
+        mediaObject.title = title;
+        mediaObject.description = description;
         // 设置 Bitmap 类型的图片到视频对象里         设置缩略图。 注意：最终压缩过的缩略图大小不得超过 32kb。
         mediaObject.setThumbImage(bitmap);
         mediaObject.actionUrl = actionUrl;

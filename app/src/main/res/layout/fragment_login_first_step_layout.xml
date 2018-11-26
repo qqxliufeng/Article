@@ -96,10 +96,10 @@
                       android:layout_marginTop="20dp">
             <LinearLayout
                     android:id="@+id/mLlLoginFirstStepForQQ"
-                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_width="0dp" android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <TextView android:layout_width="wrap_content" android:layout_height="match_parent"
                           android:text="QQ"
                           android:drawablePadding="@dimen/dp_10"
                           android:gravity="center"
@@ -107,10 +107,10 @@
             </LinearLayout>
             <LinearLayout
                     android:id="@+id/mLlLoginFirstStepForWX"
-                    android:layout_width="0dp" android:layout_height="match_parent"
+                    android:layout_width="0dp" android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <TextView android:layout_width="wrap_content" android:layout_height="match_parent"
                           android:text="微信"
                           android:drawablePadding="@dimen/dp_10"
                           android:gravity="center"
@@ -118,10 +118,10 @@
             </LinearLayout>
             <LinearLayout
                     android:id="@+id/mLlLoginFirstStepForWB"
-                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_width="0dp" android:layout_height="50dp"
                     android:layout_weight="1"
                     android:gravity="center">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                <TextView android:layout_width="wrap_content" android:layout_height="match_parent"
                           android:text="微博"
                           android:drawablePadding="@dimen/dp_10"
                           android:gravity="center"

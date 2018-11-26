@@ -14,16 +14,16 @@ import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.adapters.ArticleListAdapter
 import com.android.ql.lf.article.ui.fragments.article.ArticleAdmireDialogFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
+import com.android.ql.lf.article.ui.fragments.share.PersonalIndexShareDialogFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseRecyclerViewFragment
-import com.android.ql.lf.baselibaray.utils.GlideManager
-import com.android.ql.lf.baselibaray.utils.ImageUploadHelper
-import com.android.ql.lf.baselibaray.utils.RxBus
-import com.android.ql.lf.baselibaray.utils.compressAndSaveCacheFace
+import com.android.ql.lf.baselibaray.utils.*
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.sina.weibo.sdk.share.WbShareHandler
+import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import kotlinx.android.synthetic.main.fragment_personal_index_layout.*
@@ -58,6 +58,8 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
     private var nickName:String? = null
     private var facePath:String? = null
 
+    private var sharePath:String? = null
+
     private val updateArticleListSubscription by lazy {
         RxBus.getDefault().toObservable(ArticleItem::class.java).subscribe {
             if (tempItem != null && tempItem!!.articles_id == it.articles_id) {
@@ -65,6 +67,23 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
             }
         }
     }
+
+    private val shareFragment by lazy {
+        PersonalIndexShareDialogFragment()
+    }
+
+    private val weiboShareHandler by lazy {
+        WbShareHandler(mContext as Activity)
+    }
+
+    private val wxApi by lazy {
+        WXAPIFactory.createWXAPI(mContext, BaseConfig.WX_APP_ID,true)
+    }
+
+    private val shareItem by lazy {
+        PersonalShareItem()
+    }
+
 
     override fun createAdapter() = ArticleListAdapter(mArrayList)
 
@@ -188,6 +207,7 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                 if (check!=null && currentPage == 0){
                     val json = (check.obj as JSONObject).optJSONObject("arr")
                     if (json!=null){
+                        sharePath = "${json.optString("member_shareUrl")}?uid=${UserInfo.user_id}&reuid=$pid"
                         facePath = json.optString("member_pic")
                         GlideManager.loadFaceCircleImage(mContext,facePath,mIvPersonalIndexUserFace)
                         nickName = json.optString("member_nickname")
@@ -214,6 +234,16 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                                 0x2,
                                 getBaseParamsWithModAndAct(MEMBER_MODULE, MY_LIKE_DO_ACT).addParam("reuid", pid)
                             )
+                        }
+                        mIvShare.setOnClickListener {
+                            shareFragment.setWxApi(wxApi)
+                            shareFragment.setWeiBoShareHandler(weiboShareHandler)
+                            shareItem.title = "推荐作者：$nickName"
+                            shareItem.content = "推荐作者：$nickName"
+                            shareItem.shareImagePath = facePath
+                            shareItem.url = sharePath
+                            shareFragment.setShareArticle(shareItem)
+                            shareFragment.show(childFragmentManager,"share_dialog")
                         }
                     }
                 }

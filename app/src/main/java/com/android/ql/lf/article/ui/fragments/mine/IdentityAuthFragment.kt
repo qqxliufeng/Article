@@ -138,7 +138,7 @@ open class IdentityAuthFragment :BaseNetWorkingFragment(){
             val check = checkResultCode(result)
             if (check!=null){
                 if (check.code == SUCCESS_CODE){
-                    val json = check.obj as JSONObject
+                    val json = (check.obj as JSONObject).optJSONObject(RESULT_OBJECT)
                     UserInfo.user_status = json.optInt("member_status")
                     UserInfo.user_front = json.optString("member_front")
                     UserInfo.user_reverse = json.optString("member_reverse")

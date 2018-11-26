@@ -1,6 +1,9 @@
 package com.android.ql.lf.article.ui.fragments.article
 
+import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.support.v7.view.menu.MenuBuilder
 import android.view.Menu
 import android.view.MenuInflater
@@ -13,22 +16,31 @@ import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleCommentItem
 import com.android.ql.lf.article.data.ArticleItem
+import com.android.ql.lf.article.data.ArticleShareItem
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthFragment
 import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthUpdateFragment
+import com.android.ql.lf.article.ui.fragments.mine.MyFriendListFragment
 import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
+import com.android.ql.lf.article.ui.fragments.share.ArticleShareDialogFragment
+import com.android.ql.lf.article.ui.fragments.share.ImagePosterShareFragment
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
-import com.android.ql.lf.baselibaray.utils.GlideManager
-import com.android.ql.lf.baselibaray.utils.RxBus
+import com.android.ql.lf.baselibaray.utils.*
 import com.google.gson.Gson
+import com.sina.weibo.sdk.share.WbShareHandler
+import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import kotlinx.android.synthetic.main.fragment_article_info_for_display_layout.*
 import kotlinx.android.synthetic.main.layout_article_info_auth_top_view.*
 import org.jetbrains.anko.bundleOf
 import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
+import rx.Observable
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
+import java.io.File
 
 class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
 
@@ -46,8 +58,19 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
 
     private var mCurrentArticle: ArticleItem? = null
 
+    private val shareDialog by lazy {  ArticleShareDialogFragment() }
+
+
     private val aid by lazy {
         arguments?.getInt("aid", 0)
+    }
+
+    private val weiboShareHandler by lazy {
+        WbShareHandler(mContext as Activity)
+    }
+
+    private val wxApi by lazy {
+        WXAPIFactory.createWXAPI(mContext,BaseConfig.WX_APP_ID,true)
     }
 
     override fun onAttach(context: Context?) {
@@ -116,6 +139,43 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
                                 Classify(0,"",false,""),
                                 1,
                                 mCurrentArticle?.articles_id ?: 0)
+                        }
+                        mLlArticleInfoForDisplayBottomShare.setOnClickListener {
+                            if (mCurrentArticle!=null) {
+                                shareDialog.setWeiBoShareHandler(weiboShareHandler)
+                                shareDialog.setWxApi(wxApi)
+                                shareDialog.setShareFriend {
+                                    MyFriendListFragment.startFriendListFragment(context!!,mCurrentArticle?.articles_title ?: "",mCurrentArticle?.articles_desc ?: "",mCurrentArticle?.articles_id ?: 0)
+                                }
+                                shareDialog.setShareArticle(ArticleShareItem(mCurrentArticle?.articles_title,mCurrentArticle?.articles_desc,"","${mCurrentArticle?.articles_shareUrl}?theme=${mCurrentArticle?.articles_id ?: 0}"))
+                                shareDialog.setCreateImage {
+                                    val shortImage = Bitmap.createBitmap(
+                                        mContext.getScreen().first,
+                                        mHeaderWebView.measuredHeight,
+                                        Bitmap.Config.RGB_565
+                                    )
+                                    Observable.just(shortImage).map {
+                                        val canvas = Canvas(it)   // 画布的宽高和屏幕的宽高保持一致
+                                        mHeaderWebView.draw(canvas)
+                                        val dir = File(BaseConfig.IMAGE_PATH)
+                                        dir.mkdirs()
+                                        val shareBitmapFile = File(dir, "${System.currentTimeMillis()}.jpg")
+                                        if (!shareBitmapFile.exists()) {
+                                            shareBitmapFile.createNewFile()
+                                        }
+                                        ImageFactory.compressAndGenImage(shortImage, shareBitmapFile.absolutePath, 200)
+                                        shareBitmapFile
+                                    }.subscribeOn(Schedulers.io())
+                                        .doOnSubscribe {
+                                            getFastProgressDialog("加载中……")
+                                        }.observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe {
+                                            progressDialog?.dismiss()
+                                            ImagePosterShareFragment.startImagePosterShareFragment(mContext,it.absolutePath)
+                                        }
+                                }
+                                shareDialog.show(childFragmentManager, "share_dialog")
+                            }
                         }
                     }
                 }

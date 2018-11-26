@@ -34,6 +34,8 @@ class ArticleItem : MultiItemEntity {
     var articles_loveCount:Int? = null
     var articles_commentCount:Int? = null
     var articles_balanceCount:Int? = null
+
+    var articles_shareUrl:String? = null
 }
 
 data class ArticleUserDataBean( var member_id:Int,var member_nickname:String,var member_pic:String)

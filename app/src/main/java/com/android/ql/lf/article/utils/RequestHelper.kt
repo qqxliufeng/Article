@@ -29,7 +29,9 @@ const val SMSCODE_ACT = "smscode"
 const val ADDRESS_ACT = "address"
 const val CLASSIFY_ACT = "classify"
 const val EDITUSERPIC_ACT = "editUserPic"
-
+const val WEIBO_LOGIN_ACT = "weiboLogin"
+const val QQ_LOGIN_ACT = "qqLogin"
+const val PERFECT_ACT = "perfect"
 
 /**       文章模块                **/
 const val ARTICLE_MODULE = "article"
@@ -63,6 +65,7 @@ const val IDEA_DO_ACT = "ideaDo"
 const val PERSONAL_CERT_ACT = "personalCert"
 const val ACCOUNT_SAFE_ACT = "accountSafe"
 const val MY_LIKE_FRIEND_ACT = "myLikeFriend"
+const val SETTING_ACT = "setting"
 
 /**       消息模块                **/
 const val MESSAGE_MODULE = "message"

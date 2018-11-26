@@ -1,18 +1,21 @@
 package com.android.ql.lf.article.ui.fragments.bottom
 
+import android.net.Uri
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.view.View
 import com.android.ql.lf.article.R
+import com.android.ql.lf.article.data.AppShareItem
 import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.ui.fragments.article.*
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
-import com.android.ql.lf.article.utils.ARTICLENAV_ACT
-import com.android.ql.lf.article.utils.ARTICLE_MODULE
-import com.android.ql.lf.article.utils.getBaseParamsWithModAndAct
+import com.android.ql.lf.article.utils.*
+import com.android.ql.lf.baselibaray.data.VersionInfo
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
+import com.android.ql.lf.baselibaray.utils.VersionHelp
 import kotlinx.android.synthetic.main.fragment_bottom_index_layout.*
 import org.json.JSONObject
+import java.lang.Exception
 
 class IndexFragment : BaseNetWorkingFragment() {
 
@@ -29,6 +32,12 @@ class IndexFragment : BaseNetWorkingFragment() {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "搜索", "search.html", ArticleType.OTHER.type)
         }
         mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLENAV_ACT))
+    }
+
+    override fun onRequestEnd(requestID: Int) {
+        if (requestID == 0x0){
+            mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MEMBER_MODULE, SETTING_ACT))
+        }
     }
 
     override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {
@@ -74,6 +83,29 @@ class IndexFragment : BaseNetWorkingFragment() {
                 }
                 mVpIndexBottom.offscreenPageLimit = 3
                 mTlIndexBottom.setupWithViewPager(mVpIndexBottom)
+            }
+        }
+        else if (requestID == 0x1){
+            val check =  checkResultCode(result)
+            if (check!=null){
+                if (check.code == SUCCESS_CODE){
+                    val json = (check.obj as JSONObject).optJSONObject(RESULT_OBJECT)
+                    AppShareItem.title = json.optString("shareTitle")
+                    AppShareItem.content = json.optString("shareContent")
+                    AppShareItem.url = json.optString("share")
+                    VersionInfo.getInstance().content = json.optString("appUpdata")
+                    VersionInfo.getInstance().versionCode = try {
+                        json.optInt("appVer")
+                    }catch (e:Exception){
+                        1
+                    }
+                    VersionInfo.getInstance().downUrl = json.optString("android")
+                    if (VersionInfo.getInstance().versionCode > mContext.currentVersion()){
+                        alert("发现版本",VersionInfo.getInstance().content,"立即更新","暂不更新",{_,_->
+                            VersionHelp.downNewVersion(mContext, Uri.parse(VersionInfo.getInstance().downUrl),"${System.currentTimeMillis()}")
+                        },null)
+                    }
+                }
             }
         }
     }

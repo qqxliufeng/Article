@@ -27,7 +27,7 @@ public class DownLoadManagerHelper {
         request.setTitle("发现新版本");
         request.setDescription("正在下载……");
         request.setMimeType("application/vnd.android.package-archive");
-        request.setVisibleInDownloadsUi(true);  //设置显示下载界面
+        request.setVisibleInDownloadsUi(true);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).mkdir();
         final String downPath = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+Environment.DIRECTORY_DOWNLOADS+File.separator+fileName+".apk";

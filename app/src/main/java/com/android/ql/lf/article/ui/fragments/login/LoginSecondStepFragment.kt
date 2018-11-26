@@ -11,10 +11,7 @@ import com.android.ql.lf.article.ui.activity.MainActivity
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
-import com.android.ql.lf.baselibaray.utils.GlideManager
-import com.android.ql.lf.baselibaray.utils.ImageUploadHelper
-import com.android.ql.lf.baselibaray.utils.PreferenceUtils
-import com.android.ql.lf.baselibaray.utils.compressAndSaveCacheFace
+import com.android.ql.lf.baselibaray.utils.*
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import kotlinx.android.synthetic.main.fragment_login_first_step_layout.*
@@ -23,19 +20,27 @@ import kotlinx.android.synthetic.main.layout_pre_step.*
 import okhttp3.MultipartBody
 import org.jetbrains.anko.support.v4.toast
 import org.json.JSONObject
+import rx.Observable
+import rx.Scheduler
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import top.zibin.luban.OnCompressListener
 import java.io.File
 
-class LoginSecondStepFragment : BaseNetWorkingFragment() {
+open class LoginSecondStepFragment : BaseNetWorkingFragment() {
 
     private var facePath = ""
 
-    private val sex by lazy {
+    protected val sex by lazy {
         PreferenceUtils.getPrefString(mContext, "sex", "")
     }
 
-    private val birthday by lazy {
+    protected val birthday by lazy {
         PreferenceUtils.getPrefString(mContext, "birthday", "")
+    }
+
+    protected val classify by lazy {
+        PreferenceUtils.getPrefString(mContext, "my_classify", "")
     }
 
     private val phone by lazy {
@@ -74,10 +79,10 @@ class LoginSecondStepFragment : BaseNetWorkingFragment() {
                     .addParam("code", code)
                     .addParam("sex", sex)
                     .addParam("birthday", birthday)
-                    .addParam("password",password)
+                    .addParam("password", password)
                     .addParam("nickname", mEtLoginUserNickName.getTextString())
                     .addParam("address", "")
-                    .addParam("classify", PreferenceUtils.getPrefString(mContext,"my_classify",""))
+                    .addParam("classify", classify)
                     .addParam("pic", facePath)
             )
         }
@@ -86,11 +91,23 @@ class LoginSecondStepFragment : BaseNetWorkingFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
-            compressAndSaveCacheFace(Matisse.obtainPathResult(data)[0], object : OnCompressListener {
-                override fun onSuccess(file: File?) {
+            Observable.just(Matisse.obtainPathResult(data)[0]).map {
+                val outDir = File("${BaseConfig.IMAGE_PATH}face/")
+                if (!outDir.exists()) {
+                    outDir.mkdirs()
+                }
+                val out = File(outDir, "${System.currentTimeMillis()}.jpg")
+                ImageFactory.compressAndGenImage(Matisse.obtainPathResult(data)[0], out.absolutePath, 200, false)
+                out
+            }.subscribeOn(Schedulers.io())
+                .doOnSubscribe {
+                    getFastProgressDialog("正在上传头像……")
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
                     ImageUploadHelper(object : ImageUploadHelper.OnImageUploadListener {
                         override fun onActionStart() {
-                            getFastProgressDialog("正在上传头像……")
+
                         }
 
                         override fun onActionEnd(builder: MultipartBody.Builder?) {
@@ -98,22 +115,16 @@ class LoginSecondStepFragment : BaseNetWorkingFragment() {
                         }
 
                         override fun onActionFailed() {
+                            toast("头像上传失败")
                         }
 
-                    }).upload(arrayListOf(ImageBean(null, file?.absolutePath ?: "")))
+                    }).upload(arrayListOf(ImageBean(null, it.absolutePath ?: "")))
                 }
-
-                override fun onError(e: Throwable?) {
-                }
-
-                override fun onStart() {
-                }
-            })
         }
     }
 
     override fun onRequestStart(requestID: Int) {
-        if (requestID == 0x1){
+        if (requestID == 0x1) {
             getFastProgressDialog("正在注册……")
         }
     }

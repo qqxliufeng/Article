@@ -190,7 +190,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 shareDialog.setShareFriend {
                     MyFriendListFragment.startFriendListFragment(context!!,mCurrentArticle?.articles_title ?: "",mCurrentArticle?.articles_desc ?: "",mCurrentArticle?.articles_id ?: 0)
                 }
-                shareDialog.setShareArticle(ArticleShareItem(mCurrentArticle?.articles_title,mCurrentArticle?.articles_desc,"","http://article.581vv.com/article/share.html?theme=${mCurrentArticle?.articles_id ?: 0}"))
+                shareDialog.setShareArticle(ArticleShareItem(mCurrentArticle?.articles_title,mCurrentArticle?.articles_desc,"","${mCurrentArticle?.articles_shareUrl}?theme=${mCurrentArticle?.articles_id ?: 0}"))
                 shareDialog.setCreateImage {
                     val shortImage = Bitmap.createBitmap(
                         mContext.getScreen().first,

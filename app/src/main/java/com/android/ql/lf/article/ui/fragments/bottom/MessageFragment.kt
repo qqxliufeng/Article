@@ -78,6 +78,12 @@ class MessageFragment : BaseRecyclerViewFragment<LeaveMessage>() {
             if (UserInfo.isLogin()) {
                 mMessageSwitch.isChecked = UserInfo.user_push == 1
                 onPostRefresh()
+            }else{
+                mCollectionCount.visibility = View.GONE
+                mCommentCount.visibility = View.GONE
+                mFocusCount.visibility = View.GONE
+                mBaseAdapter.data.clear()
+                mBaseAdapter.notifyDataSetChanged()
             }
         })
         mBaseAdapter.setHeaderAndEmpty(true)
