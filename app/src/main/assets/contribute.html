@@ -28,17 +28,23 @@
 		</style>
 	</head>
 	<body>
-		<!--投稿 -->
-		<div class="like whitebg" id="app">
-			<ul>
-				
-					<li class="clearfix" style="display: none;" v-show="list" v-for="item in list" onclick="jumpDet(this)" >
+		<div id="app">
+			<div class="collect-none center" v-show=" list == '' " style="display: none;" >
+				<img src="images/collect.png" />
+				<p>您还没有任何文章信息哦~</p>
+			</div>
+			<!--投稿 -->
+			<div class="like whitebg" style="display: none;" v-show=" list != '' ">
+				<ul>
+					<li class="clearfix"  v-for="item in list" onclick="jumpDet(this)" >
 						<input type="hidden" :value="item.articles_id" />
+						<input type="hidden" :value="item.articles_title" />
+						<input type="hidden" :value="item.articles_contentd" />
 						<div class="fl">
 							<div>
 								<span class="gary" v-text="item.articles_times"></span>
 							</div>
-							<nav class="ft8 mt05" v-text="item.articles_content"></nav>
+							<nav class="ft8 mt05" v-text="item.articles_title"></nav>
 							<div class="clearfix gary mt05">
 							    <div class="fl">
 		 	 						<img src="images/search-icon_03.png" />
@@ -58,20 +64,23 @@
 						<img :src="pic" class="fr" v-if="item.articles_picCount > 0 && index <= 0" v-for="(pic, index) in item.articles_pic" />
 				
 					</li>
-					<div class="loadMore animate" style="margin-top: 2rem;clear: both;">
+					<div class="loadMore animate" style="margin-top: 0.2rem;clear: both;">
 						<img src="images/loading@2x.png">加载更多
 					</div>
-		
-			</ul>
+				</ul>
+			</div>
 		</div>
 		<script id="list-template" type="text/html">
 			{{each items as item index}}
-			<li class="clearfix" v-for="item in list">
+			<li class="clearfix"  onclick="jumpDet(this)">
+				<input type="hidden" value="{{item.articles_id}}" />
+				<input type="hidden" value="{{item.articles_title}}" />
+				<input type="hidden" value="{{item.articles_contentd}}" />
 				<div class="fl">
 					<div>
 						<span class="gary">{{item.articles_times}}</span>
 					</div>
-					<nav class="ft8 mt05">{{item.articles_content}}</nav>
+					<nav class="ft8 mt05">{{item.articles_title}}</nav>
 					<div class="clearfix gary mt05">
 					    <div class="fl">
  	 						<img src="images/search-icon_03.png" />
@@ -95,16 +104,15 @@
 			    {{/each}}
 		        
 			</li>
-			{{/each}}
-		</script>
-	 <script>
+			{{/each}} 
+	</script>
+	<script>
 		 
 		$(function() {
 		   //获取webview.js  返回的用户ID
-//		   var uid  = 655
-//		   var Type = 1
+
            var uid  = article.getUserId()
-           var type = article.getArticleType()
+           
 			//实例化vue
 			vue = new Vue({
 				el: '#app',
@@ -113,7 +121,7 @@
 				},
 				methods: {
 					getData: function() { //我的文章
-
+                        var Type = article.getArticleType()
 						dataRequest.method("/api/member/myArticle", {
 							'uid': uid,
 							'status':Type
@@ -145,8 +153,10 @@
 
 		})
 		function jumpDet(obj){
-		   var aid =  $(obj).children().val()
-		   article.jump(article.getArticleType(),aid)
+		   var aid       =  $(obj).children().val()
+		   var title     =  $(obj).children().next().val()
+		   var content   =  $(obj).children().next().next().val()
+		   article.jump(article.getArticleType(),aid,title,content)
 		}
 	 </script>
 

@@ -164,7 +164,11 @@ class LoginForSMSCodeFragment : BaseNetWorkingFragment(),IUiListener {
     override fun onMyActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onMyActivityResult(requestCode, resultCode, data)
         when (token) {
-            1 -> mSsoHandler.authorizeCallBack(requestCode, resultCode, data)
+            1 -> {
+                if (data!=null) {
+                    mSsoHandler.authorizeCallBack(requestCode, resultCode, data)
+                }
+            }
             0 -> Tencent.onActivityResultData(requestCode,resultCode,data,this)
         }
     }

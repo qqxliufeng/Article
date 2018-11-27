@@ -31,7 +31,7 @@ function isWeixinBrowser() {
 //  url = "http://"+location.host
 var url = "http://article.581vv.com/"
 
-turl  = url
+turl = url
 var dataRequest = {
 
 	//ajax请求数据
@@ -45,12 +45,12 @@ var dataRequest = {
 			timeout: 20000,
 			beforeSend: function(XMLHttpRequest) {
 				mui.showLoading("正在加载..", "div");
-				//				     $("body").append('<div id="pload" style="position:fixed;top:30%;z-index:1200;background:url(/Public/home/images/lod.gif) top center no-repeat;width:100%;height:140px;margin:auto auto;"></div>');
+				//$("body").append('<div id="pload" style="position:fixed;top:30%;z-index:1200;background:url(/Public/home/images/lod.gif) top center no-repeat;width:100%;height:140px;margin:auto auto;"></div>');
 			},
 
 			success: function(data) {
 				mui.hideLoading("正在加载..", "div");
-				//	                $("#pload").remove();
+				//$("#pload").remove();
 				success ? success(data) : function() {};
 			},
 			error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -66,12 +66,12 @@ var dataRequest = {
 
 //wx授权
 function wxau() {
-	var host  = window.location.host
-	var uid   = localStorage.getItem('uid')
-	var path  = encodeURIComponent("http://" + host + "/is_wx_qauthorization?uid=" + uid + "&url=" + window.location.href); //登录后回调的地址
+	var host = window.location.host
+	var uid = localStorage.getItem('uid')
+	var path = encodeURIComponent("http://" + host + "/is_wx_qauthorization?uid=" + uid + "&url=" + window.location.href); //登录后回调的地址
 	var state = 1;
 	var appid = 'wx07b816836b65046b'; //注册申请的appid
-	var url   = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + appid + '&redirect_uri=' + path + '&response_type=code&scope=snsapi_userinfo&state=' + state + '&connect_redirect=1#wechat_redirect';
+	var url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + appid + '&redirect_uri=' + path + '&response_type=code&scope=snsapi_userinfo&state=' + state + '&connect_redirect=1#wechat_redirect';
 	window.location.href = url
 }
 
@@ -155,13 +155,10 @@ function init() {
 
 function imageLoaded(obj, src) {
 	var img = new Image();
-
 	img.onload = function() {
-
 		obj.src = src;
 	};
 	img.src = src;
-
 }
 
 window.onscroll = function(e) {
@@ -215,7 +212,7 @@ function ajaxFileUpload(id, aurl, id1, uid) {
 		success: function(pic, status) {
 			console.log(pic)
 			if(pic.code == 200) {
-        
+
 				$("#" + id).prev().attr("src", turl + pic.result)
 				$("#" + id).next().val(pic.result);
 				dataRequest.method("/userData", {
@@ -224,9 +221,9 @@ function ajaxFileUpload(id, aurl, id1, uid) {
 				}, "post", function(res) {
 					if(res.code == 200) {
 						mui.hideLoading();
-						uinfo          = JSON.parse(localStorage.getItem("user_info"))
+						uinfo = JSON.parse(localStorage.getItem("user_info"))
 						uinfo.user_pic = pic.result
-						localStorage.setItem("user_info",JSON.stringify(uinfo))
+						localStorage.setItem("user_info", JSON.stringify(uinfo))
 						mui.toast('修改成功')
 					}
 				})
@@ -257,11 +254,11 @@ function data_lod(count, api, data, token, num) {
 	var stop = true;
 	var totalheight;
 	if(pagesize <= 1) {
-		$(".loadMore").hide();
-		$('.loadMore').html("没有更多了"); //总页数小于2则不显示加载更多
+		//		$(".loadMore").hide();
+		$('.loadMore').html("-- END --"); //总页数小于2则不显示加载更多
 	}
 	if(currentpage >= pagesize) {
-		$('.loadMore').html("没有更多了"); //总页数小于2则不显示加载更多
+		$('.loadMore').html("-- END --"); //总页数小于2则不显示加载更多
 	} else {
 		$('.loadMore').html('<img src="images/loading@2x.png">加载更多');
 		//		$(window).scroll(function() {
@@ -276,7 +273,7 @@ function data_lod(count, api, data, token, num) {
 					data['page'] = currentpage
 					data['pagesize'] = pagesize
 					dataRequest.method(api, data, "post", function(res) {
-                        
+
 						if(res.code == 200) {
 							currentpage++;
 							if(currentpage > 1) {
@@ -287,14 +284,14 @@ function data_lod(count, api, data, token, num) {
 							} else {
 								isFirst = true;
 							}
-							
-							if(isFirst) { //防止重复点击
+
+							if(isFirst && res.result) { //防止重复点击
 
 								setTimeout(function() {
 
 									var html = template('list-template', {
 										items: res.result,
-										turl: turl,
+										url: turl,
 										token: token
 									})
 									$(".loadMore").show()
@@ -305,17 +302,20 @@ function data_lod(count, api, data, token, num) {
 										$(".loadMore").before(html)
 									}
 
-//									$("img").lazyload();
+									//									$("img").lazyload();
 
 								}, 200);
 
+							} else {
+
+								$('.loadMore').html("-- END --"); //加载所有页完毕去掉按钮
 							}
 
 						} else {
-							$('.loadMore').html("没有更多了"); //加载所有页完毕去掉按钮
+							$('.loadMore').html("-- END --"); //加载所有页完毕去掉按钮
 						}
 						if(currentpage >= pagesize) {
-							$('.loadMore').html("没有更多了"); //加载所有页完毕去掉按钮
+							$('.loadMore').html("-- END --"); //加载所有页完毕去掉按钮
 						}
 						stop = true;
 					})
@@ -323,11 +323,11 @@ function data_lod(count, api, data, token, num) {
 				}
 
 			}
-			
+
 		}
 
 	}
-	
+
 }
 
 //验证码倒计时
@@ -348,55 +348,54 @@ function r_time() {
 	}, 1000);
 }
 
-function wx_pay(json,paydata,return_url){
-    
- 	wx.config(json);
-		wx.ready(function(){
-			
-			wx.chooseWXPay({
-                appId: paydata.appId,
-                timestamp: paydata.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符  
-                nonceStr: paydata.nonceStr, // 支付签名随机串，不长于 32 位  
-                package:  paydata.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）  
-                signType: paydata.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'  
-                paySign: paydata.paySign, // 支付签名
-                success: function(res) {
-                	
-                    // 支付成功后的回调函数  
-                    if (res.errMsg == "chooseWXPay:ok"){
-                        //支付成功 
-                        alert('支付成功');
-                        setTimeout(function(){
-                        	window.location.href = return_url
-                        },100)
-                        
-                    }else{
-                    	
-                        alert(res.errMsg);  
-                    }
-                },
-                cancel: function(res) {
-                    //支付取消  
-                    alert('支付取消');  
-                },
-                fail: function(res){
-		            
-		        }
-            });  
-	    });  
- 
-    
+function wx_pay(json, paydata, return_url) {
+
+	wx.config(json);
+	wx.ready(function() {
+
+		wx.chooseWXPay({
+			appId: paydata.appId,
+			timestamp: paydata.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符  
+			nonceStr: paydata.nonceStr, // 支付签名随机串，不长于 32 位  
+			package: paydata.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）  
+			signType: paydata.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'  
+			paySign: paydata.paySign, // 支付签名
+			success: function(res) {
+
+				// 支付成功后的回调函数  
+				if(res.errMsg == "chooseWXPay:ok") {
+					//支付成功 
+					alert('支付成功');
+					setTimeout(function() {
+						window.location.href = return_url
+					}, 100)
+
+				} else {
+
+					alert(res.errMsg);
+				}
+			},
+			cancel: function(res) {
+				//支付取消  
+				alert('支付取消');
+			},
+			fail: function(res) {
+
+			}
+		});
+	});
+
 }
-if(isWeixinBrowser()){
-	if($('a').attr('class') == 'mui-action-back'){
-		$('a').attr('class','action-back')
-		$('a').attr('href','javascript:;')
+if(isWeixinBrowser()) {
+	if($('a').attr('class') == 'mui-action-back') {
+		$('a').attr('class', 'action-back')
+		$('a').attr('href', 'javascript:;')
 	}
-}else{
+} else {
 	mui('body').on('tap', 'a', function() {
 		document.location.href = this.href;
 	});
 }
-$(document).on('tap','.action-back',function(){
+$(document).on('tap', '.action-back', function() {
 	mui.back()
 })

@@ -3,7 +3,6 @@ package com.android.ql.lf.article.ui.fragments.bottom
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.content.Intent
-import android.support.v4.content.ContextCompat
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
@@ -11,10 +10,8 @@ import com.android.ql.lf.article.ui.activity.AuthActivity
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.ui.fragments.mine.*
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
-import com.android.ql.lf.article.ui.fragments.other.NetWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
 import com.android.ql.lf.article.utils.*
-import com.android.ql.lf.baselibaray.data.BaseShareItem
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.BaseConfig
 import com.android.ql.lf.baselibaray.utils.GlideManager
@@ -66,6 +63,7 @@ class MineFragment : BaseNetWorkingFragment() {
                 mTvMinelikeCount.text = "${UserInfo.user_loveCount}"
                 mTvMineFansCount.text = "${UserInfo.user_fanCount}"
                 mTvMineCollectionCount.text = "${UserInfo.user_colStatus}"
+                mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",UserInfo.user_id))
             }else{
                 mIvMineFace.setImageResource(R.drawable.img_glide_circle_load_default)
                 mTvMineNickName.text = "登录/注册"
@@ -88,7 +86,7 @@ class MineFragment : BaseNetWorkingFragment() {
             shareDialogFragment.show(childFragmentManager, "app_share_dialog")
         }
         mLlMineFocusCount.doClickWithUserStatusStart("") {
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attentionMessage.html", ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attention.html", ArticleType.OTHER.type)
         }
         mLlMineFansCount.doClickWithUserStatusStart("") {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "粉丝", "attentionMy.html",ArticleType.OTHER.type)
@@ -183,6 +181,18 @@ class MineFragment : BaseNetWorkingFragment() {
                     }
                 }
             } catch (e: Exception) {
+            }
+        }else if (requestID == 0x1){
+            val check = checkResultCode(result)
+            if (check != null) {
+                if (check.code == SUCCESS_CODE) {
+                    val jsonObject = (check.obj as JSONObject).optJSONObject(RESULT_OBJECT)
+                    UserInfo.jsonToUserInfo(jsonObject)
+                    mTvMineFocusCount.text = "${UserInfo.user_likeCount}"
+                    mTvMinelikeCount.text = "${UserInfo.user_loveCount}"
+                    mTvMineFansCount.text = "${UserInfo.user_fanCount}"
+                    mTvMineCollectionCount.text = "${UserInfo.user_colStatus}"
+                }
             }
         }
     }

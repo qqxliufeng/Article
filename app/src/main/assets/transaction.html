@@ -11,57 +11,94 @@
 		<!--页面样式-->
 		<link rel="stylesheet" href="css/style.css" />
 		<!--js-->
-		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
 		<!--rem js-->
-		<script type="text/javascript" src="js/rem.js" ></script>
+		<script type="text/javascript" src="js/rem.js"></script>
+		<!--mui js-->
+		<script type="text/javascript" src="js/mui.min.js"></script>
+		<!--common js-->
+		<script type="text/javascript" src="js/common.js"></script>
+		<!--vue js-->
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script type="text/javascript" src="js/template.js"></script>
 	</head>
 	<body>
-		 <div class="transaction whitebg">
+		 <div class="transaction whitebg" id="app">
 		 	<ul>
-		 		<li class="clearfix">
-		 			<div class="fl mt05">提现到支付宝</div>
+		 		<li class="clearfix" style="display: none;" v-show="list" v-for="item in list">
+		 			<div class="fl mt05" v-text="item.deal_title"></div>
 		 			<nav class="fr">
-		 				<div class="red">-100</div>
-		 				<p>2018-07-06 12:25</p>
+		 				<div class="red">
+		 					<span v-if="item.deal_sys == 1">+</span>
+		 					<span v-else>-</span>
+		 					<span v-text="item.deal_price"></span>
+		 				</div>
+		 				<p v-text="item.deal_times"></p>
 		 			</nav>
 		 		</li>
-		 		<li class="clearfix">
-		 			<div class="fl mt05">充值</div>
-		 			<nav class="fr">
-		 				<div class="red">-100</div>
-		 				<p>2018-07-06 12:25</p>
-		 			</nav>
-		 		</li>
-		 		<li class="clearfix">
-		 			<div class="fl mt05">投稿收录奖励</div>
-		 			<nav class="fr">
-		 				<div class="red">-100</div>
-		 				<p>2018-07-06 12:25</p>
-		 			</nav>
-		 		</li>
-		 		<li class="clearfix">
-		 			<div class="fl mt05">提现到微信</div>
-		 			<nav class="fr">
-		 				<div class="red">-100</div>
-		 				<p>2018-07-06 12:25</p>
-		 			</nav>
-		 		</li>
-		 		<li class="clearfix">
-		 			<div class="fl mt05">投稿收录奖励</div>
-		 			<nav class="fr">
-		 				<div class="red">-100</div>
-		 				<p>2018-07-06 12:25</p>
-		 			</nav>
-		 		</li>
-		 		<li class="clearfix">
-		 			<div class="fl mt05">提现到支付宝</div>
-		 			<nav class="fr">
-		 				<div class="red">-100</div>
-		 				<p>2018-07-06 12:25</p>
-		 			</nav>
-		 		</li>
+		 		<div class="loadMore animate" style="margin-top: 0.2rem;clear: both;">
+					<img src="images/loading@2x.png">加载更多
+				</div>
 		 	</ul>
 		 </div>
 	</body>
+	<script id="list-template" type="text/html">
+		{{each items as item index}}
+			<li class="clearfix">
+		 			<div class="fl mt05">{{item.deal_title}}</div>
+		 			<nav class="fr">
+		 				<div class="red">
+		 					{{if item.deal_sys == 1}}
+		 					    <span>+</span>
+		 					{{else}}
+		 					    <span>-</span>
+		 					{{/if}}
+		 					<span>{{item.deal_price}}</span>
+		 				</div>
+		 				<p>{{item.deal_times}}</p>
+		 			</nav>
+		 		</li>
+		{{/each}}
+	</script>
+	<script>
+		$(function() {
+			var uid     = article.getUserId()
+			//实例化vue
+			vue = new Vue({
+				el: '#app',
+				data: {
+					list: [],
+					balance: 0
+				},
+				methods: {
+					getData: function() {
+						dataRequest.method("/api/member/myDeal", {
+							'uid': uid,
+						}, "post", function(res) {
+							if(res.code == 200) {
+								vue.list = res.result
+								vue.balance = res.arr1
+								setTimeout(function() {
+									//上拉加载
+									data_lod(res.arr, '/api/member/myDeal', {
+										'uid': uid,
+									})
+								}, 5)
+							} else {
+								setTimeout(function() {
+									//上拉加载
+									data_lod(0, '/api/member/myDeal', {
+										'uid': uid,
+									})
+								}, 5)
+
+							}
+						})
+					}
+				},
+			})
+			vue.getData()
+		})
+	</script>
 </html>
     

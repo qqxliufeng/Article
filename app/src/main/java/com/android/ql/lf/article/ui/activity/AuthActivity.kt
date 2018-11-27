@@ -31,7 +31,6 @@ class AuthActivity : BaseActivity() {
     }
 
     override fun initView() {
-        mSsoHandler = SsoHandler(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
@@ -43,6 +42,7 @@ class AuthActivity : BaseActivity() {
     }
 
     fun weiboAuth() {
+        mSsoHandler = SsoHandler(this)
         mSsoHandler?.authorize(object : WbAuthListener {
             override fun onSuccess(p0: Oauth2AccessToken?) {
                 accountSafeFragment.onWeiBoAuthSuccess(p0!!)
@@ -64,8 +64,10 @@ class AuthActivity : BaseActivity() {
      *
      * @see {@link Activity.onActivityResult}
      */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        mSsoHandler?.authorizeCallBack(requestCode, resultCode, data)
+        if (data!=null) {
+            mSsoHandler?.authorizeCallBack(requestCode, resultCode, data)
+        }
     }
 }

@@ -158,7 +158,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
                                     image.src = httpPath
                                 }
                             }
-                            aApi.postUpload(document.getElementsByTagName('html')[0].innerHTML)
+                            aApi.postUpload(document.getElementsByTagName('body')[0].innerHTML)
                         }())
                 """
         )
@@ -167,7 +167,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
     open fun upload(html: String) {
         val param = getBaseParamsWithModAndAct(ARTICLE_MODULE, this.act)
             .addParam("title", mEtArticleEditTitle.getTextString())
-            .addParam("content", html)
+            .addParam("content", html.replace("""id="editor" contenteditable="true" placeholder="请输入内容" style="padding: 10px 0px;"""",""))
             .addParam("count", articleCount)
             .addParam("status",uploadStatus)
         if (this.act == ARTICLE_EDIT_ACT){
@@ -275,7 +275,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
                         IdentityAuthFragment.startIdentityAuthFragment(mContext)
                     }
                     check.code == "500" -> {
-                        toast("当前身份信息正在认证中，暂不能发布文章……")
+                        toast("当前身份信息正在认证中，暂不能公开发布文章")
                     }
                 }
             }else{

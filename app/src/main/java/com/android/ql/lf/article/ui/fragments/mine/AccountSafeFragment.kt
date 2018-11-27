@@ -10,6 +10,7 @@ import com.android.ql.lf.article.ui.activity.AuthActivity
 import com.android.ql.lf.article.utils.ACCOUNT_SAFE_ACT
 import com.android.ql.lf.article.utils.MEMBER_MODULE
 import com.android.ql.lf.article.utils.getBaseParamsWithModAndAct
+import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.BaseConfig
 import com.android.ql.lf.baselibaray.utils.RxBus
@@ -42,12 +43,21 @@ class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
     }
 
     private val iwxapi by lazy {
-        WXAPIFactory.createWXAPI(mContext,BaseConfig.WX_APP_ID,true)
+        WXAPIFactory.createWXAPI(mContext, BaseConfig.WX_APP_ID, true)
     }
 
     override fun initView(view: View?) {
         wxAuthSubscription
         mTvAccountSafePhone.text = UserInfo.user_phone
+        if (UserInfo.user_pass == null || UserInfo.user_pass == "null") {
+            mTvAccountSafeResetPassword.visibility = View.GONE
+        } else {
+            mTvAccountSafeResetPassword.visibility = View.VISIBLE
+            mTvAccountSafeResetPassword.setOnClickListener {
+                FragmentContainerActivity.from(mContext).setClazz(ResetPasswordFragment::class.java).setTitle("重置密码")
+                    .setNeedNetWorking(true).start()
+            }
+        }
         if (TextUtils.isEmpty(UserInfo.user_wx)) {
             mIvAccountSafeWX.setImageResource(R.drawable.img_wx_unselect_icon)
             mTvAccountSafeWX.text = "未绑定"
@@ -66,7 +76,13 @@ class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_unselect_icon)
             mTvAccountSafeQQ.text = "未绑定"
             mLlAccountSafeQQ.setOnClickListener {
-                MyApplication.getInstance().tencent?.login(this@AccountSafeFragment, "all",this@AccountSafeFragment)
+                if (!MyApplication.getInstance().tencent!!.isSessionValid) {
+                    MyApplication.getInstance().tencent?.login(
+                        this@AccountSafeFragment,
+                        "all",
+                        this@AccountSafeFragment
+                    )
+                }
             }
         } else {
             mIvAccountSafeQQ.setImageResource(R.drawable.img_qq_select_icon)
@@ -127,7 +143,7 @@ class AccountSafeFragment : BaseNetWorkingFragment(), IUiListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Tencent.onActivityResultData(requestCode,resultCode,data,this)
+        Tencent.onActivityResultData(requestCode, resultCode, data, this)
     }
 
     override fun onRequestStart(requestID: Int) {

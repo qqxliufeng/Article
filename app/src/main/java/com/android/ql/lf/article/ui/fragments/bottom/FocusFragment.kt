@@ -23,11 +23,13 @@ class FocusFragment : BaseNetWorkingFragment() {
 
     private val titles = arrayListOf<FocusUserBean>()
 
+    private var isLoad = false
+
     override fun getLayoutId() = R.layout.fragment_focus_layout
 
     override fun initView(view: View?) {
         UserInfoLiveData.observe(this, Observer {
-            if (UserInfo.isLogin()) {
+            if (UserInfo.isLogin() && !isLoad) {
                 mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_REUSER_ACT))
             }
         })
@@ -52,9 +54,11 @@ class FocusFragment : BaseNetWorkingFragment() {
             val check = checkResultCode(result)
             if (check != null) {
                 if (check.code == SUCCESS_CODE) {
+                    isLoad = true
                     mTvFocusLoading.visibility = View.GONE
                     val jsonArray = (check.obj as JSONObject).optJSONArray(RESULT_OBJECT)
                     if (jsonArray != null) {
+                        titles.clear()
                         (0 until jsonArray.length()).forEach {
                             titles.add(Gson().fromJson(jsonArray[it].toString(), FocusUserBean::class.java))
                         }

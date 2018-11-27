@@ -17,7 +17,6 @@ import com.android.ql.lf.baselibaray.utils.BaseConfig
 import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.sina.weibo.sdk.share.WbShareHandler
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
-import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import kotlinx.android.synthetic.main.dialog_image_poster_share_layout.*
 import kotlinx.android.synthetic.main.fragment_image_poster_share_layout.*
@@ -63,7 +62,7 @@ class ImagePosterShareFragment : BaseNetWorkingFragment() {
         GlideManager.loadLocalImage(mContext, imagePath, mIvImagePosterShare)
         mBtImagePosterSave.setOnClickListener {
             if (desFile == null) {
-                val dirFile = File(BaseConfig.IMAGE_PATH)
+                val dirFile = File("${BaseConfig.IMAGE_PATH}savepost/")
                 if (!dirFile.exists()){
                     dirFile.mkdirs()
                 }
@@ -73,10 +72,10 @@ class ImagePosterShareFragment : BaseNetWorkingFragment() {
                 }
                 val srcFile = File(imagePath)
                 srcFile.copyTo(desFile!!,true)
-                Snackbar.make(mBtImagePosterSave.parent.parent.parent as RelativeLayout,"图片保存在${BaseConfig.IMAGE_PATH}目录下",Snackbar.LENGTH_LONG)
+                Snackbar.make(mBtImagePosterSave.parent.parent.parent as RelativeLayout,"图片保存在${BaseConfig.IMAGE_PATH}savepost/目录下",Snackbar.LENGTH_LONG)
                     .setAction("确定",null).show()
             }else{
-                Snackbar.make(mBtImagePosterSave.parent.parent.parent as RelativeLayout,"图片保存在${BaseConfig.IMAGE_PATH}目录下",Snackbar.LENGTH_LONG)
+                Snackbar.make(mBtImagePosterSave.parent.parent.parent as RelativeLayout,"图片保存在${BaseConfig.IMAGE_PATH}savepost/目录下",Snackbar.LENGTH_LONG)
                     .setAction("确定",null).show()
             }
         }

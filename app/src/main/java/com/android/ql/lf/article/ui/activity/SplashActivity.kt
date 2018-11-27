@@ -18,7 +18,7 @@ import pub.devrel.easypermissions.AppSettingsDialog
 
 class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
 
-    private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+    private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA,Manifest.permission.READ_PHONE_STATE)
 
     override fun getLayoutId() = R.layout.activity_splash_layout
 
@@ -49,7 +49,7 @@ class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks
     }
 
     private fun hasPermission() =
-        EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+        EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA,Manifest.permission.READ_PHONE_STATE)
 
     private fun requestPermission() {
         EasyPermissions.requestPermissions(
@@ -57,7 +57,8 @@ class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks
             "应用程序需要以下权限才能运行，请先设置",
             0,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_PHONE_STATE
         )
     }
 
@@ -88,7 +89,7 @@ class SplashActivity : BaseSplashActivity(), EasyPermissions.PermissionCallbacks
                 finish()
             }
             builder.setTitle("程序需要以下权限")
-            builder.setItems(arrayOf("存储权限", "相机权限"), null)
+            builder.setItems(arrayOf("存储权限", "相机权限","读取手机状态"), null)
             builder.create().show()
         } else {
             requestPermission()

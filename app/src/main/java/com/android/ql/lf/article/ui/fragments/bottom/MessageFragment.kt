@@ -90,7 +90,7 @@ class MessageFragment : BaseRecyclerViewFragment<LeaveMessage>() {
         mBaseAdapter.addHeaderView(headerView)
         mFocus.doClickWithUserStatusStart("") {
             mFocusCount.visibility = View.GONE
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attention.html", ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "关注", "attentionMessage.html", ArticleType.OTHER.type)
         }
         mCollection.doClickWithUserStatusStart("") {
             mCollectionCount.visibility = View.GONE

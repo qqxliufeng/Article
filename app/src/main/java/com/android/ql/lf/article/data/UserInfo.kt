@@ -69,6 +69,7 @@ fun UserInfo.jsonToUserInfo(json: JSONObject): Boolean {
         if (user_phone == null){
             return false
         }
+        user_pass = json.optString("member_pass")
         user_pic = json.optString("member_pic")
         user_balance = json.optInt("member_balance")
         user_fans = json.optInt("member_fans")
@@ -102,6 +103,7 @@ fun UserInfo.jsonToUserInfo(json: JSONObject): Boolean {
 object UserInfo {
     var user_id: Int = -1
     var user_phone: String? = null
+    var user_pass: String? = null
     var user_nickname: String? = null
     var user_pic: String? = null
     var user_balance:Int? = null

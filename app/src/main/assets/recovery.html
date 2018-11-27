@@ -14,31 +14,101 @@
 		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
 		<!--rem js-->
 		<script type="text/javascript" src="js/rem.js" ></script>
+		<!--mui js-->
+		<script type="text/javascript" src="js/mui.min.js" ></script>
+		<!--common js-->
+		<script type="text/javascript" src="js/common.js" ></script>
+		<!--vue js-->
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		<script type="text/javascript" src="js/template.js"></script>
 	</head>
 	<body>
-		<!--回收站 -->
-		<div class="recovery mt08 whitebg">
-			<ul>
-				<a href="">
-					<li>
-						<p>55天后彻底删除</p>
-						<div class="ft8">生活不止眼前的苟且，还有诗和远方的田野</div>
+		<div id="app">
+			<div class="collect-none center" v-show=" list == '' " style="display: none;" >
+				<img src="images/collect.png" />
+				<p>您还没有任何回收文章哦~</p>
+			</div>
+			<!--回收站 -->
+			<div class="recovery mt08 whitebg" v-show=" list != '' " style="display: none;">
+				<ul>
+					<li v-for="item in list" onclick="jumpDet(this)">
+						<input type="hidden" :value="item.articles_id" />
+						<input type="hidden" :value="item.articles_title" />
+						<input type="hidden" :value="item.articles_content" />
+						<p><span v-text="item.articles_deltime"></span>后彻底删除</p>
+						<div class="ft8" v-text="item.articles_title"></div>
 					</li>
-				</a>
-				<a href="">
-					<li>
-						<p>55天后彻底删除</p>
-						<div class="ft8">你有多自律，就能走多远</div>
-					</li>
-				</a>
-				<a href="">
-					<li>
-						<p>55天后彻底删除</p>
-						<div class="ft8">生活不止眼前的苟且，还有诗和远方的田野</div>
-					</li>
-				</a>
-			</ul>
+					<div class="loadMore animate" style="margin-top: 0.2rem;clear: both;">
+						<img src="images/loading@2x.png">加载更多
+					</div>
+				</ul>
+			</div>
 		</div>
 	</body>
+	<script id="list-template" type="text/html">
+		{{each items as item index}}
+			<li  onclick="jumpDet(this)">
+				<input type="hidden" value="{{item.articles_id}}" />
+				<input type="hidden" value="{{item.articles_title}}" />
+				<input type="hidden" value="{{item.articles_content}}" />
+				<p><span>{{item.articles_deltime}}</span>后彻底删除</p>
+				<div class="ft8">{{item.articles_title}}</div>
+			</li>
+		{{/each}}
+	</script>
+	<script>
+
+		$(function() {
+		   //获取webview.js  返回的用户ID
+//		   var uid  = 610
+           var uid  = article.getUserId()
+			//实例化vue
+			vue = new Vue({
+				el: '#app',
+				data: {
+					list: [],
+				},
+				methods: {
+					getData: function() {
+						var type = article.getArticleType()
+						dataRequest.method("/api/member/myRecycle", {
+							'uid': uid,
+							'status':type
+						}, "post", function(res) {
+                            
+							if(res.code == 200) {
+								vue.list = res.result
+								setTimeout(function() {
+									//上拉加载
+									data_lod(res.arr, '/api/member/myRecycle', {
+										'uid': uid,
+										'status':type
+									})
+								}, 5)
+							} else {
+								data_lod(0, '/api/member/myRecycle', {
+									'uid': uid,
+									'status':type
+								})
+							}
+
+						})
+
+					}
+
+				}
+			})
+			vue.getData()
+
+		})
+		
+		function jumpDet(obj){
+		   var aid       =  $(obj).children().val()
+		   var title     =  $(obj).children().next().val()
+		   var content   =  $(obj).children().next().next().val()
+		   article.jump(article.getArticleType(),aid,title,content)
+		}
+
+	 </script>
 </html>
        

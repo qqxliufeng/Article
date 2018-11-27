@@ -14,54 +14,123 @@
 		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
 		<!--rem js-->
 		<script type="text/javascript" src="js/rem.js" ></script>
+		<!--mui js-->
+		<script type="text/javascript" src="js/mui.min.js" ></script>
+		<!--common js-->
+		<script type="text/javascript" src="js/common.js" ></script>
+		<!--vue js-->
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		<script type="text/javascript" src="js/template.js"></script>
+		<style>
+			img{
+				object-fit: cover;
+			}
+		</style>
 	</head>
 	<body>
-		<!--未收藏-->
-		<!--<div class="collect-none center">
-			<img src="images/collect.png" />
-			<p>您还有任何收藏的文章哦~</p>
-		</div>-->
-		<!--收藏 -->
-		<div class="collect whitebg">
-			<ul>
-				<a href="">
-					<li class="clearfix">
-						<img src="images/carre.png"  class="fl"/>
+		<div id="app">
+			<!--未收藏-->
+			<div class="collect-none center" v-show=" list == '' " style="display: none;" >
+				<img src="images/collect.png" />
+				<p>您还没有任何收藏的文章哦~</p>
+			</div>
+			<!--收藏 -->
+			<div class="collect whitebg"  style="display: none;" v-show=" list != '' ">
+				<ul>
+					<li class="clearfix" v-for="item in list">
+					    <input type="hidden" :value="item.collect_userData.member_id" />
+						<img :src="url + item.collect_userData.member_pic"  class="fl" onclick="jumpMain(this,0)" />
 						<div class="fr">
-							<div class="ft75"><span class="blue">创作是种幸福</span> 收藏了你的文章<span class="blue">《你有多自律，就能走多远》</span></div>
-							<p>2018.10.01 22:10</p>
+							<div class="ft75">
+								<input type="hidden" :value="item.collect_article.articles_id" />
+								<input type="hidden" :value="item.collect_article.articles_status" />
+								<span class="blue" v-text="item.collect_userData.member_nickname" onclick="jumpMain(this,1)"></span> 
+								<span v-text="item.collect_status"></span>
+								<span class="blue" onclick="jumpDet(this)">《<span v-text="item.collect_article.articles_title"></span>》</span>
+							</div>
+							<p v-text="item.collect_times"></p>
 						</div>
 					</li>
-				</a>
-				<a href="">
-					<li class="clearfix">
-						<img src="images/carre.png"  class="fl"/>
-						<div class="fr">
-							<div class="ft75"><span class="blue">创作是种幸福</span> 收藏了你的文章<span class="blue">《你有多自律，就能走多远》</span></div>
-							<p>2018.10.01 22:10</p>
-						</div>
-					</li>
-				</a>
-				<a href="">
-					<li class="clearfix">
-						<img src="images/carre.png"  class="fl"/>
-						<div class="fr">
-							<div class="ft75"><span class="blue">创作是种幸福</span> 收藏了你的文章<span class="blue">《你有多自律，就能走多远》</span></div>
-							<p>2018.10.01 22:10</p>
-						</div>
-					</li>
-				</a>
-				<a href="">
-					<li class="clearfix">
-						<img src="images/carre.png"  class="fl"/>
-						<div class="fr">
-							<div class="ft75"><span class="blue">创作是种幸福</span> 收藏了你的文章<span class="blue">《你有多自律，就能走多远》</span></div>
-							<p>2018.10.01 22:10</p>
-						</div>
-					</li>
-				</a>
-			</ul>
+					<div class="loadMore animate" style="margin-top: 0.2rem;clear: both;">
+						<img src="images/loading@2x.png" style="height:1rem;width:auto">加载更多
+					</div>
+				</ul>
+			</div>
+			
 		</div>
 	</body>
+	<script id="list-template" type="text/html">
+		{{each items as item index}}
+			<li class="clearfix">
+				<input type="hidden" value="{{item.collect_userData.member_id}}" />
+				<img src="{{url + item.collect_userData.member_pic}}" onclick="jumpMain(this,0)"  class="fl"/>
+				<div class="fr">
+					<div class="ft75">
+						<input type="hidden" value="{{item.collect_article.articles_id}}" />
+						<input type="hidden" value="{{item.collect_article.articles_status}}" />
+						<span class="blue" onclick="jumpMain(this,1)">{{item.collect_userData.member_nickname}}</span> 
+						<span>{{item.collect_status}}</span>
+						<span class="blue" onclick="jumpDet(this)">《<span>{{item.collect_article.articles_title}}</span>》</span>
+					</div>
+					<p v-text="item.collect_times"></p>
+				</div>
+			</li>
+		{{/each}}
+	</script>
+	<script>
+		$(function() {
+		   //获取webview.js  返回的用户ID
+//		   var uid  = 650
+           var uid  = article.getUserId()
+			//实例化vue
+			vue = new Vue({
+				el: '#app',
+				data: {
+					list: [],
+					url:url
+				},
+				methods: {
+					getData: function() { //我的文章
+						dataRequest.method("/api/message/myAdmire", {
+							'uid': uid,
+						}, "post", function(res) {
+                            
+							if( res.code == 200 ) {
+								vue.list = res.result
+								setTimeout(function() {
+									//上拉加载
+									data_lod(res.arr, '/api/message/myAdmire', {
+										'uid': uid,
+									})
+								}, 5)
+							} else {
+								data_lod(0, '/api/message/myAdmire', {
+									'uid': uid,
+								})
+							}
+
+						})
+
+					}
+				}
+			})
+			vue.getData()
+		})
+
+        function jumpMain(obj,status){
+        	var uid      =  $(obj).parent().children().val()
+        	if(status){
+        		var uid  =  $(obj).parent().parent().parent().children().val()
+        	}
+        	article.startPersonalIndexById(uid)
+        }
+        
+		function jumpDet(obj){
+		   var aid       =  $(obj).parent().children().val()
+		   var status    =  $(obj).parent().children().next().val()
+		   article.myJump(status,aid)
+		}
+
+	 </script>
 </html>
        

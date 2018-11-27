@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.CheckedTextView
@@ -133,7 +134,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 ArticleWebViewFragment.startArticleWebViewFragment(
                     mContext,
                     "评论详情",
-                    "comment-details.html",
+                    "comment-details.html?theme=${item?.comment_id ?: 0}}",
                     ArticleType.OTHER.type
                 )
             }
@@ -206,7 +207,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                         if (!shareBitmapFile.exists()) {
                             shareBitmapFile.createNewFile()
                         }
-                        ImageFactory.compressAndGenImage(shortImage, shareBitmapFile.absolutePath, 200)
+                        ImageFactory.compressAndGenImage(shortImage, shareBitmapFile.absolutePath, 1024 * 2)
                         shareBitmapFile
                     }.subscribeOn(Schedulers.io())
                         .doOnSubscribe {
@@ -262,6 +263,14 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
 
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                                 NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
+                                return true
+                            }
+
+                            override fun shouldOverrideUrlLoading(
+                                view: WebView?,
+                                request: WebResourceRequest?
+                            ): Boolean {
+                                NetWebViewFragment.startNetWebViewFragment(mContext, request?.url.toString() ?: "")
                                 return true
                             }
                         }

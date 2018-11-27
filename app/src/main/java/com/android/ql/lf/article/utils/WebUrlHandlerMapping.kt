@@ -14,7 +14,7 @@ fun WebView.setNormalSetting() {
     settings.javaScriptEnabled = true
     settings.domStorageEnabled = true
     settings.useWideViewPort = true
-    settings.defaultFontSize  = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,10.0f,this.resources.displayMetrics).toInt()
+    settings.defaultFontSize  = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,12.0f,this.resources.displayMetrics).toInt()
     settings.loadWithOverviewMode = true
     settings.allowFileAccess = true
     settings.databaseEnabled = true
@@ -30,8 +30,8 @@ fun WebView.urlHanler(url: String?) {
 }
 
 fun WebView.loadLocalHtml(url: String = "") {
-//    loadUrl("file:///android_asset/$url")
-    this.loadUrl("${BaseConfig.BASE_IP}article/$url")
+    loadUrl("file:///android_asset/$url")
+//    this.loadUrl("${BaseConfig.BASE_IP}article/$url")
 }
 
 fun WebView.resetImage(){

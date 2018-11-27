@@ -182,7 +182,7 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
             }
             0x0 -> {
                 val check = checkResultCode(result)
-                if (check != null && check.code == SUCCESS_CODE) {
+                if (check != null) {
                     when {
                         check.code == SUCCESS_CODE -> {
                             toast("公开发布成功")

@@ -11,72 +11,138 @@
 		<!--页面样式-->
 		<link rel="stylesheet" href="css/style.css" />
 		<!--js-->
-		<script type="text/javascript" src="js/jquery-1.8.3.min.js" ></script>
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
 		<!--rem js-->
-		<script type="text/javascript" src="js/rem.js" ></script>
-		
+		<script type="text/javascript" src="js/rem.js"></script>
+		<!--mui js-->
+		<script type="text/javascript" src="js/mui.min.js"></script>
+		<!--common js-->
+		<script type="text/javascript" src="js/common.js"></script>
+		<!--vue js-->
+		<script type="text/javascript" src="js/vue.min.js"></script>
 	</head>
 	<body>
-		 <div class="bindpay whitebg">
-		 	<form method="post" action="">
-		 		<div class="clearfix">
-		 			<label class="fl">真实姓名</label>
-		 			<span class="fr right" id="username">姓名</span>
-		 		</div>
-		 		<div class="clearfix">
-		 			<label class="fl">支付宝</label>
-		 			<span class="fr right" id="user">账号</span>
-		 		</div>
-		 	</form>
-		 </div>
-		 <!--编辑-->
-		 <div class="edit-o windows hide">
-		 	<div class="edit whitebg">
-		 		<form method="post" action="">
-		 			<div class="clearfix">
-		 				<img src="images/write_03.png" class="fl"/>
-		 				<input placeholder="请输入内容" class="fr"id="chabge-o"/>
-		 			</div>
-		 			<nav class="clearfix">
-		 				<button type="button" class="fl close">取消</button>
-		 				<button type="button" class="red fr sure">保存</button>
-		 			</nav>
-		 		</form>
+		<div id="app">
+			 <div class="bindpay whitebg" >
+			 		<div class="clearfix">
+			 			<label class="fl">真实姓名</label>
+			 			<span class="fr right" id="username" v-text="alipayname">姓名</span>
+			 		</div>
+			 		<div class="clearfix">
+			 			<label class="fl">支付宝</label>
+			 			<span class="fr right" id="user" v-text="alipay">账号</span>
+			 		</div>
+			 </div>
+			 <!--编辑-->
+			 <div class="edit-o windows hide">
+			 	<div class="edit whitebg">
+			 			<div class="clearfix">
+			 				<img src="images/write_03.png" class="fl"/>
+			 				<input placeholder="请输入内容" class="fr"id="chabge-o"/>
+			 			</div>
+			 			<nav class="clearfix">
+			 				<button type="button" class="fl close">取消</button>
+			 				<button type="button" class="red fr sureone" onclick="username()">保存</button>
+			 			</nav>
+			 	</div>
+			 </div>
+			 <div class="edit-t windows hide">
+			 	<div class="edit whitebg">
+			 			<div class="clearfix">
+			 				<img src="images/write_03.png" class="fl"/>
+			 				<input placeholder="请输入内容" class="fr" id="chabge-t"/>
+			 			</div>
+			 			<nav class="clearfix">
+			 				<button type="button" class="fl close">取消</button>
+			 				<button type="button" class="red fr suretwo" onclick="user()">保存</button>
+			 			</nav>
+			 	</div>
 		 	</div>
-		 </div>
-		 <div class="edit-t windows hide">
-		 	<div class="edit whitebg">
-		 		<form method="post" action="">
-		 			<div class="clearfix">
-		 				<img src="images/write_03.png" class="fl"/>
-		 				<input placeholder="请输入内容" class="fr" id="chabge-t"/>
-		 			</div>
-		 			<nav class="clearfix">
-		 				<button type="button" class="fl close">取消</button>
-		 				<button type="button" class="red fr sure">保存</button>
-		 			</nav>
-		 		</form>
-		 	</div>
+		    <script>
+			$(function() {
+				uid  = article.getUserId()
+				/*背景色*/
+		      	$("html").addClass("whitebg");
+		      	$("body").addClass("whitebg");
+				//实例化vue
+				vue = new Vue({
+					el: '#app',
+					data: {
+						alipayname: "姓名",
+						alipay: "账号",
+					},
+					methods: {
+						getData: function() {
+							dataRequest.method("/api/member/bindAlipay", {
+								'uid': uid
+							}, "get", function(res) {
+								if(res.code == 200) {
+									if(res.result.member_alipayname){
+										vue.alipayname = res.result.member_alipayname
+									}
+									if(res.result.member_alipay){
+										vue.alipay = res.result.member_alipay
+									}
+									
+								}
+							})
+						}
+					}
+				})
+				vue.getData()
+			})
+		 </script>
 	     <script>
-	     	$("#username").click(function(){
-	     		$(".edit-o").show();
-				$(".sure").click(function(){
-					var val = $("#chabge-o").val();
-					$("#username").html(val);
+	     	var uid = 655;
+	     	function username(){
+	     		var val = $("#chabge-o").val();
+					if(val){
+						dataRequest.method("/api/member/bindAlipay", {
+							'uid': uid,
+							'name':val,
+						}, "post", function(res) {
+							if(res.code == 200){
+								$("#chabge-o").val("");
+								mui.toast('修改成功')
+							}else{
+								mui.toast(res.msg)
+							}
+						})
+						$("#username").html(val);
+					}
+					
 		     		$(".edit-o").hide();
-		       });
-	     	});
-	     	$("#user").click(function(){
-	     		$(".edit-t").show();
-				$(".sure").click(function(){
-					var val = $("#chabge-t").val();
+	     	}
+	     	function user(){
+	     		var val = $("#chabge-t").val();
+				if(val){
+					dataRequest.method("/api/member/bindAlipay", {
+						'uid': uid,
+						'account':val,
+					}, "post", function(res) {
+						if(res.code == 200){
+							$("#chabge-t").val("");
+							mui.toast('修改成功')
+						}else{
+							mui.toast(res.msg)
+						}
+					})
 					$("#user").html(val);
-		     		$(".edit-t").hide();
-		       });
-	     	});
-	     	$(".close").click(function(){
+				}
+	     		$(".edit-t").hide();
+	     	}
+	     	$(document).on('click','#username',function(){
+	     		$(".edit-o").show();
+	     	})
+	     	
+	     	$(document).on('click','#user',function(){
+	     		$(".edit-t").show();
+	     	})
+	     	
+	     	$(document).on('click',".close",function(){
 	     		$(".windows").hide();
-	     	});
+	     	})
+
 	     	
 	     </script>
 	</body>

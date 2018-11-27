@@ -41,7 +41,7 @@ class ArticleItem : MultiItemEntity {
 data class ArticleUserDataBean( var member_id:Int,var member_nickname:String,var member_pic:String)
 
 enum class ArticleType(val type: Int) {
-    //文章状态  1 公开  2 私密  3 收录  4 投稿  5  回收站  6 喜欢  7 收藏
+    //文章状态  1 公开  2 私密  3 收录  4 投稿  5  回收站  6 喜欢  7 收藏  8 浏览历史
     PRIVATE_ARTICLE(2),
     PUBLIC_ARTICLE(1),
     COLLECTION_ARTICLE(3),
@@ -49,6 +49,7 @@ enum class ArticleType(val type: Int) {
     TRASH_ARTICLE(5),
     LOVE_ARTICLE(6),
     MY_COLLECTION_ARTICLE(7),
+    HISTORY_ARTICLE(8),
     OTHER(-1);
 
     companion object {
@@ -74,6 +75,9 @@ enum class ArticleType(val type: Int) {
                 }
                 MY_COLLECTION_ARTICLE.type->{
                     MY_COLLECTION_ARTICLE
+                }
+                HISTORY_ARTICLE.type->{
+                    HISTORY_ARTICLE
                 }
                 else -> {
                     POST_ARTICLE

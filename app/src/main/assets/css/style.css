@@ -8,6 +8,20 @@ body {
 .mui-content{
 	height: 100%;
 }
+header{
+	padding: 2% 5%;
+	border-bottom: 1px solid #EEEEEE;
+}
+header .logo{
+	width: 4.3rem;
+	height: 2.05rem;
+}
+header .go{
+	width: 0.325rem;
+	height: 0.525rem;
+	margin: 0.8rem 0 0 0.3rem;
+}
+
 /*我的钱包*/
 .wallet{
 	width: 90%;
@@ -654,4 +668,173 @@ body {
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
+}
+/*下载*/
+.download img{
+	width: 100%;
+	margin: 5rem 0;
+}
+.down-btn{
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+}
+.down-btn img{
+	width: 4.3rem;
+	height: 2.05rem;
+}
+.down-btn button{
+	width: 60%;
+	margin: 1rem 0;
+	border-radius: 50px;
+	border: 1px solid #FF5163;
+}
+.down-btn button img{
+	width: 0.975rem;
+	height: 1.125rem;
+	margin: 0 0.3rem;
+	margin-left: 20%;
+}
+/*分享*/
+.share{
+	padding: 3%;
+}
+.share div:first-child{
+	font-size: 1.4rem;
+}
+.share-au img{
+	width: 3rem;
+	height: 3rem;
+	border-radius: 100%;
+}
+.share-au{
+	font-size: 0.75rem;
+}
+.s-sign span:first-child{
+	background: #FFE7EA;
+	padding: 0.2rem 0.5rem 0.1rem;
+	border-radius: 3px;
+}
+.share>img{
+	width: 100%;
+	margin: 0.5rem 0;
+}
+.share-text{
+	font-size: 0.7rem;
+	line-height: 30px;
+	text-indent: 2em;
+}
+.s-more img{
+	width: 1.725rem;
+	height: 1.25rem;
+}
+.s-more button{
+	width: 50%;
+	height: 2rem;
+	margin: 1rem 0;
+	border: 0;
+}
+.withdraw-main input[type="radio"] {
+    width: 0.85rem !important;
+    width: 0.85rem;
+    -webkit-appearance: none;
+    background: url(../images/radio_06.png) no-repeat;
+    vertical-align: middle;
+    background-size: 100%;
+    margin-right: 0.5rem;
+}
+.withdraw-main input[type="radio"]:checked {
+    background: url(../images/radio_03.png) no-repeat;
+    background-size: 100%;
+}
+/*个人主页*/
+.per-top img{
+	width: 100%;
+	height: 7.5rem;
+}
+.per-head{
+	width: 90%;
+	margin: auto;
+	position: relative;
+	margin-top: -1rem;
+	z-index: 99;
+}
+.per-head nav img{
+	width: 5rem;
+	height: 5rem;
+	border: 3px solid #FFFFFF;
+	border-radius: 100%;
+}
+.per-head>nav>div{
+	width: 67%;
+}
+.per-sign span{
+	background: #FFE7EA;
+	color: #FF2741;
+	padding: 1px 0.3rem;
+	margin: 0 0.3rem;
+}
+.per-sign span:first-child{
+	margin-left: 0;
+}
+.per-head button{
+	height: 2rem;
+	border: 1px solid #FF6776;
+	padding: 0 1.5rem !important;
+	margin-left: 0.5rem;
+}
+.per-head button img{
+	width: 0.8rem;
+	height: 0.85rem;
+}
+.per-head button:last-child{
+	padding: 0 0.8rem !important;
+}
+.per-head button:first-child{
+	margin-left: 0;
+}
+.per-list{
+	width: 90%;
+	margin: 0.5rem auto;
+}
+.per-list ul li{
+	margin: 1rem 0;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid #E5E5E5;
+}
+.in_per_lf{
+	width: 65%;
+}
+.in_per_rt{
+	width: 35%;
+	text-align: right;
+}
+.in_per_lf img{
+	width: 0.575rem;
+	height: 0.55rem;
+	margin: 0 0.3rem;
+}
+.in_per_rt img{
+	width: 4.15rem;
+	height: 4.15rem;
+	margin-top: 0.6rem;
+}
+.in_per_lf >div{
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+.down{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+.down button{
+	position: relative;
+	left: 5%;
+	width: 90%;
+	margin: 0.5rem auto;
 }

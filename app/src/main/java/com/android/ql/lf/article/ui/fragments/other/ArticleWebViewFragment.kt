@@ -350,5 +350,18 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 }
             }
         }
+
+
+        /**
+         * 浏览历史，弹出对话框
+         */
+        @JavascriptInterface
+        fun showHistoryDeleteDialog(id:String){
+            mContext.runOnUiThread {
+                alert("提示","是否要删除此记录？","删除","不删除",{_,_->
+                    mWVArticleWebViewContainer.loadUrl("""javascript:del($id)""")
+                },null)
+            }
+        }
     }
 }
