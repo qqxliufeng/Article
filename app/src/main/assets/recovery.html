@@ -23,6 +23,7 @@
 		<script type="text/javascript" src="js/template.js"></script>
 	</head>
 	<body>
+	
 		<div id="app">
 			<div class="collect-none center" v-show=" list == '' " style="display: none;" >
 				<img src="images/collect.png" />
@@ -60,7 +61,7 @@
 
 		$(function() {
 		   //获取webview.js  返回的用户ID
-//		   var uid  = 610
+//		   var uid  = 650
            var uid  = article.getUserId()
 			//实例化vue
 			vue = new Vue({
@@ -70,7 +71,8 @@
 				},
 				methods: {
 					getData: function() {
-						var type = article.getArticleType()
+//						var type = article.getArticleType()
+						var type = 5
 						dataRequest.method("/api/member/myRecycle", {
 							'uid': uid,
 							'status':type

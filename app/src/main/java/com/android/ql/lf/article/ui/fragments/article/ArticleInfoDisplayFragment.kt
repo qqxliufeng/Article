@@ -4,20 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.support.v7.view.menu.MenuBuilder
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.CheckedTextView
-import android.widget.TextView
 import com.android.ql.lf.article.R
-import com.android.ql.lf.article.data.ArticleCommentItem
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.ArticleShareItem
-import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthFragment
 import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthUpdateFragment
@@ -91,6 +86,7 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
 
     override fun initView(view: View?) {
         updateArticleSubscription
+        mHeaderWebView.setNormalSetting()
         mCtvArticleInfoForAuthInfoFocus.visibility = View.GONE
         mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(ARTICLE_MODULE, ARTICLE_DETAIL_ACT).addParam("aid", aid))
     }
@@ -112,13 +108,8 @@ class ArticleInfoDisplayFragment : BaseNetWorkingFragment() {
                         ArticleItem::class.java
                     )
                     mHeaderWebView.post {
-                        mHeaderWebView.loadData(mCurrentArticle?.articles_content, "text/html;charset=UTF-8", null)
+                        mHeaderWebView.loadWrapperData(mCurrentArticle?.articles_content)
                         mHeaderWebView.webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                super.onPageFinished(view, url)
-                                view?.resetImage()
-                            }
-
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                                 NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
                                 return true

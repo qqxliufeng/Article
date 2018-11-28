@@ -20,6 +20,7 @@ import android.widget.TextView
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
+import com.android.ql.lf.article.ui.fragments.bottom.FocusFragment
 import com.android.ql.lf.article.ui.fragments.mine.MyFriendListFragment
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
@@ -78,6 +79,8 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
     }
 
     private var mCurrentMenuItem: MenuItem? = null
+
+    private var menu : Menu? = null
 
     private val mHeaderView by lazy {
         View.inflate(mContext, R.layout.layout_article_info_header_view, null)
@@ -254,12 +257,29 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                         ArticleItem::class.java
                     )
                     mHeaderWebView.post {
-                        mHeaderWebView.loadData(mCurrentArticle?.articles_content, "text/html;charset=UTF-8", null)
-                        mHeaderWebView.webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                super.onPageFinished(view, url)
-                                view?.resetImage()
+                        if (UserInfo.user_id == auid) {
+                            val count = menu?.size() ?: 0
+                            when (ArticleType.getTypeNameById(mCurrentArticle?.articles_status ?: 0)) {
+                                ArticleType.PUBLIC_ARTICLE -> {
+                                    (0 until count).forEach {
+                                        val item = menu?.getItem(it)
+                                        item?.isVisible = true
+                                    }
+                                }
+                                ArticleType.POST_ARTICLE,ArticleType.COLLECTION_ARTICLE -> {
+                                    (0 until count).forEach {
+                                        val item = menu?.getItem(it)
+                                        if (item?.itemId == R.id.mMenuArticleCollection || item?.itemId == R.id.mMenuArticleShare){
+                                            item.isVisible = true
+                                        }else{
+                                            item?.isVisible = false
+                                        }
+                                    }
+                                }
                             }
+                        }
+                        mHeaderWebView.loadWrapperData(mCurrentArticle?.articles_content)
+                        mHeaderWebView.webViewClient = object : WebViewClient() {
 
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                                 NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
@@ -471,6 +491,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                 if (check != null) {
                     toast((check.obj as JSONObject).optString(MSG_FLAG))
                     if (check.code == SUCCESS_CODE) {
+                        RxBus.getDefault().post(FocusFragment.UPDATE_FOCUS_FLAG)
                         UserInfo.reloadUserInfo()
                         if (mCurrentArticle?.articles_like == 1){//
                             mCurrentArticle?.articles_like = 0
@@ -512,6 +533,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater?.inflate(R.menu.article_normal_menu, menu)
+        this.menu = menu
         if (menu != null) {
             if (menu.javaClass == MenuBuilder::class.java) {
                 val method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)

@@ -20,17 +20,29 @@
 		<script type="text/javascript" src="js/common.js"></script>
 		<!--vue js-->
 		<script type="text/javascript" src="js/vue.min.js"></script>
+		<style>
+			.bindpay button{
+				position: fixed;
+				left:5%;
+				width: 90%;
+				height: 2rem;
+				border-radius: 50px;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="app">
-			 <div class="bindpay whitebg" >
+			 <div class="alipay whitebg" >
 			 		<div class="clearfix">
 			 			<label class="fl">真实姓名</label>
 			 			<span class="fr right" id="username" v-text="alipayname">姓名</span>
 			 		</div>
-			 		<div class="clearfix">
+			 		<div class="clearfix" style="margin-bottom: 2.5rem;">
 			 			<label class="fl">支付宝</label>
 			 			<span class="fr right" id="user" v-text="alipay">账号</span>
+			 		</div>
+			 		<div style="width: 100%;">
+			 		   <button type="button" onclick="sub()">确定</button>
 			 		</div>
 			 </div>
 			 <!--编辑-->
@@ -60,7 +72,8 @@
 		 	</div>
 		    <script>
 			$(function() {
-				uid  = article.getUserId()
+				uid  = 650
+//				uid  = article.getUserId()
 				/*背景色*/
 		      	$("html").addClass("whitebg");
 		      	$("body").addClass("whitebg");
@@ -130,6 +143,20 @@
 					$("#user").html(val);
 				}
 	     		$(".edit-t").hide();
+	     	}
+	     	
+	     	function sub(){
+	     		var username = $("#username").text()
+	     		var user     = $("#user").text()
+	     		if(username.length <= 0 || username == '姓名'){
+	     			mui.toast('请填写真实姓名')
+	     			return false;
+	     		}
+	     		if(user.length <= 0 || user == '账号'){
+	     			mui.toast('请填写支付宝账号')
+	     			return false;
+	     		}
+	     		window.location.href = "wallet.html"
 	     	}
 	     	$(document).on('click','#username',function(){
 	     		$(".edit-o").show();

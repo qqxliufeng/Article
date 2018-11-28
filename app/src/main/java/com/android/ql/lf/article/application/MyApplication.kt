@@ -1,5 +1,6 @@
 package com.android.ql.lf.article.application
 
+import cn.jpush.android.api.JPushInterface
 import com.android.ql.lf.baselibaray.application.BaseApplication
 import com.android.ql.lf.baselibaray.utils.BaseConfig
 import com.sina.weibo.sdk.WbSdk
@@ -26,6 +27,7 @@ class MyApplication : BaseApplication() {
             BaseConfig.WB_SCOPE)
         )
         tencent = Tencent.createInstance(BaseConfig.TENCENT_ID, this)
+        JPushInterface.setDebugMode(true)
+        JPushInterface.init(this)
     }
-
 }

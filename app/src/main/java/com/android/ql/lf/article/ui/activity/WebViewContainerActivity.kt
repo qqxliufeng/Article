@@ -36,6 +36,12 @@ class WebViewContainerActivity : BaseActivity() {
         val SDK_PAY_FLAG = 1
     }
 
+    private var canDirectGoMainIndex = false
+
+    private val url by lazy {
+        intent.getStringExtra("url") ?: ""
+    }
+
     private val mHandler = object : Handler(Looper.getMainLooper()){
 
         override fun handleMessage(msg: Message?) {
@@ -72,13 +78,10 @@ class WebViewContainerActivity : BaseActivity() {
         mIvArticleWebViewBack.setImageResource(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material)
         mIvArticleWebViewBack.setOnClickListener { onBack() }
         mIvArticleWebViewClose.setOnClickListener { finish() }
-
         mWVArticleWebViewContainer.setNormalSetting()
         mWVArticleWebViewContainer.addJavascriptInterface(WebViewInterface(), JS_BRIDGE_INTERFACE_NAME)
-
         mWVArticleWebViewContainer.webViewClient = MyWebViewClient()
         mWVArticleWebViewContainer.webChromeClient = MyChromeWebViewClient()
-        val url = intent.getStringExtra("url") ?: ""
         mWVArticleWebViewContainer.loadLocalHtml(url)
         when (url) {
             "wallet.html" ->{
@@ -115,6 +118,10 @@ class WebViewContainerActivity : BaseActivity() {
     }
 
     private fun onBack() {
+        if (canDirectGoMainIndex){
+            mWVArticleWebViewContainer.loadLocalHtml(url)
+            return
+        }
         if (mWVArticleWebViewContainer.canGoBack()) {
             mWVArticleWebViewContainer.goBack()
         } else {
@@ -143,17 +150,27 @@ class WebViewContainerActivity : BaseActivity() {
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            if (url != null && url.endsWith("wallet.html")) {
-                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-            } else {
-                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-            }
             mPbArticleProgress.visibility = View.GONE
             mTvArticleWebViewTitle.text = view?.title ?: ""
-            if (url!= null && url.endsWith("wallet.html",true)){
-                mTvArticleWebViewAction.visibility = View.VISIBLE
-            }else{
-                mTvArticleWebViewAction.visibility = View.GONE
+            if (url!=null){
+                when {
+                    url.endsWith("wallet.html",true) -> {
+                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                        mTvArticleWebViewAction.visibility = View.VISIBLE
+                        canDirectGoMainIndex = false
+                        mWVArticleWebViewContainer.clearHistory()
+                    }
+                    url.endsWith("backcard.html",true) -> {
+                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+                        mTvArticleWebViewAction.visibility = View.GONE
+                        canDirectGoMainIndex = true
+                    }
+                    else -> {
+                        canDirectGoMainIndex = false
+                        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+                        mTvArticleWebViewAction.visibility = View.GONE
+                    }
+                }
             }
         }
     }

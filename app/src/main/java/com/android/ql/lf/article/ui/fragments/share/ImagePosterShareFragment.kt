@@ -14,7 +14,6 @@ import com.android.ql.lf.article.utils.ThirdShareManager
 import com.android.ql.lf.baselibaray.ui.activity.FragmentContainerActivity
 import com.android.ql.lf.baselibaray.ui.fragment.BaseNetWorkingFragment
 import com.android.ql.lf.baselibaray.utils.BaseConfig
-import com.android.ql.lf.baselibaray.utils.GlideManager
 import com.sina.weibo.sdk.share.WbShareHandler
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
@@ -59,7 +58,10 @@ class ImagePosterShareFragment : BaseNetWorkingFragment() {
     override fun getLayoutId() = R.layout.fragment_image_poster_share_layout
 
     override fun initView(view: View?) {
-        GlideManager.loadLocalImage(mContext, imagePath, mIvImagePosterShare)
+        mWvImagePostShare.settings.allowFileAccess = true
+        mWvImagePostShare.settings.allowFileAccessFromFileURLs = true
+        mWvImagePostShare.settings.allowUniversalAccessFromFileURLs = true
+        mWvImagePostShare.loadDataWithBaseURL(null,"""<img src="file://$imagePath" style="width:100%"/>""","text/html","UTF-8",null)
         mBtImagePosterSave.setOnClickListener {
             if (desFile == null) {
                 val dirFile = File("${BaseConfig.IMAGE_PATH}savepost/")
@@ -111,18 +113,18 @@ class ImagePosterShareDialogFragment : AppShareDialogFragment(){
             }
         }
         mTvImagePosterCircle.setOnClickListener {
-            dismiss()
             if (shareImagePath!=null) {
                 ThirdShareManager.wxShareImage(iWxApi, shareImagePath, SendMessageToWX.Req.WXSceneTimeline)
             }
+            dismiss()
         }
         mTvImagePosterWB.setOnClickListener {
-            dismiss()
             if (shareImagePath!=null) {
                 shareHandler?.registerApp()
                 shareHandler?.setProgressColor(ContextCompat.getColor(context!!, R.color.colorAccent))
                 shareHandler?.shareMessage(ThirdShareManager.getImageObj(shareImagePath), false)
             }
+            dismiss()
         }
     }
 }

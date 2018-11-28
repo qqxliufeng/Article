@@ -233,8 +233,10 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                     ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
                 }
                 ArticleType.COLLECTION_ARTICLE -> {
+                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
                 }
                 ArticleType.POST_ARTICLE -> {
+                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
                 }
                 ArticleType.TRASH_ARTICLE->{
                     ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
@@ -293,7 +295,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
          * 弹出回复框
          */
         @JavascriptInterface
-        fun showReplyDialog(cuid:String){
+        fun showReplyDialog(cuid:String,reid:String){
             if (TextUtils.isEmpty(cuid)){
                 return
             }
@@ -309,9 +311,11 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                         return@setOnClickListener
                     }
                     popUpWindow.dismiss()
-                    mPresent.getDataByPost(0x0, getBaseParamsWithModAndAct(MESSAGE_MODULE, LEAVE_DO_ACT)
+                    mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MESSAGE_MODULE, COMMENT_REPLY_ACT)
                         .addParam("cuid",cuid)
-                        .addParam("content",content.getTextString()))
+                        .addParam("content",content.getTextString())
+                        .addParam("reid",reid)
+                        .addParam("type","2"))
                 }
                 contentView.postDelayed({
                     PopupWindowDialog.toggleSoft(mContext)
@@ -321,7 +325,7 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
 
 
         /**
-         * 弹出评论对话框
+         * 弹出评论回复对话框
          */
         @JavascriptInterface
         fun showCommentDialig(cuid:String,reid:String){
@@ -361,6 +365,13 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 alert("提示","是否要删除此记录？","删除","不删除",{_,_->
                     mWVArticleWebViewContainer.loadUrl("""javascript:del($id)""")
                 },null)
+            }
+        }
+
+        @JavascriptInterface
+        fun sendMessageUpdateFocus(messageFlag:String){
+            mContext.runOnUiThread {
+                RxBus.getDefault().post(messageFlag)
             }
         }
     }

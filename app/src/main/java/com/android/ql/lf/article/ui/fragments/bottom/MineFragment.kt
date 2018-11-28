@@ -126,9 +126,7 @@ class MineFragment : BaseNetWorkingFragment() {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "私密文章", "contribute.html",ArticleType.PRIVATE_ARTICLE.type)
         }
         mTvMineAccountSafe.doClickWithUserStatusStart("") {
-            val intent = Intent(mContext,AuthActivity::class.java)
-            startActivity(intent)
-//            FragmentContainerActivity.from(mContext).setNeedNetWorking(true).setTitle("帐号与安全").setClazz(AccountSafeFragment::class.java).start()
+            startActivity(Intent(mContext,AuthActivity::class.java))
         }
         mTvMineHistory.doClickWithUserStatusStart("") {
             ArticleWebViewFragment.startArticleWebViewFragment(mContext, "浏览历史", "history.html",ArticleType.OTHER.type)

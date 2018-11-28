@@ -192,7 +192,7 @@ header .go{
 .transaction ul li:last-child{
 	border-bottom: 0;
 }
-/*绑定支付宝*/
+/*绑定银行卡*/
 .bindpay{
 	padding: 3%;
 	margin: 0.5rem 0;
@@ -203,10 +203,10 @@ header .go{
 	height: 2rem;
 	line-height: 2rem;
 }
-.bindpay form>div{
+.bindpay >div{
 	border-bottom: 1px solid #E5E5E5;
 }
-.bindpay form>div:last-child{
+.bindpay >div:last-child{
 	border-bottom: 0;
 }
 .bindpay span,.bindpay input{
@@ -227,6 +227,41 @@ header .go{
 	height: 2rem;
 	border-radius: 50px;
 }
+/*绑定支付宝*/
+.alipay{
+	padding: 3%;
+	margin: 0.5rem 0;
+}
+.alipay label{
+	display: block;
+	width: 30%;
+	height: 2rem;
+	line-height: 2rem;
+}
+.alipay >div{
+	border-bottom: 1px solid #E5E5E5;
+}
+.alipay >div:last-child{
+	border-bottom: 0;
+}
+.alipay span,.bindpay input{
+	display: block;
+	width: 70%;
+	height: 2rem;
+	line-height: 2rem;
+	color: #656565;
+}
+.alipay input{
+	border: 0;
+}
+.alipay button{
+	position: fixed;
+	width: 50%;
+	height: 2rem;
+	left:25%;
+	margin: 0 auto;
+	border-radius: 5px;
+}
 /*编辑*/
 .edit{
 	position: relative;
@@ -235,26 +270,26 @@ header .go{
 	width: 80%;
 	padding: 5% 0 0;
 }
-.edit form>div{
+.edit>div{
 	width: 60%;
 	margin: auto;
 	border-bottom: 1px solid #E5E5E5;
 }
-.edit form>div input{
+.edit>div input{
 	width: 80%;
 	border: 0;
 	height: 2rem;
 }
-.edit form>div img{
+.edit>div img{
 	width: 1rem;
 	height: 0.9rem;
 	margin-top: 0.6rem;
 }
-.edit form>nav{
+.edit>nav{
 	margin-top: 1rem;
 	border-top: 1px solid #E5E5E5;
 }
-.edit form>nav button{
+.edit>nav button{
 	width: 50%;
 	height: 2rem;
 	border: 0;
@@ -325,7 +360,7 @@ header .go{
 	height: 1.5rem;
 	margin-top: 0.3rem;
 	border: 0;
-	border-right: 1px solid #E5E5E5;
+	/*border-right: 1px solid #E5E5E5;*/
 	background: none;
 	padding-left: 3%;
 }

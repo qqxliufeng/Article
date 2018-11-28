@@ -260,7 +260,7 @@ function data_lod(count, api, data, token, num) {
 	if(currentpage >= pagesize) {
 		$('.loadMore').html("-- END --"); //总页数小于2则不显示加载更多
 	} else {
-		$('.loadMore').html('<img src="images/loading@2x.png">加载更多');
+		$('.loadMore').html('<img src="images/loading@2x.png" style="height:1rem;width:auto">加载更多');
 		//		$(window).scroll(function() {
 		window.onscroll = function() { //默认一个页面只能同时存在一个window.onscroll函数
 			totalheight = parseFloat($(window).height()) + $(window).scrollTop();

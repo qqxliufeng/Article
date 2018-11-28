@@ -21,7 +21,7 @@ class ArticleItem : MultiItemEntity {
     var articles_like:Int = 0
     var articles_collect:Int = 0
     var articles_comment:Int? = null
-    var articles_status:Int? = null
+    var articles_status:Int = 0
     var articles_age:Int? = null
     var articles_pic:ArrayList<String>? = null
     var articles_picCount:Int = 0

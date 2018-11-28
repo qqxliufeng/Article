@@ -3,6 +3,7 @@ package com.android.ql.lf.article.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import com.android.ql.lf.article.R;
 import com.android.ql.lf.article.data.ArticleShareItem;
 import com.android.ql.lf.article.data.PersonalShareItem;
@@ -91,7 +92,8 @@ public class ThirdShareManager {
 
     public static void wxShareImage(IWXAPI api, String path,int scene){
         Bitmap bitmap = BitmapFactory.decodeFile(path);
-        WXImageObject imageObject = new WXImageObject(bitmap);
+        WXImageObject imageObject = new WXImageObject();
+        imageObject.setImagePath(path);
         WXMediaMessage wxMediaMessage = new WXMediaMessage();
         wxMediaMessage.mediaObject = imageObject;
         Bitmap thumbBitmap = Bitmap.createScaledBitmap(bitmap,100,100,true);
@@ -188,8 +190,8 @@ public class ThirdShareManager {
     public static WeiboMultiMessage getImageObj(String imagePath) {
         WeiboMultiMessage weiboMessage = new WeiboMultiMessage();
         ImageObject imageObject = new ImageObject();
-        Bitmap  bitmap = BitmapFactory.decodeFile(imagePath);
-        imageObject.setImageObject(bitmap);
+//        Bitmap  bitmap = BitmapFactory.decodeFile(imagePath);
+        imageObject.imagePath = imagePath;
         weiboMessage.imageObject = imageObject;
         return weiboMessage;
     }

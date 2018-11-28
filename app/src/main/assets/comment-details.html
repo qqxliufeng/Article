@@ -47,9 +47,9 @@
 				<ul>
 					<li v-for="item in list.comment_reply">
 						<span class="blue" onclick="jumpMain(this)"><span v-text="item.comment_userData.member_nickname"></span>：</span>
-						<input type="hidden" :value="item.comment_userData.member_id" />
+						<input type="hidden" :value="item.comment_uid" />
 						<span class="blue" onclick="jumpMain(this)" v-text="item.comment_husername"></span>
-						<input type="hidden" :value="item.comment_rid" />
+						<input type="hidden" :value="item.comment_reuid" />
 						<span v-text="item.comment_content"></span>
 					</li>
 				</ul>

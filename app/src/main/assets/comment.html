@@ -34,10 +34,12 @@
 			<div class="comment whitebg" style="display: none;" v-show=" list != '' ">
 				<ul>
 					<li v-for="item in list">
-						<input type="hidden" :value="item.comment_article.articles_id" />
-						<input type="hidden" :value="item.comment_article.articles_status" />
+						<input type="hidden" :value="item.comment_articleData.articles_id" />
+						<input type="hidden" :value="item.comment_articleData.articles_status" />
 						<div class="comment-top clearfix">
 							<input type="hidden" :value="item.comment_userData.member_id" />
+							<input type="hidden" :value="item.comment_reid" />
+							<input type="hidden" :value="item.comment_id" />
 							<div onclick="jumpMain(this,0)">
 							<img :src="url+item.comment_userData.member_pic" class="fl"/>
 							<span class="fl mt05 ml3" v-text="item.comment_userData.member_nickname"> </span>
@@ -46,11 +48,11 @@
 						</div>
 						<div class="mt05" v-if=" item.comment_type == 1 ">
 							<span>评论了你的文章</span>
-							<span class="blue" onclick="jumpDet(this)">《<span v-text="item.comment_article.articles_title"></span>》</span>
+							<span class="blue" onclick="jumpDet(this)">《<span v-text="item.comment_article"></span>》</span>
 						</div>
 						<div class="mt05" v-else>
 							<span>在文章</span>
-							<span class="blue" onclick="jumpDet(this)">《<span v-text="item.comment_article.articles_title"></span>》</span>
+							<span class="blue" onclick="jumpDet(this)">《<span v-text="item.comment_article"></span>》</span>
 							<span>添加了一条新评论</span>
 						</div>
 						<nav onclick="detail(this)">
@@ -80,8 +82,8 @@
 		<script id="list-template" type="text/html">
 			{{each items as item index}}
 				<li>
-					<input type="hidden" value="{{item.comment_article.articles_id}}" />
-					<input type="hidden" value="{{item.comment_article.articles_status}}" />
+					<input type="hidden" value="{{item.comment_articleData.articles_id}}" />
+					<input type="hidden" value="{{item.comment_articleData.articles_status}}" />
 					<div class="comment-top clearfix">
 						<div onclick="jumpMain(this,0)">
 						<img src="{{ url + item.comment_userData.member_pic }}" class="fl" />
@@ -92,13 +94,13 @@
 					{{if item.comment_type == 1 }}
 					<div class="mt05">
 						<span>评论了你的文章</span>
-						<span class="blue" onclick="jumpDet(this)">《<span>{{item.comment_article.articles_title}}</span>》</span>
+						<span class="blue" onclick="jumpDet(this)">《<span>{{item.comment_article}}</span>》</span>
 					</div>
 					{{/if}}
 					{{if item.comment_type == 2 }}
 					<div class="mt05">
 						<span>在文章</span>
-						<span class="blue" onclick="jumpDet(this)">《<span>{{item.comment_article.articles_title}}</span>》</span>
+						<span class="blue" onclick="jumpDet(this)">《<span>{{item.comment_article}}</span>》</span>
 						<span>添加了一条新评论</span>
 					</div>
 					{{/if}}
@@ -120,7 +122,7 @@
 		$(function() {
 		   //获取webview.js  返回的用户ID
 		   uid  = article.getUserId()
-//         var uid  = article.getUserId()
+//         var uid  = 650
 			//实例化vue
 			vue = new Vue({
 				el: '#app',
@@ -167,12 +169,20 @@
 		function jumpDet(obj){
 		   var aid       =  $(obj).parent().parent().children().val()
            var status    =  $(obj).parent().parent().children().next().val()
+           if( !aid || !status ){
+           	   mui.toast('该文章已不存在')
+           	   return false;
+           }
 		   article.myJump(status,aid)
 		}
 		
 		function reply(obj){
         	var uid      =  $(obj).parent().children().val()
-        	article.showReplyDialog(uid)
+        	var reid     =  $(obj).parent().children().next().val()
+        	if(reid == 0){
+        		var reid     =  $(obj).parent().children().next().next().val()
+        	}
+        	article.showReplyDialog(uid,reid)
         }
 		
 		function detail(obj){

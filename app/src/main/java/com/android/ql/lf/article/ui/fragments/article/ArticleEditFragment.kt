@@ -11,7 +11,6 @@ import android.webkit.JavascriptInterface
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.UserInfo
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
-import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.ui.fragments.mine.IdentityAuthFragment
 import com.android.ql.lf.article.utils.*
 import com.android.ql.lf.baselibaray.data.ImageBean

@@ -13,6 +13,19 @@ android {
         versionCode 1
         versionName "1.0.0"
         multiDexEnabled true
+
+        ndk {
+            //选择要添加的对应 cpu 类型的 .so 库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
+        }
+
+        manifestPlaceholders = [
+                JPUSH_PKGNAME : applicationId,
+                JPUSH_APPKEY : "3a2e22749c2a9d0693a19861", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+        ]
+
     }
 
     signingConfigs{
@@ -53,4 +66,6 @@ dependencies {
     implementation(name: 'openDefault-4.3.6', ext: 'aar')
     implementation(name: 'alipaySdk-15.5.7-20181023110917', ext: 'aar')
     implementation files('libs/open_sdk_r5990_lite.jar')
+    implementation files('libs/jcore-android-1.2.6.jar')
+    implementation files('libs/jpush-android-3.1.7.jar')
 }

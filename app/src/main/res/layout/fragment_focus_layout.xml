@@ -54,25 +54,11 @@
                 app:tabTextColor="@color/grayTextColor"/>
     </LinearLayout>
 
-    <FrameLayout
+
+    <android.support.v4.view.ViewPager
+            android:id="@+id/mVpArticleList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        <android.support.v4.view.ViewPager
-                android:id="@+id/mVpArticleList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        <TextView
-                android:id="@+id/mTvFocusLoading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/sp_14"
-                android:textColor="@color/normalTextColor"
-                android:layout_gravity="center"
-                android:text="加载中……"/>
-
-    </FrameLayout>
+            android:layout_height="match_parent"/>
 
 
 </LinearLayout>

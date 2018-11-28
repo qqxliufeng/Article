@@ -94,13 +94,8 @@ class ArticleInfoForTrashFragment : BaseNetWorkingFragment() {
                         ArticleItem::class.java
                     )
                     mTrashWebView.post {
-                        mTrashWebView.loadData(mCurrentArticle?.articles_content, "text/html;charset=UTF-8", null)
+                        mTrashWebView.loadWrapperData(mCurrentArticle?.articles_content)
                         mTrashWebView.webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                super.onPageFinished(view, url)
-                                view?.resetImage()
-                            }
-
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                                 NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
                                 return true

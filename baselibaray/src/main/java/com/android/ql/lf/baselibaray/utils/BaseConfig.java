@@ -9,7 +9,7 @@ public class BaseConfig {
 
     public static final String md5Token = "0e468854ec9859feb51f7a08d51db106";
     public static final String BASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
-    public static final String APP_PATH = BASE_PATH + "/qlarticle/";
+    public static final String APP_PATH = BASE_PATH + "/qlarticle";
     public static final String IMAGE_PATH = APP_PATH + "/img/";
     public static final String WX_APP_ID = "wxabd0f5c0faf7a1a1";
 

@@ -109,7 +109,7 @@
 							'uid': uid,
 							'reuid':reuid
 						}, "post", function(res) {
-                            
+                            article.sendMessageUpdateFocus('update_focus')
 							if(res.code == 200) {
 							   if(res.result){
 							   	  $(event.target).css(

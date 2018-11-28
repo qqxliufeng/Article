@@ -47,8 +47,9 @@
 						暂无好友信息~
 					</li>
 					<li class="clearfix" v-for="item in list">
-						<img :src="url+item.like_userData.member_pic" class="fl"/>
-						<div class="fl">
+						<input type="hidden" :value="item.like_userData.member_id"  />
+						<img :src="url+item.like_userData.member_pic" class="fl" onclick="jumpMain(this,0)" />
+						<div class="fl"  onclick="jumpMain(this,0)">
 							<div v-text="item.like_userData.member_nickname"></div>
 							<p>
 								<span><span v-text="item.like_articleCount">0</span>篇笔记</span>
@@ -70,8 +71,9 @@
 	<script id="list-template" type="text/html">
 			{{each items as item index}}
 			<li class="clearfix">
-				<img src="{{url+item.like_userData.member_pic}}" class="fl"/>
-				<div class="fl">
+				<input type="hidden" value="{{item.like_userData.member_id}}"  />
+				<img src="{{url+item.like_userData.member_pic}}" class="fl"  onclick="jumpMain(this,0)" />
+				<div class="fl" onclick="jumpMain(this,0)" >
 					<div>{{item.like_userData.member_nickname}}</div>
 					<p>
 						<span><span>{{item.like_articleCount}}</span>篇笔记</span>
@@ -139,7 +141,7 @@
 				'uid': uid,
 				'reuid':reuid
 			}, "post", function(res) {
-                
+                article.sendMessageUpdateFocus('update_focus')
 				if(res.code == 200) {
 				   if(res.result){
 				   	  $(obj).removeClass('canbut').addClass('trubut').text('取消关注')
@@ -155,6 +157,14 @@
 
 			})
 		}
+		
+		function jumpMain(obj,status){
+        	var uid      =  $(obj).parent().children().val()
+        	if(status){
+        		var uid  =  $(obj).parent().parent().parent().children().val()
+        	}
+        	article.startPersonalIndexById(uid)
+        }
 
 	 </script>
 </html>
