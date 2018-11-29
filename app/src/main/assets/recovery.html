@@ -36,7 +36,12 @@
 						<input type="hidden" :value="item.articles_id" />
 						<input type="hidden" :value="item.articles_title" />
 						<input type="hidden" :value="item.articles_content" />
-						<p><span v-text="item.articles_deltime"></span>后彻底删除</p>
+						<p class="red" v-if="item.articles_delstatus == 2 ">
+							<span v-text="item.articles_deltime"></span>后彻底删除
+						</p>
+						<p v-else>
+							<span v-text="item.articles_deltime"></span>后彻底删除
+						</p>
 						<div class="ft8" v-text="item.articles_title"></div>
 					</li>
 					<div class="loadMore animate" style="margin-top: 0.2rem;clear: both;">
@@ -52,7 +57,15 @@
 				<input type="hidden" value="{{item.articles_id}}" />
 				<input type="hidden" value="{{item.articles_title}}" />
 				<input type="hidden" value="{{item.articles_content}}" />
-				<p><span>{{item.articles_deltime}}</span>后彻底删除</p>
+				{{if item.articles_delstatus == 2 }}
+				<p class="red">
+					<span>{{item.articles_deltime}}</span>后彻底删除
+				</p>
+				{{else}}
+				<p>
+					<span>{{item.articles_deltime}}</span>后彻底删除
+				</p>
+				{{/if}}
 				<div class="ft8">{{item.articles_title}}</div>
 			</li>
 		{{/each}}
@@ -61,8 +74,8 @@
 
 		$(function() {
 		   //获取webview.js  返回的用户ID
-//		   var uid  = 650
-           var uid  = article.getUserId()
+		   var uid  = 650
+//         var uid  = article.getUserId()
 			//实例化vue
 			vue = new Vue({
 				el: '#app',
