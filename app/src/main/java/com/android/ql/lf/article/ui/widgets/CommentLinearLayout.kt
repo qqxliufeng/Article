@@ -34,7 +34,7 @@ class CommentLinearLayout : LinearLayoutCompat {
     }
 
 
-    fun setData(list: ArrayList<ArticleCommentReply>?) {
+    fun setData(list: ArrayList<ArticleCommentReply>?,replyNum:Int = 0) {
         if (list == null || list.isEmpty()) {
             visibility = View.GONE
             return
@@ -47,7 +47,7 @@ class CommentLinearLayout : LinearLayoutCompat {
                     val nickName = "${list[it].comment_userData?.member_nickname ?: ""}：${list[it].comment_husername}"
                     addView(getTextView("$nickName ${list[it].comment_content}", nickName.length + 1))
                 }
-                val reply = "共${list.size}条回复 > "
+                val reply = "共${replyNum}条回复 > "
                 val textView = getTextView(reply, reply.length)
                 textView.textSize = 14.0f
                 textView.setOnClickListener { onSeeMore?.invoke() }

@@ -23,8 +23,8 @@ fun WebView.setNormalSetting() {
 }
 
 fun WebView.loadLocalHtml(url: String = "") {
-//    loadUrl("file:///android_asset/$url")
-    this.loadUrl("${BaseConfig.BASE_IP}article/$url")
+    loadUrl("file:///android_asset/$url")
+//    this.loadUrl("${BaseConfig.BASE_IP}article/$url")
 }
 
 fun WebView.loadWrapperData(data: String?) {

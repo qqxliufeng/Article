@@ -28,7 +28,7 @@
 	</head>
 	<body>
 		<!--评论 -->
-		<div class="comment-deta whitebg" id="app">
+		<div class="comment-deta whitebg" id="app" style="overflow-y: scroll;">
 			<div class="attention">
 			<div class="whitebg">
 				<ul class="whitebg" onclick="jumpMain(this)">
@@ -43,8 +43,8 @@
 				<input type="hidden" :value="list.comment_userData.member_id" />
 			</div>
 			<div class="comment-deta-main" v-text="list.comment_content"></div>
-			<nav class="comment-cont">
-				<ul>
+			<nav class="comment-cont" style="overflow-y: scroll;">
+				<ul style="margin-bottom: 2rem;">
 					<li v-for="item in list.comment_reply">
 						<span class="blue" onclick="jumpMain(this)"><span v-text="item.comment_userData.member_nickname"></span>：</span>
 						<input type="hidden" :value="item.comment_uid" />

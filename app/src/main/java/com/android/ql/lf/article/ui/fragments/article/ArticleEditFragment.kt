@@ -63,17 +63,24 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
     override fun initView(view: View?) {
         mEtArticleEditTitle.setText(arguments?.getString("title","")?:"")
         mEtArticleEditTitle.requestFocus()
+        mIBArticleEditActionImage.isEnabled =false
+        mIBArticleEditActionBold.isEnabled = false
+        mIBArticleEditActionLink.isEnabled = false
+        setBoldImage()
+        mIBArticleEditActionImage.setColorFilter(Color.parseColor("#cdcbcb"))
+        mIBArticleEditActionBold.setColorFilter(Color.parseColor("#cdcbcb"))
+        mIBArticleEditActionLink.setColorFilter(Color.parseColor("#cdcbcb"))
         mReArticleEdit.setPlaceholder("请输入内容")
         mReArticleEdit.setPadding(0, 10, 0, 10)
         mReArticleEdit.setTextColor(ContextCompat.getColor(mContext, R.color.normalTextColor))
-        mReArticleEdit.setOnInitialLoadListener {
-//                mReArticleEdit.focusEditor()
-            mEtArticleEditTitle.isEnabled = true
-            mIBArticleEditActionImage.isEnabled = true
-            mIBArticleEditActionBold.isEnabled = true
-            mIBArticleEditActionLink.isEnabled = true
-            mReArticleEdit.setInputEnabled(true)
-        }
+//        mReArticleEdit.setOnInitialLoadListener {
+////                mReArticleEdit.focusEditor()
+//            mEtArticleEditTitle.isEnabled = true
+//            mIBArticleEditActionImage.isEnabled = true
+//            mIBArticleEditActionBold.isEnabled = true
+//            mIBArticleEditActionLink.isEnabled = true
+//            mReArticleEdit.setInputEnabled(true)
+//        }
         mReArticleEdit.addJavascriptInterface(MyEditorJavascriptInterface(),"aApi")
         mEtArticleEditTitle.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
@@ -172,8 +179,8 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
         if (this.act == ARTICLE_EDIT_ACT){
             param.addParam("aid",aid)
         }else{
-            param.addParam("age", UserInfo.user_age)
-            param.addParam("address", UserInfo.user_address)
+//            param.addParam("age", UserInfo.user_age)
+//            param.addParam("address", UserInfo.user_address)
             param.addParam("classify", classify?.classify_id ?: 0)
         }
         mPresent.getDataByPost(
@@ -213,7 +220,7 @@ open class ArticleEditFragment : BaseNetWorkingFragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0x0 && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == 0x0 && resultCode == Activity.RESULT_OK && data != null && mReArticleEdit.isFocusable) {
             compressAndSaveCacheFace(Matisse.obtainPathResult(data)[0], object : OnCompressListener {
                 override fun onSuccess(file: File?) {
                     selectedImageBean = SelectedImageBean(file?.absolutePath ?: "", null)

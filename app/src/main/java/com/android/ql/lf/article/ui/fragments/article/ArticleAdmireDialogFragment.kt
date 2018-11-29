@@ -76,7 +76,7 @@ class ArticleAdmireDialogFragment : DialogFragment() {
                 editText = child as EditText
                 editText?.setOnFocusChangeListener { v, hasFocus ->
                     if (hasFocus){
-                        mTvArticleAdmireCount.text = "0￥"
+                        mTvArticleAdmireCount.text = "￥0"
                         checkedTextViewList.forEach { item2-> item2.isChecked = false }
                     }
                 }
@@ -85,7 +85,7 @@ class ArticleAdmireDialogFragment : DialogFragment() {
                         if (s!=null && !s.isNullOrEmpty()){
                             if (s.toString().isInteger()){
                                 price = s.toString().toInt()
-                                mTvArticleAdmireCount.text = "${s}￥"
+                                mTvArticleAdmireCount.text = "￥$s"
                             }
                         }
                     }

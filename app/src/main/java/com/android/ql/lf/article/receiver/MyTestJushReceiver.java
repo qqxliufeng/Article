@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 import cn.jpush.android.api.JPushInterface;
 
 /**
@@ -19,7 +18,6 @@ public class MyTestJushReceiver extends BroadcastReceiver {
         Bundle bundle = intent.getExtras();
         String message = bundle.getString(JPushInterface.EXTRA_MESSAGE);
         if ("test".equals(message)){
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             throw new NullPointerException("test");
         }
     }

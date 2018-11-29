@@ -45,7 +45,7 @@ public class ImageContainerLinearLayout extends LinearLayout {
                     int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.0f, getContext().getResources().getDisplayMetrics());
                     int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5.0f, getContext().getResources().getDisplayMetrics());
                     int imageWidth = (getMeasuredWidth() - padding * 2) / 3;
-                    int imageHeight = imageWidth;
+                    int imageHeight = imageWidth - padding;
                     for (final String path : images) {
                         ImageView image = new ImageView(getContext());
                         LayoutParams params = new LayoutParams(imageWidth, imageHeight);

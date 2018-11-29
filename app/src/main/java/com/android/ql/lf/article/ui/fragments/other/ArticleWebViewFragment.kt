@@ -17,11 +17,13 @@ import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.ArticleItem
 import com.android.ql.lf.article.data.ArticleType
 import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.data.isLogin
 import com.android.ql.lf.article.ui.activity.ArticleEditActivity
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoDisplayFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForNormalFragment
 import com.android.ql.lf.article.ui.fragments.article.ArticleInfoForTrashFragment
 import com.android.ql.lf.article.ui.fragments.article.Classify
+import com.android.ql.lf.article.ui.fragments.login.LoginFragment
 import com.android.ql.lf.article.ui.fragments.mine.PersonalIndexFragment
 import com.android.ql.lf.article.ui.widgets.PopupWindowDialog
 import com.android.ql.lf.article.utils.*
@@ -214,35 +216,41 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
             if (TextUtils.isEmpty(aid)){
                 return
             }
-            when (ArticleType.getTypeNameById(type)) {
-                ArticleType.PRIVATE_ARTICLE -> {
-                    if (switch.isChecked){
-                        //进入编辑模式
-                        ArticleEditActivity.startArticleEditActivity(mContext,
-                            title,
-                            content,
-                            Classify(0,"",false,""),
-                            1,
-                            aid.toInt())
-                    }else{
-                        //进入预览模式
-                        ArticleInfoDisplayFragment.startArticleInfoDisplayFragment(mContext,aid.toInt(),UserInfo.user_id)
+            mContext.runOnUiThread {
+                if (UserInfo.isLogin()){
+                    when (ArticleType.getTypeNameById(type)) {
+                        ArticleType.PRIVATE_ARTICLE -> {
+                            if (switch.isChecked){
+                                //进入编辑模式
+                                ArticleEditActivity.startArticleEditActivity(mContext,
+                                    title,
+                                    content,
+                                    Classify(0,"",false,""),
+                                    1,
+                                    aid.toInt())
+                            }else{
+                                //进入预览模式
+                                ArticleInfoDisplayFragment.startArticleInfoDisplayFragment(mContext,aid.toInt(),UserInfo.user_id)
+                            }
+                        }
+                        ArticleType.PUBLIC_ARTICLE -> {
+                            ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                        }
+                        ArticleType.COLLECTION_ARTICLE -> {
+                            ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                        }
+                        ArticleType.POST_ARTICLE -> {
+                            ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                        }
+                        ArticleType.TRASH_ARTICLE->{
+                            ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
+                        }
+                        else -> {
+                            ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                        }
                     }
-                }
-                ArticleType.PUBLIC_ARTICLE -> {
-                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
-                }
-                ArticleType.COLLECTION_ARTICLE -> {
-                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
-                }
-                ArticleType.POST_ARTICLE -> {
-                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
-                }
-                ArticleType.TRASH_ARTICLE->{
-                    ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
-                }
-                else -> {
-                    ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
+                }else{
+                    LoginFragment.startLoginFragment(mContext)
                 }
             }
         }
@@ -256,19 +264,39 @@ class ArticleWebViewFragment : BaseNetWorkingFragment(), FragmentContainerActivi
                 return
             }
             mContext.runOnUiThread {
-                when (ArticleType.getTypeNameById(type.toInt())){
-                    ArticleType.PRIVATE_ARTICLE -> {
-                        ArticleInfoDisplayFragment.startArticleInfoDisplayFragment(mContext,aid.toInt(),UserInfo.user_id)
+                if (UserInfo.isLogin()) {
+                    when (ArticleType.getTypeNameById(type.toInt())) {
+                        ArticleType.PRIVATE_ARTICLE -> {
+                            ArticleInfoDisplayFragment.startArticleInfoDisplayFragment(
+                                mContext,
+                                aid.toInt(),
+                                UserInfo.user_id
+                            )
+                        }
+                        ArticleType.PUBLIC_ARTICLE -> {
+                            ArticleInfoForNormalFragment.startArticleInfoForNormal(
+                                mContext,
+                                aid.toInt(),
+                                UserInfo.user_id
+                            )
+                        }
+                        ArticleType.TRASH_ARTICLE -> {
+                            ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(
+                                mContext,
+                                aid.toInt(),
+                                UserInfo.user_id
+                            )
+                        }
+                        else -> {
+                            ArticleInfoForNormalFragment.startArticleInfoForNormal(
+                                mContext,
+                                aid.toInt(),
+                                UserInfo.user_id
+                            )
+                        }
                     }
-                    ArticleType.PUBLIC_ARTICLE -> {
-                        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
-                    }
-                    ArticleType.TRASH_ARTICLE->{
-                        ArticleInfoForTrashFragment.startArticleInfoForTrashFragment(mContext,aid.toInt(),UserInfo.user_id)
-                    }
-                    else->{
-                        ArticleInfoForNormalFragment.startArticleInfoForNormal(mContext,aid.toInt(),UserInfo.user_id)
-                    }
+                }else{
+                    LoginFragment.startLoginFragment(mContext)
                 }
             }
         }

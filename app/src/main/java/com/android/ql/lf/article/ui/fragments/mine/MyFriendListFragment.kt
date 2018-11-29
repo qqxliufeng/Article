@@ -65,6 +65,10 @@ class MyFriendListFragment : BaseRecyclerViewFragment<FriendItemBean>() {
         mPresent.getDataByPost(0x0, getBaseParamsWithPage(MEMBER_MODULE, MY_LIKE_FRIEND_ACT,currentPage))
     }
 
+    override fun getEmptyMessage(): String {
+        return "暂无好友"
+    }
+
     override fun onRequestStart(requestID: Int) {
         if (requestID == 0x1) getFastProgressDialog("正在分享给好友……")
     }

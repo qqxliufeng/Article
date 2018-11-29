@@ -143,7 +143,7 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
             }
             helper?.addOnClickListener(R.id.mIvArticleCommentInfoItemComment)
             helper?.addOnClickListener(R.id.mIvArticleCommentInfoItemPraise)
-            replyContainer?.setData(item?.comment_reply)
+            replyContainer?.setData(item?.comment_reply,item?.comment_replyNum ?: 0)
             if (item!!.comment_like == 1) {
                 helper?.setImageResource(R.id.mIvArticleCommentInfoItemPraise, R.drawable.img_praise_icon_2)
             } else {
@@ -257,8 +257,8 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                         ArticleItem::class.java
                     )
                     mHeaderWebView.post {
-                        if (UserInfo.user_id == auid) {
-                            val count = menu?.size() ?: 0
+                        val count = menu?.size() ?: 0
+                        if (UserInfo.user_id == mCurrentArticle?.articles_uid) {
                             when (ArticleType.getTypeNameById(mCurrentArticle?.articles_status ?: 0)) {
                                 ArticleType.PUBLIC_ARTICLE -> {
                                     (0 until count).forEach {
@@ -277,21 +277,35 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                                     }
                                 }
                             }
+                        }else{
+                            (0 until count).forEach {
+                                menu?.getItem(it)?.isVisible = it == 0 || it == 1
+                            }
                         }
                         mHeaderWebView.loadWrapperData(mCurrentArticle?.articles_content)
                         mHeaderWebView.webViewClient = object : WebViewClient() {
 
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                                NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
-                                return true
+                                if (url!=null){
+                                    if (url.startsWith("http://") || url.startsWith("https://")){
+                                        NetWebViewFragment.startNetWebViewFragment(mContext, url ?: "")
+                                        return true
+                                    }
+                                }
+                                return super.shouldOverrideUrlLoading(view,url)
                             }
 
                             override fun shouldOverrideUrlLoading(
                                 view: WebView?,
                                 request: WebResourceRequest?
                             ): Boolean {
-                                NetWebViewFragment.startNetWebViewFragment(mContext, request?.url.toString() ?: "")
-                                return true
+                                if (request?.url!=null && request.url!=null){
+                                    if (request.url!!.toString().startsWith("http://") || request.url!!.toString().startsWith("https://")){
+                                        NetWebViewFragment.startNetWebViewFragment(mContext,  request.url!!.toString())
+                                        return true
+                                    }
+                                }
+                                return super.shouldOverrideUrlLoading(view,request)
                             }
                         }
                         mHeaderView.findViewById<TextView>(R.id.mTvArticleInfoTitle)
@@ -360,6 +374,8 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
                             (check.obj as JSONObject).optJSONObject("result").toString(),
                             ArticleCommentItem::class.java
                         )
+                        mCurrentArticle?.articles_commentCount = (mCurrentArticle?.articles_commentCount ?: 0 ) + 1
+                        mTvArticleInfoForNormalBottomActionComment.text = "评论 ${mCurrentArticle?.articles_commentCount}"
                         mBaseAdapter.addData(0, comment)
                         mBaseAdapter.loadMoreComplete()
                         mBaseAdapter.disableLoadMoreIfNotFullPage()
@@ -532,22 +548,24 @@ class ArticleInfoForNormalFragment : BaseRecyclerViewFragment<ArticleCommentItem
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater?.inflate(R.menu.article_normal_menu, menu)
-        this.menu = menu
-        if (menu != null) {
-            if (menu.javaClass == MenuBuilder::class.java) {
-                val method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
-                method.isAccessible = true
-                method.invoke(menu, true)
-            }
-            if (UserInfo.user_id != auid) {
-                (0 until menu.size()).forEach {
-                    menu.getItem(it).isVisible = it == 0 || it == 1
+        if (UserInfo.isLogin()) {
+            inflater?.inflate(R.menu.article_normal_menu, menu)
+            this.menu = menu
+            if (menu != null) {
+                if (menu.javaClass == MenuBuilder::class.java) {
+                    val method = menu.javaClass.getDeclaredMethod("setOptionalIconsVisible", Boolean::class.java)
+                    method.isAccessible = true
+                    method.invoke(menu, true)
                 }
-            }
-            (0 until menu.size()).forEach {
-                if (menu.getItem(it).itemId == R.id.mMenuArticleCollection) {
-                    mCurrentMenuItem = menu.getItem(it)
+                if (UserInfo.user_id != auid) {
+                    (0 until menu.size()).forEach {
+                        menu.getItem(it).isVisible = it == 0 || it == 1
+                    }
+                }
+                (0 until menu.size()).forEach {
+                    if (menu.getItem(it).itemId == R.id.mMenuArticleCollection) {
+                        mCurrentMenuItem = menu.getItem(it)
+                    }
                 }
             }
         }

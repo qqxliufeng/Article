@@ -46,14 +46,14 @@
 					<li class="clearfix" style="background: none;text-align: center;display: none;" v-show="list==''">
 						暂无好友信息~
 					</li>
-					<li class="clearfix" v-for="item in list">
-						<input type="hidden" :value="item.like_userData.member_id"  />
-						<img :src="url+item.like_userData.member_pic" class="fl" onclick="jumpMain(this,0)" />
+					<li class="clearfix" v-for="item in list" v-if="item.member_id">
+						<input type="hidden" :value="item.member_id"  />
+						<img :src="url+item.member_pic" class="fl" onclick="jumpMain(this,0)" />
 						<div class="fl"  onclick="jumpMain(this,0)">
-							<div v-text="item.like_userData.member_nickname"></div>
+							<div v-text="item.member_nickname"></div>
 							<p>
 								<span><span v-text="item.like_articleCount">0</span>篇笔记</span>
-								<span><span v-text="item.like_fanCount">0</span>粉丝</span>
+								<span><span v-text="item.like_fanCount" class="fan">0</span>粉丝</span>
 							</p>
 						</div>
 						<button type="button" class="fr canbut" onclick="like(this)" v-if="item.like_likeStatus <= 0">互相关注</button>
@@ -71,13 +71,13 @@
 	<script id="list-template" type="text/html">
 			{{each items as item index}}
 			<li class="clearfix">
-				<input type="hidden" value="{{item.like_userData.member_id}}"  />
-				<img src="{{url+item.like_userData.member_pic}}" class="fl"  onclick="jumpMain(this,0)" />
+				<input type="hidden" value="{{item.member_id}}"  />
+				<img src="{{url+item.member_pic}}" class="fl"  onclick="jumpMain(this,0)" />
 				<div class="fl" onclick="jumpMain(this,0)" >
-					<div>{{item.like_userData.member_nickname}}</div>
+					<div>{{item.member_nickname}}</div>
 					<p>
 						<span><span>{{item.like_articleCount}}</span>篇笔记</span>
-						<span><span>{{item.like_fanCount}}</span>粉丝</span>
+						<span><span class="fan">{{item.like_fanCount}}</span>粉丝</span>
 					</p>
 				</div>
 				{{if item.like_likeStatus <= 0}}
@@ -94,7 +94,7 @@
 		 
 		$(function() {
 		   //获取webview.js  返回的用户ID
-//		   uid  = 650
+//		   uid  = 655
            uid  = article.getUserId()
            
 			//实例化vue
@@ -137,6 +137,8 @@
 		//关注操作
 		function like(obj){
 			var reuid = $(obj).next().val()
+			var fanobj= $(obj).prev().find('.fan')
+		    var fan   = parseFloat(fanobj.text())
 			dataRequest.method("/api/message/myLikeDo", {
 				'uid': uid,
 				'reuid':reuid
@@ -145,9 +147,11 @@
 				if(res.code == 200) {
 				   if(res.result){
 				   	  $(obj).removeClass('canbut').addClass('trubut').text('取消关注')
+				   	  fanobj.text(fan + 1)
 				   	  mui.toast('关注成功')
 				   }else{
 				   	  $(obj).removeClass('trubut').addClass('canbut').text('互相关注')
+				   	  fanobj.text(fan - 1)
 				   	  mui.toast('取消关注成功')
 				   }
 				   

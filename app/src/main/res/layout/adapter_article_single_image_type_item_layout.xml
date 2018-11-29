@@ -27,7 +27,7 @@
                     android:maxLines="1"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:textSize="@dimen/sp_16"/>
+                    android:textSize="@dimen/sp_14"/>
 
             <TextView
                     android:id="@+id/mTvArticleItemContent"
@@ -37,7 +37,7 @@
                     tools:text="心像口袋，什么都不装的叫心灵，装一点的叫心眼，装多了叫心计心像口袋，什么都不装的叫心灵，装一点的叫心眼，装多了叫心计心像口袋，什么都不装的叫心灵，装一点的叫心眼，装多了叫心计"
                     android:textColor="@color/grayTextColor"
                     android:ellipsize="end"
-                    android:maxLines="3"
+                    android:maxLines="2"
                     android:lineSpacingExtra="2dp"
                     android:textSize="@dimen/sp_14"/>
 
@@ -46,7 +46,7 @@
         <ImageView
                 android:id="@+id/mIvArticleItemImage"
                 android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_height="90dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/img_glide_load_default"/>
 

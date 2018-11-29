@@ -37,8 +37,16 @@ class ArticleEditAddLinkDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
             dismiss()
-            (parentFragment as ArticleEditFragment).addLink(LinkBean(mEtLinkName?.getTextString()
-                    ?: "", mEtLinkAddress?.getTextString() ?: ""))
+            val address = mEtLinkAddress?.getTextString()
+            if (address!=null){
+                if (address.startsWith("http://") || address.startsWith("https://")){
+                    (parentFragment as ArticleEditFragment).addLink(LinkBean(mEtLinkName?.getTextString()
+                        ?: "", mEtLinkAddress?.getTextString() ?: ""))
+                }else{
+                    (parentFragment as ArticleEditFragment).addLink(LinkBean(mEtLinkName?.getTextString()
+                        ?: "", "http://$address"))
+                }
+            }
         }
     }
 }

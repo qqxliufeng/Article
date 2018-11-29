@@ -3,11 +3,13 @@ package com.android.ql.lf.article.ui.fragments.bottom
 import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.content.Intent
+import android.graphics.Color
 import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.activity.AuthActivity
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
+import com.android.ql.lf.article.ui.fragments.login.LoginFragment
 import com.android.ql.lf.article.ui.fragments.mine.*
 import com.android.ql.lf.article.ui.fragments.other.ArticleWebViewFragment
 import com.android.ql.lf.article.ui.fragments.share.AppShareDialogFragment
@@ -73,6 +75,15 @@ class MineFragment : BaseNetWorkingFragment() {
                 mTvMineCollectionCount.text = "0"
             }
         })
+        mSrfMine.setColorSchemeColors(Color.RED,Color.BLACK,Color.BLUE)
+        mSrfMine.setOnRefreshListener {
+            if (UserInfo.isLogin()){
+                mPresent.getDataByPost(0x1, getBaseParamsWithModAndAct(MEMBER_MODULE, PERSONAL_ACT).addParam("uid",UserInfo.user_id))
+            }else{
+                mSrfMine.isRefreshing = false
+                LoginFragment.startLoginFragment(mContext)
+            }
+        }
         mRlMineUserInfoContainer.doClickWithUserStatusStart("") {
             PersonalIndexFragment.startPersonalIndexFragment(mContext,UserInfo.user_id)
         }
@@ -164,6 +175,13 @@ class MineFragment : BaseNetWorkingFragment() {
                 toast("分享成功……")
             }
         })
+    }
+
+    override fun onRequestEnd(requestID: Int) {
+        super.onRequestEnd(requestID)
+        if (mSrfMine.isRefreshing){
+            mSrfMine.isRefreshing = false
+        }
     }
 
     override fun <T : Any?> onRequestSuccess(requestID: Int, result: T) {

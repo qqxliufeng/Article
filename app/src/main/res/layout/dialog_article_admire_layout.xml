@@ -114,6 +114,7 @@
                 android:background="@drawable/shape_tv_bg_7"
                 android:hint="留言："
                 android:padding="@dimen/dp_10"
+                android:maxLength="100"
                 android:textColor="@color/blackTextColor"
                 android:textColorHint="@color/blackTextColor"
                 android:textSize="@dimen/sp_14"/>
@@ -131,7 +132,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:text="0￥"
+                    android:text="￥0"
                     android:textColor="@color/colorAccent"
                     android:textSize="18sp"/>
 

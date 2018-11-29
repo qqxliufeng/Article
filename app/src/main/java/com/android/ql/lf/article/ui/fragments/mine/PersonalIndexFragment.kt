@@ -114,9 +114,7 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                     mCTLPersonalIndex.title = nickName ?: ""
                 }
                 else -> {
-                    if (!mCTLPersonalIndex.title!!.isEmpty()) {
-                        mCTLPersonalIndex.title = ""
-                    }
+                    mCTLPersonalIndex.title = ""
                 }
             }
         }
@@ -218,7 +216,12 @@ class PersonalIndexFragment : BaseRecyclerViewFragment<ArticleItem>() {
                         mTvPersonalIndexArticleCount.text = "文章（${json.optString("member_articleCount")}）"
                         mTvPersonalIndexNumAndLove.text = "写了${json.optString("member_fontCount")}字，获得了${json.optString("member_loveCount")}个喜欢"
                         mTvPersonalIndexAddress.text = if (TextUtils.isEmpty(json.optString("member_address")) || json.optString("member_address") == "null"){ "北京" } else { json.optString("member_address") }
-                        mTvPersonalIndexAge.text = "${json.optString("member_age")}"
+                        val age = json.optString("member_age")
+                        if (TextUtils.isEmpty(age) || age == "null") {
+                            mTvPersonalIndexAge.text = "00"
+                        }else{
+                            mTvPersonalIndexAge.text = "${json.optString("member_age")}"
+                        }
                         focusStatus = json.optInt("member_likeStatus")
                         val cover = json.optString("member_cover")
                         if (!TextUtils.isEmpty(cover)) {

@@ -12,7 +12,7 @@
             android:layout_height="wrap_content"
             tools:text="你有多自律，就能走多远"
             android:textColor="@color/blackTextColor"
-            android:textSize="@dimen/sp_16"/>
+            android:textSize="@dimen/sp_14"/>
 
     <com.android.ql.lf.article.ui.widgets.ImageContainerLinearLayout
             android:id="@+id/mICllArticleListItemContainer"

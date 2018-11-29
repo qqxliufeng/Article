@@ -94,7 +94,7 @@ class MessageFragment : BaseRecyclerViewFragment<LeaveMessage>() {
         }
         mCollection.doClickWithUserStatusStart("") {
             mCollectionCount.visibility = View.GONE
-            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收藏", "collect.html", ArticleType.OTHER.type)
+            ArticleWebViewFragment.startArticleWebViewFragment(mContext, "收藏和赞", "collect.html", ArticleType.OTHER.type)
         }
         mComment.doClickWithUserStatusStart("") {
             mCommentCount.visibility = View.GONE
