@@ -12,13 +12,14 @@
 
         <android.support.design.widget.TabLayout
             android:id="@+id/mTlIndexBottom"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_10"
             app:tabIndicatorColor="@color/colorAccent"
             app:tabIndicatorHeight="2dp"
-            app:tabMode="fixed"
+            app:tabMode="scrollable"
             app:tabPadding="@dimen/dp_10"
+            android:layout_marginRight="60dp"
             app:tabSelectedTextColor="@color/colorAccent"
             app:tabTextAppearance="@style/IndexBottomTabLayoutAppearance"
             app:tabTextColor="#000000" />

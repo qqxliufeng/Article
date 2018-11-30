@@ -33,7 +33,7 @@ class ArticleItem : MultiItemEntity {
     var articles_desc:String? = null
     var articles_loveCount:Int? = null
     var articles_commentCount:Int = 0
-    var articles_balanceCount:Int? = null
+    var articles_balanceCount:Int = 0
 
     var articles_shareUrl:String? = null
 }

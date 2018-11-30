@@ -1,5 +1,6 @@
 package com.android.ql.lf.article.ui.activity
 
+import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -13,6 +14,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.UserInfo
+import com.android.ql.lf.article.data.UserInfoLiveData
 import com.android.ql.lf.article.data.isLogin
 import com.android.ql.lf.article.ui.fragments.article.SelectTypeFragment
 import com.android.ql.lf.article.ui.fragments.bottom.FocusFragment
@@ -43,9 +45,33 @@ class MainActivity : BaseActivity() {
 
     private var exists = 0L
 
+
     override fun getLayoutId() = R.layout.activity_main
 
+    private var tempTab : TabLayout.Tab? = null
+
     override fun initView() {
+        UserInfoLiveData.observe(this, Observer<UserInfo> {
+            if (tempTab?.tag == 2){
+                SelectTypeFragment.startSelectTypeFragment(this@MainActivity, "选择文章所属类别")
+            }else {
+                mVpMainContainer.currentItem = tempTab?.position ?: 0
+                tempTab?.select()
+                (0 until mTlMainBottom.tabCount).map {
+                    mTlMainBottom.getTabAt(it)
+                }.forEachWithIndex { i, it ->
+                    if (tempTab == it) {
+                        it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = checkTextColor
+                        it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)
+                            ?.setImageResource(bottomIconSelect[i])
+                    } else {
+                        it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = normalTextColor
+                        it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)
+                            ?.setImageResource(bottomIconUnSelect[i])
+                    }
+                }
+            }
+        })
         statusBarColor = Color.WHITE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -85,37 +111,68 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                (0 until mTlMainBottom.tabCount).map {
-                    mTlMainBottom.getTabAt(it)
-                }.forEachWithIndex { i, it ->
-                    if (tab == it) {
-                        it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = checkTextColor
-                        it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)?.setImageResource(bottomIconSelect[i])
-                    } else {
-                        it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = normalTextColor
-                        it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)?.setImageResource(bottomIconUnSelect[i])
+                tempTab = tab
+                if (UserInfo.isLogin()){
+                    (0 until mTlMainBottom.tabCount).map {
+                        mTlMainBottom.getTabAt(it)
+                    }.forEachWithIndex { i, it ->
+                        if (tab == it) {
+                            it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = checkTextColor
+                            it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)?.setImageResource(bottomIconSelect[i])
+                        } else {
+                            it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = normalTextColor
+                            it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)?.setImageResource(bottomIconUnSelect[i])
+                        }
                     }
-                }
-                if (tab?.tag == 2) {
-                    if (mVpMainContainer.currentItem > 1) {
-                        mTlMainBottom.getTabAt(mVpMainContainer.currentItem + 1)?.select()
-                    } else {
-                        mTlMainBottom.getTabAt(mVpMainContainer.currentItem)?.select()
+                    if (tab?.tag == 2) {
+                        if (mVpMainContainer.currentItem > 1) {
+                            mTlMainBottom.getTabAt(mVpMainContainer.currentItem + 1)?.select()
+                        } else {
+                            mTlMainBottom.getTabAt(mVpMainContainer.currentItem)?.select()
+                        }
+                        if (UserInfo.isLogin()) {
+                            SelectTypeFragment.startSelectTypeFragment(this@MainActivity, "选择文章所属类别")
+                        }else{
+                            LoginFragment.startLoginFragment(this@MainActivity)
+                        }
+                        return
                     }
-                    if (UserInfo.isLogin()) {
-                        SelectTypeFragment.startSelectTypeFragment(this@MainActivity, "选择文章所属类别")
-                    }else{
-                        LoginFragment.startLoginFragment(this@MainActivity)
+                    var index = tab?.position!!
+                    if (index > 2) {
+                        index = tab.position - 1
                     }
-                    return
+                    mVpMainContainer.currentItem = index
+                }else{
+                    if (tab?.position == 0){
+                        return
+                    }
+                    LoginFragment.startLoginFragment(this@MainActivity)
                 }
-                var index = tab?.position!!
-                if (index > 2) {
-                    index = tab.position - 1
-                }
-                mVpMainContainer.currentItem = index
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        navigationToIndex()
+    }
+
+    fun navigationToIndex(){
+        if (!UserInfo.isLogin()){
+            mVpMainContainer.currentItem = 0
+            (0 until mTlMainBottom.tabCount).map {
+                mTlMainBottom.getTabAt(it)
+            }.forEachWithIndex { i, it ->
+                if (i == 0) {
+                    it?.select()
+                    it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = checkTextColor
+                    it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)?.setImageResource(bottomIconSelect[i])
+                } else {
+                    it?.customView?.findViewById<TextView>(R.id.mTextBottomTitle)?.textColor = normalTextColor
+                    it?.customView?.findViewById<ImageView>(R.id.mImageBottomIcon)?.setImageResource(bottomIconUnSelect[i])
+                }
+            }
+        }
     }
 
     private fun initBottomTab() {

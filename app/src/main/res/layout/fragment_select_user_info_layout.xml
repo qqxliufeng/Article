@@ -122,4 +122,12 @@
             android:textColor="#fff"
             android:textSize="@dimen/sp_16"/>
 
+    <TextView
+            android:id="@+id/mTvSelectUserInfoLogin"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="#80A1D3"
+            android:padding="@dimen/dp_10"
+            android:gravity="center"
+            android:text="已有账号，登录"/>
+
 </LinearLayout>

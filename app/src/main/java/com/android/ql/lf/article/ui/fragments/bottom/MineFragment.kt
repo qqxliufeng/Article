@@ -8,6 +8,7 @@ import android.view.View
 import com.android.ql.lf.article.R
 import com.android.ql.lf.article.data.*
 import com.android.ql.lf.article.ui.activity.AuthActivity
+import com.android.ql.lf.article.ui.activity.MainActivity
 import com.android.ql.lf.article.ui.activity.WebViewContainerActivity
 import com.android.ql.lf.article.ui.fragments.login.LoginFragment
 import com.android.ql.lf.article.ui.fragments.mine.*
@@ -148,6 +149,7 @@ class MineFragment : BaseNetWorkingFragment() {
             }
             alert("提示", "是否要退出当前帐号？", "退出", "取消", { _, _ ->
                 UserInfo.loginOut()
+                (mContext as MainActivity).navigationToIndex()
             }, null)
         }
         mTvMineFeedback.doClickWithUserStatusStart("") {

@@ -19,7 +19,7 @@ import java.lang.Exception
 
 class IndexFragment : BaseNetWorkingFragment() {
 
-    val titles = arrayListOf("类别", "年龄", "地域")
+    val titles = arrayListOf("类别", "专业度", "地域")
 
     private val typeList = arrayListOf<Classify>()
     private val addressList = arrayListOf<Classify>()

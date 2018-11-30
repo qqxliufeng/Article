@@ -263,8 +263,10 @@ function data_lod(count, api, data, token, num) {
 		$('.loadMore').html('<img src="images/loading@2x.png" style="height:1rem;width:auto">加载更多');
 		//		$(window).scroll(function() {
 		window.onscroll = function() { //默认一个页面只能同时存在一个window.onscroll函数
+			
 			totalheight = parseFloat($(window).height()) + $(window).scrollTop();
-			if($(document).height() <= totalheight) {
+			if($(window).height() <= totalheight) {
+				
 				if(stop == true) {
 					stop = false;
 					// 这里加载数据.. 
